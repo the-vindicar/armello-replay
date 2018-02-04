@@ -1,19 +1,3 @@
-// These signets have not been indentified yet:
-// wolf
-// Rubellite: +3 Fight when you have less than four health. 
-// Chrysocolla: Grants Scout on Heroes with 2 Health or less. 
-// rabbit
-// Rainbow Quartz: +1 Magic every dawn.
-// Spinel: Get a 10% bonus in all Quests. 
-// bear
-// Aquamarine: +1 Moon in Battle and Perils if you have 0 Rot. 
-// Taaffeite: +1 Shield in Forests.
-// rat
-// Tanzanite: +1 Gold when you escape a Peril.
-// Cat’s Eye: Get a 1 Gold discount on first Trickery Card played each turn. 
-// bandit
-// Serendibite: Gain +1 Gold and Prestige each time you kill a King's Guard. 
-
 // These amulets have not been identified yet:
 // Listener: No bonuses, no advantages, just raw proof of player skill. - avaliable to those who pledged Lister or better during Armello's Kickstarter campaign 
 // Intimidate: End your turn next to a Creature, they suffer -1 Die until end of next turn. 
@@ -50,22 +34,31 @@ Name.db = {
 	KingsGuard : "King's Guard",
 	Bane : "Bane",
 	// ================ Signets ================
-	SIG01 : "Black Opal Ring",//"",
-	SIG02 : "Obsidian Ring",//Rat: At Night gain Scout on all your claimed Settlements
-	SIG03 : "Ruby Ring",//Rat: First rolled Sword in battle explodes
-	SIG04 : "Turquoise Ring",//"",
-	SIG05 : "Emerald Ring",//Rabbit: +2 Shields on plains
-	SIG06 : "Pink Topaz Ring",//"",
-	SIG07 : "Diamond Ring",//"",
-	SIG08 : "Sunstone Ring",//"",
-	SIG09 : "Sapphire Ring",//"",
-	SIG10 : "Moonstone Ring",//"",
-	SIG11 : "Onyx Ring",//"",
-	SIG12 : "Celestite Ring",//"",
-	SIG13 : "Jade Ring",//"",
-	SIG14 : "Quartz Ring",//"",
-	SIG15 : "Amethyst Ring",//"",
-	SIG16 : "Amber Ring",//"",
+	SIG01 : "Black Opal",
+	SIG02 : "Obsidian",
+	SIG03 : "Ruby",
+	SIG04 : "Turquoise",
+	SIG05 : "Emerald",
+	SIG06 : "Pink Topaz",
+	SIG07 : "Diamond",
+	SIG08 : "Sunstone",
+	SIG09 : "Sapphire",
+	SIG10 : "Moonstone",
+	SIG11 : "Onyx",
+	SIG12 : "Celestite",
+	SIG13 : "Jade",
+	SIG14 : "Quartz",
+	SIG15 : "Amethyst",
+	SIG16 : "Amber",
+	SIG17 : "Tanzanite",
+	SIG18 : "Rainbow Quartz",
+	SIG19 : "Rubellite",
+	SIG20 : "Aquamarine",
+	SIG21 : "Serendibite",
+	SIG22 : "Cat's Eye",
+	SIG23 : "Spinel",
+	SIG24 : "Chrysocolla",
+	SIG25 : "Taaffeit",
 	// ================ Amulets ================
 	AMU01 : "Scratch Amulet",
 	AMU02 : "Soak Amulet",
@@ -129,10 +122,13 @@ Name.db = {
 	DECL_0050 : "Burn After Reading",
 	DECL_0051 : "War Drums",
 	// ================ Cards ================
-	PPN001 : "",
-	PPS001 : "",
-	PPW001 : "",
-	PPE001 : "",
+	KING01 : "Crown of Armello",
+	KING02 : "Wyldhide",
+	KING03 : "Pride's Edge",
+	PPN001 : "Mother's Maze",
+	PPS001 : "The Unseen Death",
+	PPW001 : "Fool's Fountain",
+	PPE001 : "The Tricking Paths",
 	CON01 : "Wyld Weed",
 	CON02 : "Wyldsap",
 	CON03 : "Cub's Blood",
@@ -143,6 +139,7 @@ Name.db = {
 	CON08 : "Mountain Moss",
 	CON09 : "Bubble Tea",
 	CON10 : "Poisoned Gift",
+	//CON11 does not exist
 	CON12 : "Snake Venom",
 	FOL01 : "Alchemist",
 	FOL02 : "Apothecary",
@@ -338,6 +335,15 @@ Hint.db = {
 	SIG14 : "-1 Rot if you are in a Stone Circle at Dawn.",
 	SIG15 : "Gain +1 Magic for every Spell Card Burned.",
 	SIG16 : "Burning Sun And Moon cards in Battle is always considered a Hit.",
+	SIG17 : "+1 Gold when you escape a Peril.",
+	SIG18 : "+1 Magic every dawn.",
+	SIG19 : "+3 Fight when you have less than 4 health.",
+	SIG20 : "+1 Moon in Battle and Perils if you have 0 Rot.",
+	SIG21 : "Gain +1 Gold and Prestige each time you kill a King's Guard.",
+	SIG22 : "Get a 1 Gold discount on first Trickery Card played each turn.",
+	SIG23 : "Get a 10% bonus in all Quests.",
+	SIG24 : "Grants Scout on Heroes with 2 Health or less.",
+	SIG25 : "+1 Shield in Forests.",
 	// ================ Amulets ================
 	AMU01 : "+1 Fight.",
 	AMU02 : "+1 Body.",
