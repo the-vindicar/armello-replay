@@ -1,0 +1,123 @@
+<html>
+<head>
+	<meta charset="UTF-8" /> 
+	<link rel="stylesheet" href="design.css" />
+	<script src="names.js"></script>
+	<script src="data.js"></script>
+	<script src="parser.js" data-loader="true"></script>
+	<script src="parser1.9.js" data-loader="true"></script>
+	<script src="render.js"></script>
+	<script src="design.js"></script>
+</head>
+<body>
+	<div id="load">
+		<label id="dropzone" for="log">Drop Armello log file here or click to browse</label>
+		<input type="file" id="log" name="log" accept=".txt"/>
+		<ul id="matches"></ul>
+		<div id="help">
+			<h1>Armello Match Replay</h1>
+			<p>Using this webapp is easy! Create a replay of your match in just three steps:</p>
+			<p>1. Click the rectangle above or drop an Armello log file there. You can find those files in <span id="logpath"></span>.</p>
+			<p>2. Let the app scan the log file you provided for the matches played. Only complete matches will be shown. Crashes, ongoing matches, or matches where app was force-closed won't be detected.</p>
+			<p>3. Pick a match to be loaded. Once it's done, the app will show a greatly simplified game board and players data. On the left you will see match timeline. Click on an event to jump to that point of the timeline.</p>
+			<p>All log files are processed locally, on your device. No privacy leaks, no traffic costs.</p>
+			<p>Once the app loads a match, you can save the page to your device - it will keep the data when you re-open it. Feel free to store, share and publish your replays!</p>
+		</div>
+	</div>
+	<div id="main" style="display:none;">
+		<table id="players">
+			<tr>
+				<td data-player-id="1" data-clan="wolf" class="info">
+					<a target="_blank" href="">Player name goes here</a>
+					<span class="hero"></span>
+					<span class="mark-prestige" title="The hero is the Prestige Leader!"></span>
+					<span class="mark-rot" title="The hero has enough Rot to overcome the King!"></span>
+					<span class="mark-stones" title="The hero has enough Spirit Stones to banish the King!"></span>
+				</td>
+				<td data-player-id="2" data-clan="rabbit" class="info">
+					<a target="_blank" href="">Player name goes here</a>
+					<span class="hero"></span>
+					<span class="mark-prestige" title="The hero is the Prestige Leader!"></span>
+					<span class="mark-rot" title="The hero has enough Rot to overcome the King!"></span>
+					<span class="mark-stones" title="The hero has enough Spirit Stones to banish the King!"></span>
+				</td>
+				<td data-player-id="3" data-clan="bear" class="info">
+					<a target="_blank" href="">Player name goes here</a>
+					<span class="hero"></span>
+					<span class="mark-prestige" title="The hero is the Prestige Leader!"></span>
+					<span class="mark-rot" title="The hero has enough Rot to overcome the King!"></span>
+					<span class="mark-stones" title="The hero has enough Spirit Stones to banish the King!"></span>
+				</td>
+				<td data-player-id="4" data-clan="rat" class="info">
+					<a target="_blank" href="">Player name goes here</a>
+					<span class="hero"></span>
+					<span class="mark-prestige" title="The hero is the Prestige Leader!"></span>
+					<span class="mark-rot" title="The hero has enough Rot to overcome the King!"></span>
+					<span class="mark-stones" title="The hero has enough Spirit Stones to banish the King!"></span>
+				</td>
+			</tr>
+			<tr>
+			<td data-player-id="1"  data-clan="wolf" class="player">
+				<table class="equipped">
+					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="2">Lionheart Breastplate</td><td class="followers" data-index="2">Brilliant Fool</td></tr>
+				</table>
+				<table class="stats">
+					<tr><td class="Fight" data-stat="Fight" title="Fight">F</td><td class="Body" data-stat="Body" title="Body">B</td><td class="Wits" data-stat="Wits" title="Wits">W</td><td class="Spirit" data-stat="Spirit" title="Spirit">S</td><td class="SpiritStones" data-stat="SpiritStones" title="Spirit Stones">Ss</td></tr>
+					<tr><td class="Prestige" data-stat="Prestige" title="Prestige">P</td><td class="Health" data-stat="Health" title="Health">H</td><td class="Gold" data-stat="Gold" title="Gold">G</td><td class="Magic" data-stat="Magic" title="Magic">M</td><td class="Rot" data-stat="Rot" title="Rot">R</td></tr>
+				</table>
+				<div class="effects">Effect 1; Effect 2; Effect 3</div>
+				<div class="hand">Card 1; Card 2; Card 3</div>
+			</td>
+			<td data-player-id="2" data-clan="rabbit" class="player">
+				<table class="equipped">
+					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="2">Lionheart Breastplate</td><td class="followers" data-index="2">Brilliant Fool</td></tr>
+				</table>
+				<table class="stats">
+					<tr><td class="Fight" data-stat="Fight" title="Fight">F</td><td class="Body" data-stat="Body" title="Body">B</td><td class="Wits" data-stat="Wits" title="Wits">W</td><td class="Spirit" data-stat="Spirit" title="Spirit">S</td><td class="SpiritStones" data-stat="SpiritStones" title="Spirit Stones">Ss</td></tr>
+					<tr><td class="Prestige" data-stat="Prestige" title="Prestige">P</td><td class="Health" data-stat="Health" title="Health">H</td><td class="Gold" data-stat="Gold" title="Gold">G</td><td class="Magic" data-stat="Magic" title="Magic">M</td><td class="Rot" data-stat="Rot" title="Rot">R</td></tr>
+				</table>
+				<div class="effects">Effect 1; Effect 2; Effect 3</div>
+				<div class="hand">Card 1; Card 2; Card 3</div>
+			</td>
+			<td data-player-id="3" data-clan="bear" class="player">
+				<table class="equipped">
+					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="2">Lionheart Breastplate</td><td class="followers" data-index="2">Brilliant Fool</td></tr>
+				</table>
+				<table class="stats">
+					<tr><td class="Fight" data-stat="Fight" title="Fight">F</td><td class="Body" data-stat="Body" title="Body">B</td><td class="Wits" data-stat="Wits" title="Wits">W</td><td class="Spirit" data-stat="Spirit" title="Spirit">S</td><td class="SpiritStones" data-stat="SpiritStones" title="Spirit Stones">Ss</td></tr>
+					<tr><td class="Prestige" data-stat="Prestige" title="Prestige">P</td><td class="Health" data-stat="Health" title="Health">H</td><td class="Gold" data-stat="Gold" title="Gold">G</td><td class="Magic" data-stat="Magic" title="Magic">M</td><td class="Rot" data-stat="Rot" title="Rot">R</td></tr>
+				</table>
+				<div class="effects">Effect 1; Effect 2; Effect 3</div>
+				<div class="hand">Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 3</div>
+			</td>
+			<td data-player-id="4" data-clan="rat" class="player">
+				<table class="equipped">
+					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
+					<tr><td class="items" data-index="2">Lionheart Breastplate</td><td class="followers" data-index="2">Brilliant Fool</td></tr>
+				</table>
+				<table class="stats">
+					<tr><td class="Fight" data-stat="Fight" title="Fight">F</td><td class="Body" data-stat="Body" title="Body">B</td><td class="Wits" data-stat="Wits" title="Wits">W</td><td class="Spirit" data-stat="Spirit" title="Spirit">S</td><td class="SpiritStones" data-stat="SpiritStones" title="Spirit Stones">Ss</td></tr>
+					<tr><td class="Prestige" data-stat="Prestige" title="Prestige">P</td><td class="Health" data-stat="Health" title="Health">H</td><td class="Gold" data-stat="Gold" title="Gold">G</td><td class="Magic" data-stat="Magic" title="Magic">M</td><td class="Rot" data-stat="Rot" title="Rot">R</td></tr>
+				</table>
+				<div class="effects">Effect 1; Effect 2; Effect 3</div>
+				<div class="hand">Card 1; Card 2; Card 3</div>
+			</td>
+			</tr>
+		</table>
+		<div class="lower">
+			<ul id="turns"></ul>
+			<div class="mapwrapper">
+				<canvas id="map">Your browser doesn't support Canvas!</canvas>
+				<div id="maptooltip"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
