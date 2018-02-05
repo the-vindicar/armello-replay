@@ -111,7 +111,8 @@ MapTile.prototype=Object.create(Observable.prototype);MapTile.prototype.construc
 else
 console.warn('Entity ',owner,' tried to set a peril (',peril,') to a tile (',this.coords,') that already had a peril (',this.peril,').');};MapTile.prototype.buffPeril=function(buff)
 {if(typeof this.peril!=='undefined')
-{this.perilbuffs.push(buff);this.notify('perilbuffs','add',buff);}
+{if(this.perilcard!==buff)
+{this.perilbuffs.push(buff);this.notify('perilbuffs','add',buff);}}
 else
 console.warn('Tried to apply a buff ('+buff+') to a tile without peril.');};MapTile.prototype.clearPeril=function()
 {if(typeof this.peril!=='undefined')

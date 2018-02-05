@@ -413,8 +413,11 @@ MapTile.prototype.buffPeril = function (buff)
 {
 	if (typeof this.peril !== 'undefined')
 	{
-		this.perilbuffs.push(buff);
-		this.notify('perilbuffs', 'add', buff);
+		if (this.perilcard !== buff)
+		{
+			this.perilbuffs.push(buff);
+			this.notify('perilbuffs', 'add', buff);
+		}
 	}
 	else
 		console.warn('Tried to apply a buff ('+buff+') to a tile without peril.');
