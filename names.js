@@ -310,7 +310,7 @@ Hint.db = {
 	Rat01 : "Scoundrel: Steal 1 gold from the owner of a Settlement when you claim it.",
 	Rat02 : "Shadow: At Night, Zosha gains Stealth everywhere but the Palace.",
 	Rat03 : "Veil Gazer: During the draw phase, all cards are face up.",
-	Rat04 : "Street Queen: Griotte’s Clan Affinity Dice is equal to the number of Trickery Cards played the previous Day.",
+	Rat04 : "Street Queen: Griotte's Clan Affinity Dice is equal to the number of Trickery Cards played the previous Day.",
 	Wolf01 : "Sword Master: Sword cards Burned in Battle Pierce enemy Shields.",
 	Wolf02 : "Huntress: When attacking, River shoots her bow for 1 damage before initiating battle. If her target is killed by this ability, River won't move, but still consumes an Action Point.",
 	Wolf03 : "Shield Maiden: Shield cards Burned in Battle reflect damage back at her opponent.",
@@ -556,5 +556,5 @@ Hint.db = {
 	TRK37 : "Stone Wards",
 	TRK42 : "Sharpshooter",
 	TRK43 : "Arson",
-	TRK46 : "Palisade Walls",	
+	TRK46 : "Palisade Walls",
 };
