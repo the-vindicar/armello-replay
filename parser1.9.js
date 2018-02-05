@@ -40,7 +40,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 	//parser items describe translation of game log lines into event objects
 	[
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
-		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#\w+ Spawn(\w+?)(?:AsAuthority)?\s* \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \S+ Spawn(\w+?)(?:AsAuthority)?\s* \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
 		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d  \(Processing\) \(Player(\d), (\d+), (\w+)\)/i, map:["player", "entity", "corner"]},
 		{name:"setupHero", re:/\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\((-?\d+,-?\d+)\)\],/i, map:["type", "entity", "player", "coords"], action: function(evt)
