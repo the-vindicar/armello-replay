@@ -205,6 +205,10 @@ html, body {
 #turns li.King { background-color: #4169E1; }
 #turns li.Bane { background-color: #622078; }
 
+#turns li.event-chat {
+	font-style: italic;
+}
+
 #turns li.event-nextRound {
 	text-align: center;
 	font-weight: bold;

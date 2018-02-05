@@ -104,6 +104,17 @@ function describeEvent(evt)
 		case "startTurn": return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
 		case "nextRound": return ((context.context.round % 2 == 0) ? "Day " : "Night ")+(Math.floor(context.context.round / 2) + 1).toString(); break;
 		case "victory": return context.players.getItemById('id', evt.player).name+' wins the game!'; break;
+		case "chat": 
+		{
+			let s = evt.message.replace(/\[url="herotooltip:\/\/(\w+?)"\].+?\[\/url\]|\[.+?\]/ig, function (a,b) 
+			{
+				if (b)
+					return describeEntity(context.entities.getItemById('type', b));
+				else
+					return '';
+			});
+			return describeEntity(context.players.getItemById('id', evt.player).hero)+' ['+evt.type+']: '+s; 
+		}; break;
 		default: return undefined; break;
 	}
 }

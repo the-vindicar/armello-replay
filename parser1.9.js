@@ -36,6 +36,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		re_end : /(\d+:\d+:\d+)\W+Matchmaking: Exiting matchmaking state: InGameState/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
 		re_setuphero : /\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\(-?\d+,-?\d+\)\],/i,
+		chat_prepared : undefined,
 	},
 	//parser items describe translation of game log lines into event objects
 	[
@@ -154,7 +155,23 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		{name:"startTurn", re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i, map:["entity"]},
 		{name:"endTurn", re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\): .+? \((\w+)\)/i, map:["player", "entity"],},
 		{name:"victory", re:/Winner: \[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i, map:["player", "entity"]},
-		//{name:"logMessage", re:/ Game: (?!TurnManager\+)/i, map},
+		{name:"chat", re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+),/i, map:["player", "type"], 
+			action: function(evt)
+			{
+				this.chat_prepared = evt;
+				return undefined;
+			}
+		},
+		{name:"chat", re:/Game: \[.+\]: (.+)/i, map:["message"], 
+			action: function(evt)
+			{
+				if (!this.chat_prepared) return undefined;
+				this.chat_prepared.message = evt.message;
+				let e = this.chat_prepared;
+				this.chat_prepared = undefined;
+				return e;
+			}
+		},
 	],
 	//match detector function returns either match description object or undefined.
 	// Example of resulting object:
