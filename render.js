@@ -241,24 +241,25 @@ function renderStoneMarker(marker, ctx)
 	ctx.fill();
 }
 //==================================================================================================
-function getItemAt(collection, x, y, rate)
+function getItemAt(collection, x, y, rate, filterfunc)
 {
 	if (collection.items.length == 0) return undefined;
-	let idx = 0;
-	let item = collection.items[idx];
-	let coords = gridToCanvas(item.u, item.v);
-	let dsqr = (coords.x - x)*(coords.x - x) + (coords.y - y)*(coords.y - y);
-	for (let i = 1; i < collection.items.length; i++)
-	{
-		item = collection.items[i];
-		coords = gridToCanvas(item.u, item.v);
-		dcurrent = (coords.x - x)*(coords.x - x) + (coords.y - y)*(coords.y - y);
-		if (dcurrent < dsqr)
+	let idx = -1;
+	let item;
+	let coords;
+	let dsqr = parseFloat("Infinity");
+	for (let i = 0; i < collection.items.length; i++)
+		if ((typeof filterfunc !== 'function') || filterfunc(collection.items[i]))
 		{
-			idx = i;
-			dsqr = dcurrent;
+			item = collection.items[i];
+			coords = gridToCanvas(item.u, item.v);
+			dcurrent = (coords.x - x)*(coords.x - x) + (coords.y - y)*(coords.y - y);
+			if (dcurrent < dsqr)
+			{
+				idx = i;
+				dsqr = dcurrent;
+			}
 		}
-	}
 	if (dsqr <= (gridToCanvas.tileSize * gridToCanvas.tileSize * rate * rate))
 		return {item: collection.items[idx], dist: dsqr};
 	else

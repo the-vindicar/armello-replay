@@ -286,7 +286,7 @@ function MapHover(evt)
 	let by = window.innerHeight - evt.clientY + 5;
 	let tooltip = document.getElementById('maptooltip');
 	let entity, marker, tile;
-	if ((entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5)) && !entity.dead)
+	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5, function(ent){return !ent.dead;}))
 	{
 		if (entity.item instanceof Hero)
 			tooltip.innerHTML = Name(entity.item.type)+"<br />"+window.ArmelloMatchState.players.getItemById("id",entity.item.playerid).name;
