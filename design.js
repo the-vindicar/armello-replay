@@ -1,4 +1,14 @@
 //================================================================================================
+function sanitize(s)
+{
+	return s.replace(/[&<>]/g, function(tag) {return tagsToReplace[tag] || tag;});
+}
+sanitize.tagsToReplace = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;'
+};
+
 function describeEntity(entity) 
 { 
 	if (!(entity instanceof Entity))
@@ -103,7 +113,7 @@ function describeEvent(evt)
 		case "declaration": return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
 		case "playerQuit": 
 		{
-			let s = context.players.getItemById('id', evt.player).name;
+			let s = sanitize(context.players.getItemById('id', evt.player).name);
 			switch (evt.reason)
 			{
 				case 'PeerLeftRoom': s += ' has quit the game.'; break;
@@ -114,7 +124,7 @@ function describeEvent(evt)
 		}; break;
 		case "startTurn": return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
 		case "nextRound": return ((context.context.round % 2 == 0) ? "Day " : "Night ")+(Math.floor(context.context.round / 2) + 1).toString(); break;
-		case "victory": return context.players.getItemById('id', evt.player).name+' wins the game!'; break;
+		case "victory": return sanitize(context.players.getItemById('id', evt.player).name)+' wins the game!'; break;
 		case "chat": 
 		{
 			let s = evt.message.replace(/\[url="herotooltip:\/\/(\w+?)"\].+?\[\/url\]|\[.+?\]/ig, function (a,b) 
@@ -198,7 +208,7 @@ function PlayersChanged(players, propname, propaction, player, property, action,
 			let plr = players.getItemById('id',id);
 			let caption = document.querySelector('#players .info[data-player-id="'+id+'"] a');
 			caption.parentNode.setAttribute('data-clan', plr.hero.type.slice(0, -2))
-			caption.innerHTML = '['+id.toString()+'] '+plr.name;
+			caption.innerHTML = '['+id.toString()+'] '+sanitize(plr.name);
 			caption.setAttribute('href', 'https://steamcommunity.com/profiles/'+plr.steam);
 			updateHeroFor(plr);
 		}
@@ -289,7 +299,7 @@ function MapHover(evt)
 	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5, function(ent){return !ent.dead;}))
 	{
 		if (entity.item instanceof Hero)
-			tooltip.innerHTML = Name(entity.item.type)+"<br />"+window.ArmelloMatchState.players.getItemById("id",entity.item.playerid).name;
+			tooltip.innerHTML = Name(entity.item.type)+"<br />"+sanitize(window.ArmelloMatchState.players.getItemById("id",entity.item.playerid).name);
 		else
 			tooltip.innerHTML = Name(entity.item.type);
 		tooltip.style = "visibility:visible; right:"+rx.toString()+"px; bottom:"+by.toString()+"px";
@@ -303,7 +313,7 @@ function MapHover(evt)
 	{
 		let text = describeTile(tile.item);
 		if (tile.item.type == "ClanCastle")
-			text += "<br />" + window.ArmelloMatchState.players.getItemById("corner", tile.item.corner).name;
+			text += "<br />" + sanitize(window.ArmelloMatchState.players.getItemById("corner", tile.item.corner).name);
 		if (tile.item.perilcard)
 			text += "<br />" + Name(tile.item.perilcard) 
 		if (tile.item.perilbuffs)
