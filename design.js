@@ -315,9 +315,14 @@ function MapHover(evt)
 		if (tile.item.type == "ClanCastle")
 			text += "<br />" + sanitize(window.ArmelloMatchState.players.getItemById("corner", tile.item.corner).name);
 		if (tile.item.perilcard)
-			text += "<br />" + Name(tile.item.perilcard) 
-		if (tile.item.perilbuffs)
-			text += "<br />" + tile.item.perilbuffs.map(Name).join(", ");
+		{
+			let ent = (tile.item.perilowner < 5) 
+				? window.ArmelloMatchState.players.getItemById('id', tile.item.perilowner).hero 
+				: window.ArmelloMatchState.entities.getItemById('id', tile.item.perilowner);
+			text += "<br />" + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
+			if (tile.item.perilbuffs.length > 0)
+				text += "<br />" + tile.item.perilbuffs.map(Name).join(", ");
+		}
 		tooltip.innerHTML = text;
 		tooltip.style = "visibility:visible; right:"+rx.toString()+"px; bottom:"+by.toString()+"px";
 	}
