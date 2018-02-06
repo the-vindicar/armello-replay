@@ -305,6 +305,7 @@ function Player(id, name, location, steam)
 	Observable.call(this);
 	this.id = id;
 	this.location = location;
+	this.hasquit = false;
 	this.name = name;
 	this.steam = steam;
 	this.hand = new Array();
@@ -360,9 +361,10 @@ Player.prototype.nextQuest = function ()
 	this.quests++;
 	this.notify('quests', 'change', this.quests);
 };
-Player.prototype.quit = function()
+Player.prototype.quit = function ()
 {
-	this.location = 'AI';
+	this.hasquit = true;
+	this.notify('hasquit', 'change', this.hasquit);
 };
 //==================================================================================================
 function MapTile(type, coords, corner)
@@ -694,12 +696,25 @@ MatchState.prototype.processEvent = function (evt)
 					this.markers.removeItem(old);
 				this.markers.addNewItem(MapMarker, 'banespawn', evt.coords, 'Incoming Bane'); 
 			}; break;
+			case "spawnSpiritStone":
+			{
+				this.markers.addNewItem(MapMarker, 'stone', evt.coords, 'Spirit Stone');
+			}; break;
+			case "removeSpiritStone":
+			{
+				for (let i = 0; i < this.markers.items.length; i++)
+					if ((this.markers.items[i].type == 'stone') && (this.markers.items[i].coords == evt.coords))
+					{
+						this.markers.removeItem(this.markers.items[i]);
+						break;
+					}
+			}; break;
 			case "setQuest": 
 			{
 				this.markers.removeItemById('player', evt.player, false);
 				let player = this.players.getItemById('id', evt.player);
 				player.nextQuest();
-				this.markers.addNewItem(MapMarker, 'quest', evt.coords, player.name+' #'+player.quests, evt.player);
+				this.markers.addNewItem(MapMarker, 'quest', evt.coords, player.name+" quest #"+player.quests, evt.player);
 			}; break;
 			// Other
 			case "prestigeLeader": this.context.setPrestigeLeader(evt.player); break;

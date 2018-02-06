@@ -74,6 +74,10 @@ html, body {
 	border: 2pt solid gold;
 }
 
+#players .info.quit {
+	text-decoration: white line-through;
+}
+
 #players .info {
 	width: 25%;
 	text-align: center;
@@ -208,7 +212,6 @@ html, body {
 #turns li.event-chat {
 	font-style: italic;
 }
-
 #turns li.event-nextRound {
 	text-align: center;
 	font-weight: bold;
@@ -220,7 +223,7 @@ html, body {
 	border-top: 2px solid gold;
 	text-align: center;
 }
-#turns li.quit {
+#turns li.event-playerQuit {
 	color: white;
 	background-color: inherit;
 	text-align: center;

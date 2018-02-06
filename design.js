@@ -17,6 +17,7 @@ function describeEvent(evt)
 	let context = window.ArmelloMatchState;
 	switch (evt.name)
 	{
+		case "spawnSpiritStone": return "Spirit stone spawns at "+describeTile(evt.coords); break;
 		case "moveEntity": return describeEntity(evt.entity)+' moves to '+describeTile(evt.coords)+'.'; break;
 		case "attack": return describeEntity(evt.attacker)+' attacks '+describeEntity(evt.defender)+'!'; break;
 		case "killEntity": 
@@ -100,7 +101,17 @@ function describeEvent(evt)
 		// Other
 		case "prestigeLeader": return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
 		case "declaration": return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
-		case "playerQuit": return context.players.getItemById('id', evt.player).name+' has quit the game.'; break;
+		case "playerQuit": 
+		{
+			let s = context.players.getItemById('id', evt.player).name;
+			switch (evt.reason)
+			{
+				case 'PeerLeftRoom': s += ' has quit the game.'; break;
+				case 'PeerKickedAFK': s += ' has been kicked for being AFK.'; break;
+				default: s += ' disconnected ('+evt.reason+').';
+			}
+			return s;
+		}; break;
 		case "startTurn": return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
 		case "nextRound": return ((context.context.round % 2 == 0) ? "Day " : "Night ")+(Math.floor(context.context.round / 2) + 1).toString(); break;
 		case "victory": return context.players.getItemById('id', evt.player).name+' wins the game!'; break;
@@ -149,6 +160,10 @@ function updateHeroFor(player)
 	cell.querySelector('.hand').innerHTML = player.hand.map(Name).join('; ');
 	
 	let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
+	if (player.hasquit && !/\bquit\b/i.test(caption.getAttribute('class')))
+		caption.setAttribute('class', caption.getAttribute('class')+' quit');
+	else if (!player.hasquit && /\bquit\b/i.test(caption.getAttribute('class')))
+		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*quit/i, ''));
 	if ((hero.SpiritStones >= 4) && !/\bspiritwalker\b/i.test(caption.getAttribute('class')))
 		caption.setAttribute('class', caption.getAttribute('class')+' spiritwalker');
 	else if ((hero.SpiritStones < 4) && /\bspiritwalker\b/i.test(caption.getAttribute('class')))
@@ -271,7 +286,7 @@ function MapHover(evt)
 	let by = window.innerHeight - evt.clientY + 5;
 	let tooltip = document.getElementById('maptooltip');
 	let entity, marker, tile;
-	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5))
+	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5) && !entity.dead)
 	{
 		if (entity.item instanceof Hero)
 			tooltip.innerHTML = Name(entity.item.type)+"<br />"+window.ArmelloMatchState.players.getItemById("id",entity.item.playerid).name;

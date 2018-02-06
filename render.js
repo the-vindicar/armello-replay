@@ -177,6 +177,7 @@ function renderMarker(marker, context, ctx)
 	switch (marker.type)
 	{
 		case 'quest': renderQuestMarker(marker, context, ctx); break;
+		case 'stone': renderStoneMarker(marker, ctx); break;
 		case 'banespawn': renderBaneMarker(marker, ctx); break;
 	}
 }
@@ -226,6 +227,19 @@ renderQuestMarker.styles = {
 	Rat:		{ size: 0.7, fill: '#9A2D36', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 	Wolf:		{ size: 0.7, fill: '#3674A3', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 };
+
+function renderStoneMarker(marker, ctx)
+{
+	let cnv = gridToCanvas(marker.u, marker.v);
+	let r = gridToCanvas.tileSize * 0.4;
+	let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, r);
+	pattern.addColorStop(0, 'cyan');
+	pattern.addColorStop(1, 'blue');
+	ctx.fillStyle = pattern;
+	ctx.beginPath();
+	ctx.arc(cnv.x, cnv.y, r, 0, 2*Math.PI);
+	ctx.fill();
+}
 //==================================================================================================
 function getItemAt(collection, x, y, rate)
 {

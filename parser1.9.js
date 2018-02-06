@@ -37,6 +37,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
 		re_setuphero : /\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\(-?\d+,-?\d+\)\],/i,
 		chat_prepared : undefined,
+		disconnect_cache : undefined,
 	},
 	//parser items describe translation of game log lines into event objects
 	[
@@ -75,6 +76,9 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 			}
 		},
 		{name:"killEntity", re:/Gameplay: Creature\+Message\+DeathEnd: Dispatch\(\[(?:[^(]+) \((\d+)\):/i, map:["entity"]},
+		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
+		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
+		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\((?:\[.+?\])?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
 		{name:"removeEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+LoseStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
 		{name:"equipCard", re:/Gameplay: Creature\+Message\+EquipCard: Dispatch\(\[[^\(]+ \((\w+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], (\d)/i, map:["entity", "card", "slot"]},
@@ -144,12 +148,11 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		{name:"buffPeril", re:/Gameplay: Peril\+Message\+SymbolBuffLevelChanged: Dispatch\(\[Peril \((\w+)\): Card=\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=\w+\], (-?\d+)\)/i, map:["peril", "card", "value"]},
 		{name:"buffPeril", re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\): Card=\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+], OwnerId=\w+\]\)/i, map:["peril", "card"]},
 		{name:"clearPeril", re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i, map:["coords", "peril"]},
-		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \w+\)/i, map:["coords"]},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
-		//{name:"playerQuit", re:"", map:[]},
+		{name:"playerQuit", re:/Matchmaking: NetworkRoomSteam: OnRoomPlayerDisconnected: .+ \(Player(\d)\), error (\w+)/i, map:["player", "reason"]},
 		{name:"nextRound", re:/Game: TurnManager\+Message\+PhaseStartForKing: Dispatch\((\w+)\)/i, map:["type"]},
 		{name:"startTurn", re:/Player: Player\+Message\+StartTurn: Dispatch\(\[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i, map:["player", "entity"]},
 		{name:"startTurn", re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i, map:["entity"]},
