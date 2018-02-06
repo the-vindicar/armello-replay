@@ -183,8 +183,8 @@ html, body {
 	border: 1px none black;
 }
 
-#turns li[selected] {
-	text-decoration: underline;
+#turns li.event[selected] {
+	background-color: darkblue;
 	color: white;
 }
 
