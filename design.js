@@ -399,7 +399,7 @@ window.addEventListener('load', function(evt) {
 	else // we detect no match data or it's incomplete - we configure loader form instead
 	{
 		// initialize file uploader
-		var fproc = new FileProcessor(document.getElementById('dropzone'), LogFileSelected, "#CCCCCC", "transparent");
+		var fproc = new FileProcessor(document.getElementById('dropzone'), LogFileSelected, "#888888", "transparent");
 		// react to file being selected
 		document.getElementById('log').addEventListener('change', function(evt)
 		{
