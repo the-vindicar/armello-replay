@@ -714,7 +714,7 @@ MatchState.prototype.processEvent = function (evt)
 				this.markers.removeItemById('player', evt.player, false);
 				let player = this.players.getItemById('id', evt.player);
 				player.nextQuest();
-				this.markers.addNewItem(MapMarker, 'quest', evt.coords, player.name+" quest #"+player.quests, evt.player);
+				this.markers.addNewItem(MapMarker, 'quest', evt.coords, Name(player.hero.type)+" quest #"+player.quests, evt.player);
 			}; break;
 			// Other
 			case "prestigeLeader": this.context.setPrestigeLeader(evt.player); break;
