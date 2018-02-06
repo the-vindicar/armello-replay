@@ -375,7 +375,6 @@ window.addEventListener('load', function(evt) {
 	{
 		// we detect match data already present - the page must've been saved in match view mode
 		switchToMainView();
-		console.log("Let's restart this puppy...");
 		// detect which event is currently selected
 		let current = document.querySelector('#turns *[selected]');
 		// look for the snapshot immediately preceding the selected event

@@ -38,6 +38,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		re_setuphero : /\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\(-?\d+,-?\d+\)\],/i,
 		chat_prepared : undefined,
 		disconnect_cache : undefined,
+		card_on_tile_cache: undefined,
 	},
 	//parser items describe translation of game log lines into event objects
 	[
@@ -145,8 +146,37 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		//{name:"changeTile", re:"", map:[]},
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
 		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\): Player=Player(\d+), Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "player", "coords"]},
-		{name:"buffPeril", re:/Gameplay: Peril\+Message\+SymbolBuffLevelChanged: Dispatch\(\[Peril \((\w+)\): Card=\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=\w+\], (-?\d+)\)/i, map:["peril", "card", "value"]},
-		{name:"buffPeril", re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\): Card=\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+], OwnerId=\w+\]\)/i, map:["peril", "card"]},
+		{name:"preBuffPeril", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["card","coords"], 
+			action:function (evt)
+			{
+				this.card_on_tile_cache = evt;
+				return undefined;
+			}
+		},
+		{name:"buffPeril", re:/Gameplay: Peril\+Message\+SymbolBuffLevelChanged: Dispatch\(\[Peril \((\w+)\):/i, map:["peril"], 
+			action:function (evt)
+			{
+				if (this.card_on_tile_cache)
+				{
+					evt.card = this.card_on_tile_cache.card;
+					evt.coords = this.card_on_tile_cache.coords;
+					this.card_on_tile_cache = undefined;
+					return evt;
+				}
+			}
+		},
+		{name:"buffPeril", re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\):/i, map:["peril"],
+			action:function (evt)
+			{
+				if (this.card_on_tile_cache)
+				{
+					evt.card = this.card_on_tile_cache.card;
+					evt.coords = this.card_on_tile_cache.coords;
+					this.card_on_tile_cache = undefined;
+					return evt;
+				}
+			}
+		},
 		{name:"clearPeril", re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i, map:["coords", "peril"]},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},

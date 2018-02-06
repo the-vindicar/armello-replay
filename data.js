@@ -415,11 +415,8 @@ MapTile.prototype.buffPeril = function (buff)
 {
 	if (typeof this.peril !== 'undefined')
 	{
-		if (this.perilcard !== buff)
-		{
-			this.perilbuffs.push(buff);
-			this.notify('perilbuffs', 'add', buff);
-		}
+		this.perilbuffs.push(buff);
+		this.notify('perilbuffs', 'add', buff);
 	}
 	else
 		console.warn('Tried to apply a buff ('+buff+') to a tile without peril.');
@@ -686,7 +683,11 @@ MatchState.prototype.processEvent = function (evt)
 				let id = (evt.owner < 5) ? this.players.getItemById('id', evt.owner).hero.id : evt.owner;
 				this.map.getItemById('coords', evt.coords).setPeril(evt.peril, evt.card, id); 
 			};break;
-			case "buffPeril": this.map.getItemById('peril', evt.peril).buffPeril(evt.card); break;
+			case "buffPeril": 
+			{
+				let tile = this.map.getItemById('peril', evt.peril);
+				tile.buffPeril(evt.card); 
+			}; break;
 			case "clearPeril": this.map.getItemById('peril', evt.peril).clearPeril(); break;
 			// Markers
 			case "predictBane": 
