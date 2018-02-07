@@ -222,44 +222,70 @@ function OnUpdate(context, prop, action, value)
 		renderMap(document.getElementById('map'), context);
 }
 //================================================================================================
+function jumpToEvent(eventid, scrollto)
+{	
+	let target = document.querySelector('#turns *[data-event-index="'+eventid+'"]');
+	if (!target) return false; // if event is not found, we do nothing
+	if (!target.hasAttribute('selected')) // if event is already selected, we do nothing
+	{
+		// determine current selected event node and event index
+		let current = document.querySelector('#turns *[selected]');
+		// event index of the currently selected event
+		let currentidx = parseInt(current.getAttribute('data-event-index'), 10);
+		// event index of the newly selected event
+		let eventidx = parseInt(eventid, 10);
+		// look for the snapshot immediately preceding the newly selected event
+		let statenode = target; // finding the event node
+		while (statenode && !statenode.hasAttribute('data-snapshot-index'))
+			statenode = statenode.previousElementSibling;
+		// determine snapshot index
+		let snapshotidx = statenode ? parseInt(statenode.getAttribute('data-snapshot-index'), 10) : 0;
+		// determine index of the event, after which the snapshot was done
+		let starteventidx = parseInt(statenode.getAttribute('data-event-index'), 10);
+		// if snapshot is ahead of the currently selected event, or 
+		// if the newly selected event is behind the currently selected event
+		if ((starteventidx > currentidx) || (eventidx < currentidx))
+			// then we should restore the snapshot first and go from there
+			window.ArmelloMatchState.loadSnapshot(window.ArmelloMatchSnapshots[snapshotidx]);
+		else // otherwise, both events are within the same snapshot chunk, and we can simply go forward.
+			starteventidx = currentidx; // starting with the currently selected event
+		// apply all events until we reach the one we are interested in.
+		for (let i = starteventidx+1; i <= eventidx; i++)
+			window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);
+		// adjust the selected attribute
+		current.removeAttribute('selected');
+		target.setAttribute('selected','true');
+		if (scrollto)
+			target.scrollIntoView(true);
+	}
+	return true;
+}
+
+function HashChanged(evt)
+{
+	// this event will be triggered by scripts changing hash as well
+	// but as far as I understand, it's not a problem
+	if (window.location.hash !== '') // if we got a link to a certain event, we select the corresponding line
+	{
+		evt.preventDefault();
+		jumpToEvent(window.location.hash.slice(1), true);
+	}
+}
+
 function EventClicked(evt)
 {
 	// determine which event has been selected
 	let target = evt.target;
-	while (!/\bevent\b/.test(target.className) && (target.id !== 'turns'))
+	while (!target.hasAttribute('data-event-index') && (target.id !== 'turns'))
 		target = target.parentNode;
 	// if click isn't on an event, or if the event is already selected, do nothing
 	if ((target.id === 'turns') || target.hasAttribute('selected')) return;
 	evt.preventDefault();
-	// determine current selected event node and event index
-	let current = document.querySelector('#turns *[selected]');
-	// event index of the currently selected event
-	let currentidx = parseInt(current.getAttribute('data-event-index'), 10);
-	// event index of the newly selected event
-	let eventidx = parseInt(target.getAttribute('data-event-index'), 10);
-	// look for the snapshot immediately preceding the newly selected event
-	let statenode = target; // finding the event node
-	while (statenode && !statenode.hasAttribute('data-snapshot-index'))
-		statenode = statenode.previousElementSibling;
-	if (!statenode) throw new Error("No state snapshot found!");
-	// determine snapshot index
-	let snapshotidx = parseInt(statenode.getAttribute('data-snapshot-index'), 10);
-	// determine index of the event, after which the snapshot was done
-	let starteventidx = parseInt(statenode.getAttribute('data-event-index'), 10);
-	// if snapshot is ahead of the currently selected event, or 
-	// if the newly selected event is behind the currently selected event
-	if ((starteventidx > currentidx) || (eventidx < currentidx))
-		// then we should restore the snapshot first and go from there
-		window.ArmelloMatchState.loadSnapshot(window.ArmelloMatchSnapshots[snapshotidx]);
-	else // otherwise, both events are within the same snapshot chunk, and we can simply go forward.
-		starteventidx = currentidx; // starting with the currently selected event
-	// apply all events until we reach the one we are interested in.
-	for (let i = starteventidx+1; i <= eventidx; i++)
-		window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);
-	// unmark currently selected event
-	current.removeAttribute('selected');
-	// mark newly selected event
-	target.setAttribute('selected','true');
+	if (jumpToEvent(target.getAttribute('data-event-index'), false))
+		// change window location hash - so user can link to a specific event in the file
+		// this will trigger hashchange event, but that's okay,
+		// since jumpToEvent() won't do anything if the event is already selected.
+		window.location.hash = target.getAttribute('data-event-index');
 }
 
 function EventHover(evt)
@@ -369,6 +395,8 @@ function switchToMainView()
 	let turns = document.getElementById('turns');
 	turns.addEventListener('click', EventClicked, false);
 	turns.addEventListener('mouseover', EventHover, false);
+	// respond to location hash being changed
+	window.addEventListener('hashchange', HashChanged, false);
 }
 //================================================================================================
 window.addEventListener('load', function(evt) {
@@ -377,25 +405,22 @@ window.addEventListener('load', function(evt) {
 	{
 		// we detect match data already present - the page must've been saved in match view mode
 		switchToMainView();
-		// detect which event is currently selected
-		let current = document.querySelector('#turns *[selected]');
-		// look for the snapshot immediately preceding the selected event
-		let statenode = current; // finding the event node
-		while (statenode && !statenode.hasAttribute('data-snapshot-index'))
-			statenode = statenode.previousElementSibling;
-		if (!statenode) throw new Error("No state snapshot found!");
-		// event index of the currently selected event
-		let currentidx = parseInt(current.getAttribute('data-event-index'), 10);
-		// determine snapshot index
-		let snapshotidx = parseInt(statenode.getAttribute('data-snapshot-index'), 10);
-		// determine index of the event, after which the snapshot was done
-		let starteventidx = parseInt(statenode.getAttribute('data-event-index'), 10);
-		// restore the snapshot first and go from there
-		window.ArmelloMatchState.loadSnapshot(window.ArmelloMatchSnapshots[snapshotidx]);
-		// apply all events until we reach the current one 
-		for (let i = starteventidx+1; i <= currentidx; i++)
-			window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);
-		current.scrollIntoView(true);
+		// let's determine which point of the timeline we should jump to
+		let eventchosen = false;
+		if (window.location.hash !== '') // if we got a link to a certain event, we go to the corresponding point
+			eventchosen = jumpToEvent(window.location.hash.slice(1), true);
+		else // we haven't got a link, so we go to the point that is marked as selected
+		{
+			let current = document.querySelector('#turns *[selected]');
+			if (current && current.getAttribute('data-event-index'))
+				eventchosen = jumpToEvent(current.getAttribute('data-event-index'), true);
+		}
+		// we got wrong link or otherwise failed to find desired event - just load the first event
+		if (!eventchosen)
+		{
+			let first = document.querySelector('#turns *[data-event-index]')
+			jumpToEvent(current.getAttribute('data-event-index'), true);
+		}
 	}
 	else // we detect no match data or it's incomplete - we configure loader form instead
 	{

@@ -100,7 +100,6 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 			{
 				// sadly, there is no way to get the type of the pact, so we have to rely on our cache
 				let x = this.played_cards_cache[evt.player1+"to"+evt.player2];
-				console.log("Pact gain detected", x, evt);
 				if (typeof x !== 'undefined')
 				{
 					evt.card = x;
