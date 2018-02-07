@@ -231,7 +231,7 @@ function jumpToEvent(eventid, scrollto)
 		// determine current selected event node and event index
 		let current = document.querySelector('#turns *[selected]');
 		// event index of the currently selected event
-		let currentidx = parseInt(current.getAttribute('data-event-index'), 10);
+		let currentidx = current ? parseInt(current.getAttribute('data-event-index'), 10) : -1;
 		// event index of the newly selected event
 		let eventidx = parseInt(eventid, 10);
 		// look for the snapshot immediately preceding the newly selected event
@@ -253,7 +253,7 @@ function jumpToEvent(eventid, scrollto)
 		for (let i = starteventidx+1; i <= eventidx; i++)
 			window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);
 		// adjust the selected attribute
-		current.removeAttribute('selected');
+		if (current) current.removeAttribute('selected');
 		target.setAttribute('selected','true');
 		if (scrollto)
 			target.scrollIntoView(true);
@@ -419,11 +419,13 @@ window.addEventListener('load', function(evt) {
 		if (!eventchosen)
 		{
 			let first = document.querySelector('#turns *[data-event-index]')
-			jumpToEvent(current.getAttribute('data-event-index'), true);
+			jumpToEvent(first.getAttribute('data-event-index'), true);
 		}
 	}
 	else // we detect no match data or it's incomplete - we configure loader form instead
 	{
+		if (window.location.hash) 
+			window.location.hash = '';
 		// initialize file uploader
 		var fproc = new FileProcessor(document.getElementById('dropzone'), LogFileSelected, "#888888", "transparent");
 		// react to file being selected

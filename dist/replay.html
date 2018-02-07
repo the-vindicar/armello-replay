@@ -293,15 +293,16 @@ this.zone.innerHTML=message;};function LogFileSelected(file,update)
 {recommendedParser=parser;return parser.findMatches(file,function(line,pos)
 {update((100.0*pos)/file.size);});}).then(function(matches)
 {if(matches.length>0)
-for(var i=0;i<matches.length;i++)
+{for(var i=0;i<matches.length;i++)
 {let item=document.createElement('li');let btn=document.createElement('button');btn.setAttribute('class','loadmatch');btn.innerHTML='Load';item.appendChild(btn);btn.dataslice=file.slice(matches[i].startpos,matches[i].endpos);btn.parser=recommendedParser;for(var p=0;p<4;p++)
 {let block=document.createElement('span');block.setAttribute('class','participant');let s=matches[i].players[p].name;if(typeof matches[i].players[p].steam!=='undefined')
-s='<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+s+'</a>';if(typeof matches[i].players[p].hero!=='undefined')
+s='<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+sanitize(s)+'</a>';if(typeof matches[i].players[p].hero!=='undefined')
 s+="("+Name(matches[i].players[p].hero)+")";block.innerHTML=s;item.appendChild(block);}
 items.appendChild(item);}
+update(100,"Please choose a match to be loaded, or select another file.");}
 else
-{let item=document.createElement('li');item.innerHTML="No matches found!";items.appendChild(item);}
-update(100,"Please choose a match to be loaded, or select another file.");document.getElementById('log').removeAttribute('disabled');}).catch(function(err)
+{update(100,"No matches found! Please select another file.");}
+document.getElementById('log').removeAttribute('disabled');}).catch(function(err)
 {update(0,"Parsing error: "+err.toString());document.getElementById('log').removeAttribute('disabled');console.error(err);});}
 function MatchSelected(file,parser,update)
 {document.getElementById('log').setAttribute('disabled','true');update(0,"Extracting events...");parser.parseFile(file,function(line,pos)
@@ -326,7 +327,7 @@ else if(turntaker.type.slice(0,4)==='King')
 li.setAttribute('class',li.className+' King')
 else if(turntaker.type.slice(0,4)==='Bane')
 li.setAttribute('class',li.className+' Bane')}
-if((events[i].name==='startTurn')||(events[i].name==='nextRound'))
+if((events[i].name==='nextRound')||(events[i].name==='startTurn'))
 {let index=snapshots.push(window.ArmelloMatchState.getSnapshot())-1;li.setAttribute('data-snapshot-index',index);}
 list.appendChild(li);}
 i++;}
@@ -336,9 +337,10 @@ resolve({events:events,snapshots:snapshots});}
 catch(err)
 {reject(err);}};return new Promise(processSomeEvents);}).then(function(data)
 {let storage=document.createElement('script');storage.innerHTML="window.ArmelloMatchEvents = "+JSON.stringify(data.events)+";\r\n"+
-"window.ArmelloMatchSnapshots = "+JSON.stringify(data.snapshots)+";";document.head.appendChild(storage);switchToMainView();window.ArmelloMatchState.loadSnapshot(data.snapshots[0]);let lst=document.getElementById('turns');lst.children[0].setAttribute('selected','true');lst.children[0].scrollIntoView(true);}).catch(function(err)
+"window.ArmelloMatchSnapshots = "+JSON.stringify(data.snapshots)+";";document.head.appendChild(storage);switchToMainView();let first=document.querySelector('#turns *[data-snapshot-index]')
+jumpToEvent(first.getAttribute('data-event-index'),true);}).catch(function(err)
 {let log=document.getElementById('log')
-if(log)log.removeAttribute('disabled');update(0,"Parsing error: "+err.toString());console.error(err);console.log(window.ArmelloMatchState);});}</script>
+if(log)log.removeAttribute('disabled');update(0,"Parsing error: "+err.toString());console.error(err);});}</script>
 	<script>function renderMap(canvas,context,highlight)
 {let ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<context.map.items.length;i++)
 renderTile(context.map.items[i],ctx);for(let i=0;i<context.markers.items.length;i++)
@@ -452,11 +454,11 @@ function OnUpdate(context,prop,action,value)
 renderMap(document.getElementById('map'),context);}
 function jumpToEvent(eventid,scrollto)
 {let target=document.querySelector('#turns *[data-event-index="'+eventid+'"]');if(!target)return false;if(!target.hasAttribute('selected'))
-{let current=document.querySelector('#turns *[selected]');let currentidx=parseInt(current.getAttribute('data-event-index'),10);let eventidx=parseInt(eventid,10);let statenode=target;while(statenode&&!statenode.hasAttribute('data-snapshot-index'))
+{let current=document.querySelector('#turns *[selected]');let currentidx=current?parseInt(current.getAttribute('data-event-index'),10):-1;let eventidx=parseInt(eventid,10);let statenode=target;while(statenode&&!statenode.hasAttribute('data-snapshot-index'))
 statenode=statenode.previousElementSibling;let snapshotidx=statenode?parseInt(statenode.getAttribute('data-snapshot-index'),10):0;let starteventidx=parseInt(statenode.getAttribute('data-event-index'),10);if((starteventidx>currentidx)||(eventidx<currentidx))
 window.ArmelloMatchState.loadSnapshot(window.ArmelloMatchSnapshots[snapshotidx]);else
 starteventidx=currentidx;for(let i=starteventidx+1;i<=eventidx;i++)
-window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);current.removeAttribute('selected');target.setAttribute('selected','true');if(scrollto)
+window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);if(current)current.removeAttribute('selected');target.setAttribute('selected','true');if(scrollto)
 target.scrollIntoView(true);}
 return true;}
 function HashChanged(evt)
@@ -501,9 +503,10 @@ eventchosen=jumpToEvent(window.location.hash.slice(1),true);else
 eventchosen=jumpToEvent(current.getAttribute('data-event-index'),true);}
 if(!eventchosen)
 {let first=document.querySelector('#turns *[data-event-index]')
-jumpToEvent(current.getAttribute('data-event-index'),true);}}
+jumpToEvent(first.getAttribute('data-event-index'),true);}}
 else
-{var fproc=new FileProcessor(document.getElementById('dropzone'),LogFileSelected,"#888888","transparent");document.getElementById('log').addEventListener('change',function(evt)
+{if(window.location.hash)
+window.location.hash='';var fproc=new FileProcessor(document.getElementById('dropzone'),LogFileSelected,"#888888","transparent");document.getElementById('log').addEventListener('change',function(evt)
 {LogFileSelected(evt.target.files[0],fproc.update);},false);document.getElementById('matches').addEventListener('click',function(evt){if(!evt.target.className.match(/\bloadmatch\b/i)||evt.target.hasAttribute('disabled'))return;var buttons=document.getElementById('load').querySelectorAll('.loadmatch');for(let i=0;i<buttons.length;i++)
 buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,evt.target.parser,fproc.update);},false);let os;if(/^win/i.test(window.navigator.platform))os='windows';else if(/^Mac/i.test(window.navigator.platform))os='mac';else if(/^Linux/i.test(window.navigator.platform))os='linux';else os='unknown';let logpath=document.getElementById('logpath');switch(os)
 {case'windows':logpath.innerHTML="%APPDATA%\\..\\LocalLow\\League of Geeks\\Armello\\logs\\";break;case'linux':logpath.innerHTML="~/.config/unity3d/League of Geeks/Armello/logs";break;case'mac':logpath.innerHTML="~/Library/Application Support/League of Geeks/Armello/logs";break;default:logpath.innerHTML='your user profile, somewhere';break;}}},false);</script>

@@ -107,6 +107,7 @@ function LogFileSelected(file, update)
 		.then(function(matches) // matchfinder function successfully retrieved a list of matches
 		{
 			if (matches.length > 0) // at least one match has been found
+			{
 				for (var i = 0; i < matches.length; i++)
 				{
 					// create a list item describing the match
@@ -127,7 +128,7 @@ function LogFileSelected(file, update)
 						let s = matches[i].players[p].name;
 						// turn name into a link to steam profile, if available.
 						if (typeof matches[i].players[p].steam !== 'undefined')
-							s = '<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+s+'</a>';
+							s = '<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+sanitize(s)+'</a>';
 						// add chosen hero, if available
 						if (typeof matches[i].players[p].hero !== 'undefined')
 							s += "("+Name(matches[i].players[p].hero)+")";
@@ -136,14 +137,13 @@ function LogFileSelected(file, update)
 					}
 					items.appendChild(item);
 				}
+				// let user know we are done
+				update(100, "Please choose a match to be loaded, or select another file.");
+			}
 			else // no matches have been found
 			{
-				let item = document.createElement('li');
-				item.innerHTML = "No matches found!";
-				items.appendChild(item);
+				update(100, "No matches found! Please select another file.");
 			}
-			// let user know we are done
-			update(100, "Please choose a match to be loaded, or select another file.");
 			document.getElementById('log').removeAttribute('disabled');
 		})
 		.catch(function(err) // something went awry
@@ -215,8 +215,12 @@ function MatchSelected(file, parser, update)
 								else if (turntaker.type.slice(0,4) === 'Bane')
 									li.setAttribute('class', li.className+' Bane')
 							}
-							// if it's a beginning of a turn, we make a snapshot and save its index in the snapshot array
-							if ((events[i].name === 'startTurn') || (events[i].name === 'nextRound'))
+							// we make a snapshot and save its index in the snapshot array at:
+							// a) the beginning of a day or night
+							// b) the beginning of someone's (player/king/guard/bane) turn
+							// while we could reduce the amount of snapshots we make, thus reducing file size by 50%,
+							// it leads to having to process more events each jump, introducing UI lag 
+							if ((events[i].name === 'nextRound') || (events[i].name === 'startTurn'))
 							{
 								let index = snapshots.push(window.ArmelloMatchState.getSnapshot()) - 1;
 								li.setAttribute('data-snapshot-index', index);
@@ -248,10 +252,8 @@ function MatchSelected(file, parser, update)
 				"window.ArmelloMatchSnapshots = "+JSON.stringify(data.snapshots)+";";
 			document.head.appendChild(storage);
 			switchToMainView();
-			window.ArmelloMatchState.loadSnapshot(data.snapshots[0]);
-			let lst = document.getElementById('turns');
-			lst.children[0].setAttribute('selected', 'true');
-			lst.children[0].scrollIntoView(true);
+			let first = document.querySelector('#turns *[data-snapshot-index]')
+			jumpToEvent(first.getAttribute('data-event-index'), true);
 		})
 		.catch(function(err) // something went wrong
 		{
@@ -259,6 +261,5 @@ function MatchSelected(file, parser, update)
 			if (log) log.removeAttribute('disabled');
 			update(0, "Parsing error: "+err.toString());
 			console.error(err);
-			console.log(window.ArmelloMatchState);
 		});	
 }
