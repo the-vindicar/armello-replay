@@ -281,6 +281,11 @@ Name.db = {
 	TRK42 : "Sharpshooter",
 	TRK43 : "Arson",
 	TRK46 : "Palisade Walls",
+	BRW01 : "Curse of Valour",
+	BRW02 : "Ill Fortune",
+	BRW03 : "Curse of Eye",
+	BRW04 : "Bloodletting",
+	BRW05 : "Curse of Skill",
 	// ================ Tile types ================
 	ClanCastle : "Clan Grounds",
 	KingsPalace : "The Palace",
