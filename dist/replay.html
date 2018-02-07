@@ -435,7 +435,7 @@ caption.setAttribute('class',caption.getAttribute('class')+' quit');else if(!pla
 caption.setAttribute('class',caption.getAttribute('class').replace(/\s*quit/i,''));if((hero.SpiritStones>=4)&&!/\bspiritwalker\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class')+' spiritwalker');else if((hero.SpiritStones<4)&&/\bspiritwalker\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class').replace(/\s*spiritwalker/i,''));let king=window.ArmelloMatchState.entities.getItemById('type','King');if((hero.Rot>king.Rot)&&!/\brotten\b/i.test(caption.getAttribute('class')))
-caption.setAttribute('class',caption.getAttribute('class')+' rotten');else if((hero.SpiritStones<=king.Rot)&&/\brotten\b/i.test(caption.getAttribute('class')))
+caption.setAttribute('class',caption.getAttribute('class')+' rotten');else if((hero.Rot<=king.Rot)&&/\brotten\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class').replace(/\s*rotten/i,''));}
 function ContextChanged(context,propname,action,value)
 {if(propname!='prestige_leader')return;for(let id=1;id<=4;id++)

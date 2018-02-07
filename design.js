@@ -173,6 +173,7 @@ function updateHeroFor(player)
 		caption.setAttribute('class', caption.getAttribute('class')+' quit');
 	else if (!player.hasquit && /\bquit\b/i.test(caption.getAttribute('class')))
 		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*quit/i, ''));
+	
 	if ((hero.SpiritStones >= 4) && !/\bspiritwalker\b/i.test(caption.getAttribute('class')))
 		caption.setAttribute('class', caption.getAttribute('class')+' spiritwalker');
 	else if ((hero.SpiritStones < 4) && /\bspiritwalker\b/i.test(caption.getAttribute('class')))
@@ -181,7 +182,7 @@ function updateHeroFor(player)
 	let king = window.ArmelloMatchState.entities.getItemById('type', 'King');
 	if ((hero.Rot > king.Rot) && !/\brotten\b/i.test(caption.getAttribute('class')))
 		caption.setAttribute('class', caption.getAttribute('class')+' rotten');
-	else if ((hero.SpiritStones <= king.Rot) && /\brotten\b/i.test(caption.getAttribute('class')))
+	else if ((hero.Rot <= king.Rot) && /\brotten\b/i.test(caption.getAttribute('class')))
 		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*rotten/i, ''));
 }
 
