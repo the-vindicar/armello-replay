@@ -500,7 +500,7 @@ MatchContext.prototype.addPact = function (type, initiator, recipient)
 		initiator: initiator,
 		recipient: recipient,
 	});
-	this.notify.update('pacts', 'add', this.pacts[this.pacts.length-1]);
+	this.notify('pacts', 'add', this.pacts[this.pacts.length-1]);
 };
 MatchContext.prototype.breakPactBetween = function (type, p1, p2)
 {
@@ -524,12 +524,18 @@ MatchContext.prototype.serialize = function()
 MatchContext.prototype.deserialize = function(data)
 {
 	var obj = JSON.parse(data);
+
+	this.round = obj.round;
+	this.notify('round', 'change', this.round);
+	this.active = obj.active;
+	this.notify('active', 'change', this.active);
 	this.prestige_leader = obj.prestige_leader;
-	this.turn = obj.turn;
-	this.proclamation = obj.proclamation;
 	this.notify('prestige_leader', 'change', this.prestige_leader);
+	this.proclamation = obj.proclamation;
 	this.notify('proclamation', 'change', this.proclamation);
-	this.notify('turn', 'change', this.turn);
+	this.pacts = obj.pacts;
+	this.notify('pacts', 'change', this.pacts);
+	
 };
 //==================================================================================================
 function EntityCollection()

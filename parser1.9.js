@@ -88,18 +88,19 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		{name:"loseCard", re:/Player: Player\+Message\+RemoveCardFromHand: Dispatch\(\[Player.+?\(Player(\d)\):.+?\[Card \w+: Asset:(\w+) type:\w+ isTemp:False\]\)/i, map:["player", "card"]},
 		{name:"changeStats", re:/Gameplay: CreatureStats\+Message\+ChangeStats: Dispatch\(\[StatsChange: (\w+): creature:\[.+ \((\d+)\):.+?\] mod:(-?\d+) now:(-?\d+)\]\)/i, map:["stat", "entity", "delta", "value"]},
 		{name:"playCardOnCreature", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\): .+?\((\d+)\), [^\]]*\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[[^\(]+ \((\d+)\):/i, map:["player1", "entity1", "card", "entity2"]},
-		{name:"playCardOnHero", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\): .+?\((\d+)\), [^\]]*\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[[^\(]+ \((\d+)\): .*?Player=Player(\d),/i, map:["player1", "entity1", "card", "entity2", "player2"], action: function(evt)
+		{name:"preGainPact", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\): .+?\((\d+)\), [^\]]*\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[[^\(]+ \((\d+)\): .*?Player=Player(\d),/i, map:["player1", "entity1", "card", "entity2", "player2"], action: function(evt)
 			{
 				// we cache info about players playing cards on each other, since a pact is always related to the last card played
 				// so we know which card was used to initiate the pact
 				this.played_cards_cache[evt.player1+"to"+evt.player2] = evt.card;
+				return undefined;
 			}
 		},
-		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\w+ \((\w+)\),[^\]]+\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\],\s*\)/i, map:["player", "entity", "card", "coords"]},
-		{name:"gainPact", re:/Gameplay: HeroPactManager\+Message\+GainPact: Dispatch\(\[[^(]+ \(\d+\): Player=Player(\d),[^]]*\], \[[^(]+ \(\d+\): Player=Player(\d),[^]]*\]/i, map:["player1", "player2"], action: function(evt)
+		{name:"gainPact", re:/Gameplay: HeroPactManager\+Message\+GainPact: Dispatch\(\[.+? \(\d+\): Player=Player(\d),.+?\], \[.+? \(\d+\): Player=Player(\d),.+?\]/i, map:["player1", "player2"], action: function(evt)
 			{
 				// sadly, there is no way to get the type of the pact, so we have to rely on our cache
-				var x = this.played_cards_cache[evt.player1+"to"+evt.player2];
+				let x = this.played_cards_cache[evt.player1+"to"+evt.player2];
+				console.log("Pact gain detected", x, evt);
 				if (typeof x !== 'undefined')
 				{
 					evt.card = x;
@@ -107,7 +108,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 					return evt;
 				}
 				else
-					return null;
+					return undefined;
 			}
 		},
 		// BUGGED - can't determine which pact to drop =(
@@ -146,6 +147,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 		//{name:"changeTile", re:"", map:[]},
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
 		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\): Player=Player(\d+), Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "player", "coords"]},
+		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\w+ \((\w+)\),[^\]]+\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\],\s*\)/i, map:["player", "entity", "card", "coords"]},
 		{name:"preBuffPeril", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["card","coords"], 
 			action:function (evt)
 			{

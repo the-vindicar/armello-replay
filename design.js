@@ -75,7 +75,6 @@ function describeEvent(evt)
 			else
 				return undefined;
 		}; break;
-		case "gainPact": return describeEntity(context.players.getItemById('id', evt.player1).hero)+' plays "'+PCard(evt.card)+'" on '+describeEntity(context.players.getItemById('id', evt.player2).hero)+'.'; break;
 		case "toggleBounty": 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
@@ -359,11 +358,14 @@ function switchToMainView()
 	let canvas = document.getElementById('map');
 	canvas.setAttribute('width', gridToCanvas.GridWidth + 2 * gridToCanvas.xOffset);
 	canvas.setAttribute('height', gridToCanvas.GridHeight + 2 * gridToCanvas.yOffset);
+	// event handlers for canvas tooltip
 	canvas.addEventListener('mousemove', MapHover, false);
 	canvas.addEventListener('mouseleave', MapLeave, false);
+	// subscribing to match state changes, so we can update the on-screen info
 	window.ArmelloMatchState.players.subscribe(PlayersChanged);
 	window.ArmelloMatchState.context.subscribe(ContextChanged);
 	window.ArmelloMatchState.subscribe(OnUpdate);
+	// event handlers for highlighting entities and tiles in the events log.
 	let turns = document.getElementById('turns');
 	turns.addEventListener('click', EventClicked, false);
 	turns.addEventListener('mouseover', EventHover, false);
