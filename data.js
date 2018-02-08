@@ -683,7 +683,14 @@ MatchState.prototype.processEvent = function (evt)
 			case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
 			// Map tiles
 			case "addTile": this.map.addNewItem(MapTile, evt.type, evt.coords, evt.corner); break;
-			case "changeTile": this.map.getItemById('coords', evt.coords).changeType(evt.type); break;
+			case "playCardOnTile":
+			{
+				let tile = this.map.getItemById('coords', evt.coords);
+				if ((evt.card == 'MAG36') && (tile.type == 'Swamp'))// Spirit Seeds
+					tile.changeType('Forest');
+				else if ((evt.card == 'TRK43') && (tile.type == 'Forest'))// Arson
+					tile.changeType('Swamp');
+			}; break;
 			case "putPeril": 
 			{
 				let id = (evt.owner < 5) ? this.players.getItemById('id', evt.owner).hero.id : evt.owner;
