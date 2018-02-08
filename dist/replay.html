@@ -430,7 +430,11 @@ let stats=cell.querySelectorAll('.stats *[data-stat]');for(let i=0;i<stats.lengt
 {let stat=stats[i].getAttribute('data-stat');if(stat in hero)
 stats[i].innerHTML=hero[stat].toString();}
 let eff=hero.effects.filter(function(val)
-{return(val!=='TRK_DISCOUNT')&&(val!=='DEFAULT_STEALTH')&&(val.slice(0,3)!=='CLN')&&(val.slice(0,3)!=='POW')&&(hero.equipment.indexOf(val)<0)&&(hero.followers.indexOf(val)<0);});cell.querySelector('.effects').innerHTML=eff.map(Name).join('; ');cell.querySelector('.hand').innerHTML=player.hand.map(Name).join('; ');let caption=document.querySelector('#players .info[data-player-id="'+id+'"]');if(player.hasquit&&!/\bquit\b/i.test(caption.getAttribute('class')))
+{return(val!=='TRK_DISCOUNT')&&(val!=='DEFAULT_STEALTH')&&(val.slice(0,3)!=='CLN')&&(val.slice(0,3)!=='POW')&&(hero.equipment.indexOf(val)<0)&&(hero.followers.indexOf(val)<0);});let effects=eff.map(Name).join('; ');let pacts=window.ArmelloMatchState.context.pacts.filter(function(p){return(p.initiator==id)||(p.recipient==id);});for(let i=pacts.length-1;i>=0;i--)
+{let s=Name(pacts[i].type);if(pacts[i].initiator==id)
+s+='(to '+Name(window.ArmelloMatchState.players.getItemById('id',pacts[i].recipient).hero.type)+'); ';else
+s+='(from '+Name(window.ArmelloMatchState.players.getItemById('id',pacts[i].initiator).hero.type)+'); ';effects=s+effects;}
+cell.querySelector('.effects').innerHTML=effects;cell.querySelector('.hand').innerHTML=player.hand.map(Name).join('; ');let caption=document.querySelector('#players .info[data-player-id="'+id+'"]');if(player.hasquit&&!/\bquit\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class')+' quit');else if(!player.hasquit&&/\bquit\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class').replace(/\s*quit/i,''));if((hero.SpiritStones>=4)&&!/\bspiritwalker\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class')+' spiritwalker');else if((hero.SpiritStones<4)&&/\bspiritwalker\b/i.test(caption.getAttribute('class')))
@@ -438,10 +442,14 @@ caption.setAttribute('class',caption.getAttribute('class').replace(/\s*spiritwal
 caption.setAttribute('class',caption.getAttribute('class')+' rotten');else if((hero.Rot<=king.Rot)&&/\brotten\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class').replace(/\s*rotten/i,''));}
 function ContextChanged(context,propname,action,value)
-{if(propname!='prestige_leader')return;for(let id=1;id<=4;id++)
-{let caption=document.querySelector('#players .info[data-player-id="'+id+'"]');if((context.prestige_leader==id)&&!/\bprestigeleader\b/i.test(caption.getAttribute('class')))
+{if(propname=='prestige_leader')
+for(let i=0;i<window.ArmelloMatchState.players.items.length;i++)
+{let id=window.ArmelloMatchState.players.items[i].id;let caption=document.querySelector('#players .info[data-player-id="'+id+'"]');if((context.prestige_leader==id)&&!/\bprestigeleader\b/i.test(caption.getAttribute('class')))
 caption.setAttribute('class',caption.getAttribute('class')+' prestigeleader');else if((context.prestige_leader!=id)&&/\bprestigeleader\b/i.test(caption.getAttribute('class')))
-caption.setAttribute('class',caption.getAttribute('class').replace(/\s*prestigeleader/i,''));}}
+caption.setAttribute('class',caption.getAttribute('class').replace(/\s*prestigeleader/i,''));}
+else if(propname=='pacts')
+for(let i=0;i<window.ArmelloMatchState.players.items.length;i++)
+updateHeroFor(window.ArmelloMatchState.players.items[i]);}
 function PlayersChanged(players,propname,propaction,player,property,action,value)
 {if((propaction==='change')&&(typeof player==='undefined'))
 {for(let id=1;id<=4;id++)

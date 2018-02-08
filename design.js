@@ -165,7 +165,18 @@ function updateHeroFor(player)
 	{
 		return (val !== 'TRK_DISCOUNT') && (val !== 'DEFAULT_STEALTH') && (val.slice(0,3) !== 'CLN') && (val.slice(0,3) !== 'POW') && (hero.equipment.indexOf(val) < 0) && (hero.followers.indexOf(val) < 0);
 	});
-	cell.querySelector('.effects').innerHTML = eff.map(Name).join('; ');
+	let effects = eff.map(Name).join('; ');
+	let pacts = window.ArmelloMatchState.context.pacts.filter(function (p){return (p.initiator == id) || (p.recipient == id);});
+	for (let i = pacts.length-1; i >= 0 ; i--)
+	{
+		let s = Name(pacts[i].type);
+		if (pacts[i].initiator == id)
+			s += '(to ' + Name(window.ArmelloMatchState.players.getItemById('id',pacts[i].recipient).hero.type) + '); ';
+		else
+			s += '(from ' + Name(window.ArmelloMatchState.players.getItemById('id',pacts[i].initiator).hero.type) + '); ';
+		effects = s + effects;
+	}
+	cell.querySelector('.effects').innerHTML = effects;
 	cell.querySelector('.hand').innerHTML = player.hand.map(Name).join('; ');
 	
 	let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
@@ -188,15 +199,19 @@ function updateHeroFor(player)
 
 function ContextChanged(context, propname, action, value)
 {
-	if (propname != 'prestige_leader') return;
-	for (let id = 1; id <= 4; id++)
-	{
-		let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
-		if ((context.prestige_leader == id) && !/\bprestigeleader\b/i.test(caption.getAttribute('class')))
-			caption.setAttribute('class', caption.getAttribute('class')+' prestigeleader');
-		else if ((context.prestige_leader != id) && /\bprestigeleader\b/i.test(caption.getAttribute('class')))
-			caption.setAttribute('class', caption.getAttribute('class').replace(/\s*prestigeleader/i, ''));
-	}
+	if (propname == 'prestige_leader')
+		for (let i = 0; i < window.ArmelloMatchState.players.items.length; i++)
+		{
+			let id = window.ArmelloMatchState.players.items[i].id;
+			let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
+			if ((context.prestige_leader == id) && !/\bprestigeleader\b/i.test(caption.getAttribute('class')))
+				caption.setAttribute('class', caption.getAttribute('class')+' prestigeleader');
+			else if ((context.prestige_leader != id) && /\bprestigeleader\b/i.test(caption.getAttribute('class')))
+				caption.setAttribute('class', caption.getAttribute('class').replace(/\s*prestigeleader/i, ''));
+		}
+	else if (propname == 'pacts')
+		for (let i = 0; i < window.ArmelloMatchState.players.items.length; i++)
+			updateHeroFor(window.ArmelloMatchState.players.items[i]);
 }
 
 function PlayersChanged(players, propname, propaction, player, property, action, value)
