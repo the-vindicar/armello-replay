@@ -428,6 +428,7 @@ window.addEventListener('load', function(evt) {
 		else // we haven't got a link, so we go to the point that is marked as selected
 		{
 			let current = document.querySelector('#turns *[selected]');
+			current.removeAttribute('selected');
 			if (current && current.getAttribute('data-event-index'))
 				eventchosen = jumpToEvent(current.getAttribute('data-event-index'), true);
 		}

@@ -509,7 +509,7 @@ function switchToMainView()
 window.addEventListener('load',function(evt){window.ArmelloMatchState=new MatchState();if(('ArmelloMatchEvents'in window)&&('ArmelloMatchSnapshots'in window))
 {switchToMainView();let eventchosen=false;if(window.location.hash!=='')
 eventchosen=jumpToEvent(window.location.hash.slice(1),true);else
-{let current=document.querySelector('#turns *[selected]');if(current&&current.getAttribute('data-event-index'))
+{let current=document.querySelector('#turns *[selected]');current.removeAttribute('selected');if(current&&current.getAttribute('data-event-index'))
 eventchosen=jumpToEvent(current.getAttribute('data-event-index'),true);}
 if(!eventchosen)
 {let first=document.querySelector('#turns *[data-event-index]')
