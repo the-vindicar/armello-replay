@@ -17,9 +17,16 @@ function describeEntity(entity)
 }
 function describeTile(tile) 
 {
+	let coords;
 	if (!(tile instanceof MapTile))
-		tile = window.ArmelloMatchState.map.getItemById('coords', tile);
-	return '<span class="tile" data-id="'+tile.coords+'">'+Name(tile.type)+' at '+tile.coords+'</span>'; 
+	{
+		coords = tile;
+		tile = window.ArmelloMatchState.map.getItemById('coords', tile, false);
+	}
+	if (tile)
+		return '<span class="tile" data-id="'+tile.coords+'">'+Name(tile.type)+' at '+tile.coords+'</span>';
+	else
+		return '<span class="tile" data-id="'+coords+'">'+coords+'</span>';
 }
 
 function describeEvent(evt)
