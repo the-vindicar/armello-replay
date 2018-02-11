@@ -37,6 +37,22 @@ function describeEvent(evt)
 		case "spawnSpiritStone": return "Spirit stone spawns at "+describeTile(evt.coords); break;
 		case "moveEntity": return describeEntity(evt.entity)+' moves to '+describeTile(evt.coords)+'.'; break;
 		case "attack": return describeEntity(evt.attacker)+' attacks '+describeEntity(evt.defender)+'!'; break;
+		case "combatEnd": 
+		{
+			let a = describeEntity(evt.attacker);
+			let d = describeEntity(evt.defender);
+			let text;
+			switch (evt.outcome)
+			{
+				case "Attacking-Lose" : text = d + " defends against " + a + "."; break;
+				case "Defending-PushedBack" : text = a + " forces " + d + " to retreat."; break;
+				case "Attacking-Defeat" : text = d + " kills " + a + "."; break;
+				case "Defending-Defeat" : text = a + " kills " + d + "."; break;
+				case "Defending-Routed" : text = a + " drives " + d + " before them."; break;
+				case "Attacking-BothDead" : text = a + " and " + d + " kill each other."; break;
+			};
+			return text;
+		}; break;
 		case "killEntity": 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);

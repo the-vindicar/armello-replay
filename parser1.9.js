@@ -31,7 +31,6 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 	{
 		heroes_completed : [false, false, false, false],
 		played_cards_cache : {},
-		attacker : undefined,
 		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: InGameState/i,
 		re_end : /(\d+:\d+:\d+)\W+Matchmaking: Exiting matchmaking state: InGameState/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
@@ -68,12 +67,59 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 				}
 				else
 				{
-					evt.attacker = this.attacker;;
+					evt.attacker = this.attacker;
 					evt.defender = evt.entity;
+					this.combat_cache = {
+						attacker: evt.attacker, 
+						attacker_dice: {total:0, parts:[], Hit:{Locked:[], Burned:[], Rolled:[]}, Block:{Locked:[], Burned:[], Rolled:[]}},
+						defender: evt.defender,
+						defender_dice: {total:0, parts:[], Hit:{Locked:[], Burned:[], Rolled:[]}, Block:{Locked:[], Burned:[], Rolled:[]}},
+						};
+					delete this.attacker;
 					delete evt.role;
 					delete evt.entity;
 					return evt;
 				}
+			}
+		},
+		{name:"modifyDiceCounts", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\]: (AddDice|RemoveDice)\((\d+)\) from source (.+?) for a total of (\d+)/, map:["entity", "type", "mod", "source", "value"], action:function(evt)
+			{
+				if (!this.combat_cache) return undefined;
+				let target;
+				if (this.combat_cache.attacker == evt.entity)
+					target = this.combat_cache.attacker_dice;
+				else if (this.combat_cache.defender == evt.entity)
+					target = this.combat_cache.defender_dice;
+				else
+					return undefined;
+				target.total = parseInt(evt.value, 10);
+				target.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+			}
+		},
+		{name:"resolveDice", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\] PushResolution \[SymbolResData: (\w+),(\w+),(-?\d+),(\w+)\]/i, map:["entity", "symbol", "type", "mod", "source"], action:function(evt)
+			{
+				if (!this.combat_cache) return undefined;
+				let target;
+				if (this.combat_cache.attacker == evt.entity)
+					target = this.combat_cache.attacker_dice;
+				else if (this.combat_cache.defender == evt.entity)
+					target = this.combat_cache.defender_dice;
+				else
+					return undefined;
+				if (!(evt.type in target)) return undefined;
+				target = target[evt.type];
+				if (evt.source in target)
+					target[evt.source].push(evt.symbol);
+			}
+		},
+		{name:"combatEnd", re:/Combat: CombatManager\.DoApplyCombat combatResult\.(Attacking|Defending)PlayerResult == CombatResult\.Result\.(\w+)/i, map:["source", "result"], action:function(evt)
+			{
+				if (!this.combat_cache) return undefined;
+				let res = this.combat_cache;
+				delete this.combat_cache;
+				res.outcome = evt.source + "-" + evt.result;
+				res.name = evt.name;
+				return res;
 			}
 		},
 		{name:"killEntity", re:/Gameplay: Creature\+Message\+DeathEnd: Dispatch\(\[(?:[^(]+) \((\d+)\):/i, map:["entity"]},
