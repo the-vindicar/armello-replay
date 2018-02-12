@@ -1,7 +1,7 @@
 //================================================================================================
 function sanitize(s)
 {
-	return s.replace(/[&<>]/g, function(tag) {return tagsToReplace[tag] || tag;});
+	return s.replace(/[&<>]/g, function(tag) {return sanitize.tagsToReplace[tag] || tag;});
 }
 sanitize.tagsToReplace = {
     '&': '&amp;',
@@ -15,6 +15,7 @@ function describeEntity(entity)
 		entity = window.ArmelloMatchState.entities.getItemById('id', entity);
 	return '<span class="entity" data-id="'+entity.id+'">'+Name(entity.type)+'</span>'; 
 }
+
 function describeTile(tile) 
 {
 	let coords;
@@ -34,26 +35,26 @@ function describeEvent(evt)
 	let context = window.ArmelloMatchState;
 	switch (evt.name)
 	{
-		case "spawnSpiritStone": return "Spirit stone spawns at "+describeTile(evt.coords); break;
-		case "moveEntity": return describeEntity(evt.entity)+' moves to '+describeTile(evt.coords)+'.'; break;
-		case "attack": return describeEntity(evt.attacker)+' attacks '+describeEntity(evt.defender)+'!'; break;
-		case "combatEnd": 
+		case 'spawnSpiritStone': return 'Spirit stone spawns at '+describeTile(evt.coords); break;
+		case 'moveEntity': return describeEntity(evt.entity)+' moves to '+describeTile(evt.coords)+'.'; break;
+		case 'attack': return describeEntity(evt.attacker)+' attacks '+describeEntity(evt.defender)+'!'; break;
+		case 'combatEnd': 
 		{
 			let a = describeEntity(evt.attacker);
 			let d = describeEntity(evt.defender);
 			let text;
 			switch (evt.outcome)
 			{
-				case "Attacking-Lose" : text = d + " defends against " + a + "."; break;
-				case "Defending-PushedBack" : text = a + " forces " + d + " to retreat."; break;
-				case "Attacking-Defeat" : text = d + " kills " + a + "."; break;
-				case "Defending-Defeat" : text = a + " kills " + d + "."; break;
-				case "Defending-Routed" : text = a + " drives " + d + " before them."; break;
-				case "Attacking-BothDead" : text = a + " and " + d + " kill each other."; break;
+				case 'Attacking-Lose' : text = d + ' defends against ' + a + '.'; break;
+				case 'Defending-PushedBack' : text = a + ' forces ' + d + ' to retreat.'; break;
+				case 'Attacking-Defeat' : text = d + ' kills ' + a + '.'; break;
+				case 'Defending-Defeat' : text = a + ' kills ' + d + '.'; break;
+				case 'Defending-Routed' : text = a + ' drives ' + d + ' before them.'; break;
+				case 'Attacking-BothDead' : text = a + ' and ' + d + ' kill each other.'; break;
 			};
 			return text;
 		}; break;
-		case "killEntity": 
+		case 'killEntity': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (ent instanceof Hero)
@@ -61,7 +62,7 @@ function describeEvent(evt)
 			else
 				return describeEntity(ent)+' dies.';
 		}; break;
-		case "equipCard": 
+		case 'equipCard': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (ent instanceof Hero)
@@ -69,7 +70,7 @@ function describeEvent(evt)
 			else
 				return undefined;
 		}; break;
-		case "unequipCard":
+		case 'unequipCard':
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (!(ent instanceof Hero)) return;
@@ -81,16 +82,16 @@ function describeEvent(evt)
 				default: return describeEntity(ent)+' loses '+PCard(evt.card)+'.'; break;
 			}
 		}; break;
-		case "gainCard": return describeEntity(context.players.getItemById('id', evt.player).hero)+' gets "'+PCard(evt.card)+'".'; break;
-		case "loseCard": return describeEntity(context.players.getItemById('id', evt.player).hero)+' loses "'+PCard(evt.card)+'" from their hand.'; break;
-		case "playCardOnCreature": return describeEntity(evt.entity1)+' plays '+PCard(evt.card)+' on '+describeEntity(evt.entity2); break;
-		case "playCardOnTile": return describeEntity(evt.entity)+' plays '+PCard(evt.card)+' on '+describeTile(evt.coords); break;
-		case "changeStats": 
+		case 'gainCard': return describeEntity(context.players.getItemById('id', evt.player).hero)+' gets "'+PCard(evt.card)+'".'; break;
+		case 'loseCard': return describeEntity(context.players.getItemById('id', evt.player).hero)+' loses "'+PCard(evt.card)+'" from their hand.'; break;
+		case 'playCardOnCreature': return describeEntity(evt.entity1)+' plays '+PCard(evt.card)+' on '+describeEntity(evt.entity2); break;
+		case 'playCardOnTile': return describeEntity(evt.entity)+' plays '+PCard(evt.card)+' on '+describeTile(evt.coords); break;
+		case 'changeStats': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (ent.type && (evt.stat in ent))
 			{
-				if ((evt.stat === "Health") && (ent.Health == 0))
+				if ((evt.stat === 'Health') && (ent.Health == 0))
 					return describeEntity(ent)+(evt.delta>0 ? ' gains ' : ' loses ')+Math.abs(evt.delta).toString()+' '+evt.stat+' and dies.';
 				else
 					return describeEntity(ent)+(evt.delta>0 ? ' gains ' : ' loses ')+Math.abs(evt.delta).toString()+' '+evt.stat+'.';
@@ -98,42 +99,42 @@ function describeEvent(evt)
 			else
 				return undefined;
 		}; break;
-		case "toggleBounty": 
+		case 'toggleBounty': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (ent.bounty > 0)
-				return "There is a bounty on "+describeEntity(ent)+"'s head!";
+				return 'There is a bounty on '+describeEntity(ent)+"'s head!";
 			else
-				return "There is no longer a bounty on "+describeEntity(ent)+"'s head.";
+				return 'There is no longer a bounty on '+describeEntity(ent)+"'s head.";
 		}; break;
-		case "toggleCorrupted": 
+		case 'toggleCorrupted': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
 			if (ent instanceof Hero)
 				if (ent.corrupted)
-					return describeEntity(ent)+" has been corrupted by Rot!";
+					return describeEntity(ent)+' has been corrupted by Rot!';
 				else
-					return describeEntity(ent)+" is no longer corrupted.";
+					return describeEntity(ent)+' is no longer corrupted.';
 			
 		};break;
 		// Map tiles
-		case "putPeril": 
+		case 'putPeril': 
 		{
 			let ent = (evt.owner < 5) 
 				? context.players.getItemById('id', evt.owner).hero 
 				: context.entities.getItemById('id', evt.owner);
 			return describeEntity(ent)+' puts '+PCard(evt.card)+' at '+describeTile(evt.coords)+'.'; 
 		}; break;
-		case "encounterPeril":
+		case 'encounterPeril':
 		{
 			let tile = context.map.getItemById('coords', evt.coords);
 			let hero = context.entities.getItemById('id', evt.entity);
 			return describeEntity(hero)+' encounters '+PCard(tile.perilcard)+' at '+describeTile(evt.coords)+'.';
 		}; break;
 		// Other
-		case "prestigeLeader": return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
-		case "declaration": return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
-		case "playerQuit": 
+		case 'prestigeLeader': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
+		case 'declaration': return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
+		case 'playerQuit': 
 		{
 			let s = sanitize(context.players.getItemById('id', evt.player).name);
 			switch (evt.reason)
@@ -144,10 +145,10 @@ function describeEvent(evt)
 			}
 			return s;
 		}; break;
-		case "startTurn": return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
-		case "nextRound": return ((context.context.round % 2 == 0) ? "Day " : "Night ")+(Math.floor(context.context.round / 2) + 1).toString(); break;
-		case "victory": return sanitize(context.players.getItemById('id', evt.player).name)+' wins the game!'; break;
-		case "chat": 
+		case 'startTurn': return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
+		case 'nextRound': return ((context.context.round % 2 == 0) ? 'Day ' : 'Night ')+(Math.floor(context.context.round / 2) + 1).toString(); break;
+		case 'victory': return sanitize(context.players.getItemById('id', evt.player).name)+' wins the game!'; break;
+		case 'chat': 
 		{
 			let s = evt.message.replace(/\[url="herotooltip:\/\/(\w+?)"\].+?\[\/url\]|\[.+?\]/ig, function (a,b) 
 			{
@@ -173,9 +174,9 @@ function updateHeroFor(player)
 	for (let i = 0; i<3; i++)
 	{
 		let item = cell.querySelector('.equipped .items[data-index="'+i.toString()+'"]');
-		item.innerHTML = hero.equipment[i] ? Name(hero.equipment[i]) : '-';
+		item.innerHTML = hero.equipment[i] ? PCard(hero.equipment[i]) : '-';
 		let follower = cell.querySelector('.equipped .followers[data-index="'+i.toString()+'"]');
-		follower.innerHTML = hero.followers[i] ? Name(hero.followers[i]) : '-';
+		follower.innerHTML = hero.followers[i] ? PCard(hero.followers[i]) : '-';
 	}
 	let stats = cell.querySelectorAll('.stats *[data-stat]');
 	for (let i = 0; i<stats.length; i++)
@@ -192,7 +193,7 @@ function updateHeroFor(player)
 	let pacts = window.ArmelloMatchState.context.pacts.filter(function (p){return (p.initiator == id) || (p.recipient == id);});
 	for (let i = pacts.length-1; i >= 0 ; i--)
 	{
-		let s = Name(pacts[i].type);
+		let s = PCard(pacts[i].type);
 		if (pacts[i].initiator == id)
 			s += '(to ' + Name(window.ArmelloMatchState.players.getItemById('id',pacts[i].recipient).hero.type) + '); ';
 		else
@@ -203,21 +204,21 @@ function updateHeroFor(player)
 	cell.querySelector('.hand').innerHTML = player.hand.map(Name).join('; ');
 	
 	let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
-	if (player.hasquit && !/\bquit\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class')+' quit');
-	else if (!player.hasquit && /\bquit\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*quit/i, ''));
+	if (player.hasquit)
+		caption.setAttribute('data-quit', 'true');
+	else 
+		caption.removeAttribute('data-quit');
 	
-	if ((hero.SpiritStones >= 4) && !/\bspiritwalker\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class')+' spiritwalker');
-	else if ((hero.SpiritStones < 4) && /\bspiritwalker\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*spiritwalker/i, ''));
+	if (hero.SpiritStones >= 4)
+		caption.setAttribute('data-spirit-walker', 'true');
+	else
+		caption.removeAttribute('data-spirit-walker');
 	
 	let king = window.ArmelloMatchState.entities.getItemById('type', 'King');
-	if ((hero.Rot > king.Rot) && !/\brotten\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class')+' rotten');
-	else if ((hero.Rot <= king.Rot) && /\brotten\b/i.test(caption.getAttribute('class')))
-		caption.setAttribute('class', caption.getAttribute('class').replace(/\s*rotten/i, ''));
+	if (hero.Rot > king.Rot)
+		caption.setAttribute('data-rotten', 'true');
+	else
+		caption.removeAttribute('data-rotten');
 }
 
 function ContextChanged(context, propname, action, value)
@@ -227,17 +228,17 @@ function ContextChanged(context, propname, action, value)
 		{
 			let id = window.ArmelloMatchState.players.items[i].id;
 			let caption = document.querySelector('#players .info[data-player-id="'+id+'"]');
-			if ((context.prestige_leader == id) && !/\bprestigeleader\b/i.test(caption.getAttribute('class')))
-				caption.setAttribute('class', caption.getAttribute('class')+' prestigeleader');
-			else if ((context.prestige_leader != id) && /\bprestigeleader\b/i.test(caption.getAttribute('class')))
-				caption.setAttribute('class', caption.getAttribute('class').replace(/\s*prestigeleader/i, ''));
+			if (context.prestige_leader == id)
+				caption.setAttribute('data-prestige-leader', 'true');
+			else
+				caption.removeAttribute('data-prestige-leader');
 		}
 	else if (propname == 'pacts')
 		for (let i = 0; i < window.ArmelloMatchState.players.items.length; i++)
 			updateHeroFor(window.ArmelloMatchState.players.items[i]);
 }
 
-function PlayersChanged(players, propname, propaction, player, property, action, value)
+function PlayersChanged(players, propname, propaction, player)
 {
 	if ((propaction === 'change') && (typeof player === 'undefined'))
 	{
@@ -280,7 +281,7 @@ function jumpToEvent(eventid, scrollto)
 		// determine snapshot index
 		let snapshotidx = statenode ? parseInt(statenode.getAttribute('data-snapshot-index'), 10) : 0;
 		// determine index of the event, after which the snapshot was done
-		let starteventidx = parseInt(statenode.getAttribute('data-event-index'), 10);
+		let starteventidx = statenode ? parseInt(statenode.getAttribute('data-event-index'), 10) : 0;
 		// if snapshot is ahead of the currently selected event, or 
 		// if the newly selected event is behind the currently selected event
 		if ((starteventidx > currentidx) || (eventidx < currentidx))
@@ -363,45 +364,45 @@ function MapHover(evt)
 	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5, function(ent){return !ent.dead;}))
 	{
 		if (entity.item instanceof Hero)
-			tooltip.innerHTML = Name(entity.item.type)+"<br />"+sanitize(window.ArmelloMatchState.players.getItemById("id",entity.item.playerid).name);
+			tooltip.innerHTML = Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name);
 		else
 			tooltip.innerHTML = Name(entity.item.type);
-		tooltip.style = "visibility:visible; right:"+rx.toString()+"px; bottom:"+by.toString()+"px";
+		tooltip.style = 'visibility:visible; right:'+rx.toString()+'px; bottom:'+by.toString()+'px';
 	}
 	else if (marker = getItemAt(window.ArmelloMatchState.markers, x, y, 0.7))
 	{
 		tooltip.innerHTML = marker.item.title;
-		tooltip.style = "visibility:visible; right:"+rx.toString()+"px; bottom:"+by.toString()+"px";
+		tooltip.style = 'visibility:visible; right:'+rx.toString()+'px; bottom:'+by.toString()+'px';
 	}
 	else if (tile = getItemAt(window.ArmelloMatchState.map, x, y, 1.0))
 	{
 		let text = describeTile(tile.item);
-		if (tile.item.type == "ClanCastle")
-			text += "<br />" + sanitize(window.ArmelloMatchState.players.getItemById("corner", tile.item.corner).name);
+		if (tile.item.type == 'ClanCastle')
+			text += '<br />' + sanitize(window.ArmelloMatchState.players.getItemById('corner', tile.item.corner).name);
 		if (tile.item.perilcard)
 		{
 			let ent = (tile.item.perilowner < 5) 
 				? window.ArmelloMatchState.players.getItemById('id', tile.item.perilowner).hero 
 				: window.ArmelloMatchState.entities.getItemById('id', tile.item.perilowner);
-			text += "<br />" + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
+			text += '<br />' + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
 			if (tile.item.perilbuffs.length > 0)
-				text += "<br />" + tile.item.perilbuffs.map(Name).join(", ");
+				text += '<br />' + tile.item.perilbuffs.map(Name).join(', ');
 		}
 		tooltip.innerHTML = text;
-		tooltip.style = "visibility:visible; right:"+rx.toString()+"px; bottom:"+by.toString()+"px";
+		tooltip.style = 'visibility:visible; right:'+rx.toString()+'px; bottom:'+by.toString()+'px';
 	}
 	else
 	{
-		tooltip.innerHTML = "";
-		tooltip.style = "";
+		tooltip.innerHTML = '';
+		tooltip.style = '';
 	}
 }
 
 function MapLeave(evt)
 {
 	let tooltip = document.getElementById('maptooltip');
-	tooltip.innerHTML = "";
-	tooltip.style = "";
+	tooltip.innerHTML = '';
+	tooltip.style = '';
 }
 //================================================================================================
 function deleteIfPresent(selector)
@@ -467,7 +468,7 @@ window.addEventListener('load', function(evt) {
 		if (window.location.hash) 
 			window.location.hash = '';
 		// initialize file uploader
-		var fproc = new FileProcessor(document.getElementById('dropzone'), LogFileSelected, "#888888", "transparent");
+		var fproc = new FileProcessor(document.getElementById('dropzone'), LogFileSelected, '#888888', 'transparent');
 		// react to file being selected
 		document.getElementById('log').addEventListener('change', function(evt)
 		{
@@ -491,10 +492,9 @@ window.addEventListener('load', function(evt) {
 		let logpath = document.getElementById('logpath');
 		switch (os)
 		{
-			case 'windows': logpath.innerHTML = "%APPDATA%\\..\\LocalLow\\League of Geeks\\Armello\\logs\\"; break;
-			case 'linux': logpath.innerHTML = "~/.config/unity3d/League of Geeks/Armello/logs"; break;
-			case 'mac': logpath.innerHTML = "~/Library/Application Support/League of Geeks/Armello/logs"; break;
-			default: logpath.innerHTML = 'your user profile, somewhere'; break;
+			case 'windows': logpath.innerHTML = '%APPDATA%\\..\\LocalLow\\League of Geeks\\Armello\\logs\\'; break;
+			case 'linux': logpath.innerHTML = '~/.config/unity3d/League of Geeks/Armello/logs/'; break;
+			case 'mac': logpath.innerHTML = '~/Library/Application Support/League of Geeks/Armello/logs/'; break;
 		}
 	}
 }, false);
