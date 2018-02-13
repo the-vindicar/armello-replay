@@ -30,6 +30,12 @@ function describeTile(tile)
 		return '<span class="tile" data-id="'+coords+'">'+coords+'</span>';
 }
 
+function describeRoll(roll)
+{
+	return '<span class="roll roll-'+roll.type+' roll-'+roll.source+'" title="'+roll.source+' '+roll.type+'">'+describeRoll.dicemap[roll.symbol]+'</span>';
+}
+describeRoll.dicemap = {Sword:'x',Shield:'u',Sun:'o',Moon:'c',WyldTree:'y',Rot:'q'};
+
 function describeEvent(evt)
 {
 	let context = window.ArmelloMatchState;
@@ -43,6 +49,7 @@ function describeEvent(evt)
 			let a = describeEntity(evt.attacker);
 			let d = describeEntity(evt.defender);
 			let text;
+			// choose the text describing the battle depending on the outcome
 			switch (evt.outcome)
 			{
 				case 'Attacking-Lose' : text = d + ' defends against ' + a + '.'; break;
@@ -51,7 +58,39 @@ function describeEvent(evt)
 				case 'Defending-Defeat' : text = a + ' kills ' + d + '.'; break;
 				case 'Defending-Routed' : text = a + ' drives ' + d + ' before them.'; break;
 				case 'Attacking-BothDead' : text = a + ' and ' + d + ' kill each other.'; break;
+				default: text = a + ' and ' + d + ' fight each other.'; break;
 			};
+			// create dice counters
+			let adice = evt.attacker_dice.parts.map(function(p){return (p.value>0 ? '+' : '')+p.value.toString()}).join('').slice(1);
+			let ddice = evt.defender_dice.parts.map(function(p){return (p.value>0 ? '+' : '')+p.value.toString()}).join('').slice(1);
+			// create attacker dice roll lists and separate hits from blocks
+			let ahits = evt.attacker_dice.rolls.filter(function (r) {return r.type=='Hit' || r.type=='Pierce' || r.type=='Poison';});
+			let ablocks = evt.attacker_dice.rolls.filter(function (r) {return r.type=='Block' || r.type=='Reflect';});
+			// reverse the order for attacker, since attackers dice are displayed right to left
+			// easier than doing the same with CSS.
+			ahits.reverse();
+			ablocks.reverse();
+			// create defender dice roll lists and separate hits from blocks
+			let dhits = evt.defender_dice.rolls.filter(function (r) {return r.type=='Hit' || r.type=='Pierce' || r.type=='Poison';});
+			let dblocks = evt.defender_dice.rolls.filter(function (r) {return r.type=='Block' || r.type=='Reflect';});
+			// generate tooltip describing the battle
+			text += '<table class="roll-tooltip"><tr>';
+			// combatant names
+			text += '<td class="attacker-name">'+a+'</td>';
+			text += '<td class="defender-name">'+d+'</td>';
+			text += '</tr><tr>'
+			// dice counts
+			text += '<td class="attacker">'+adice+'='+evt.attacker_dice.parts.reduce(function(a,b){return a+b.value;},0)+' dice</td>';
+			text += '<td class="defender">'+ddice+'='+evt.defender_dice.parts.reduce(function(a,b){return a+b.value;},0)+' dice</td>';
+			text += '</tr><tr>'
+			// dice hits
+			text += '<td class="attacker-dice">'+ahits.map(describeRoll).join('')+'</td>';
+			text += '<td class="defender-dice">'+dhits.map(describeRoll).join('')+'</td>';
+			text += '</tr><tr>'
+			// dice blocks
+			text += '<td class="attacker-dice">'+ablocks.map(describeRoll).join('')+'</td>';
+			text += '<td class="defender-dice">'+dblocks.map(describeRoll).join('')+'</td>';
+			text += '</tr></table>';
 			return text;
 		}; break;
 		case 'killEntity': 

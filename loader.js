@@ -248,8 +248,8 @@ function MatchSelected(file, parser, update)
 		{
 			let storage = document.createElement('script');
 			storage.innerHTML = 
-				"window.ArmelloMatchEvents = "+JSON.stringify(data.events)+";\r\n"+
-				"window.ArmelloMatchSnapshots = "+JSON.stringify(data.snapshots)+";";
+				"window.ArmelloMatchEvents = "+JSON.stringify(data.events).replace(/</g, '\\u003c')+";\r\n"+
+				"window.ArmelloMatchSnapshots = "+JSON.stringify(data.snapshots).replace(/</g, '\\u003c')+";";
 			document.head.appendChild(storage);
 			switchToMainView();
 			let first = document.querySelector('#turns *[data-snapshot-index]')

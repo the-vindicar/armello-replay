@@ -71,9 +71,9 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 					evt.defender = evt.entity;
 					this.combat_cache = {
 						attacker: evt.attacker, 
-						attacker_dice: {total:0, parts:[], Hit:{Locked:[], Burned:[], Rolled:[]}, Block:{Locked:[], Burned:[], Rolled:[]}},
+						attacker_dice: {total:0, parts:[], rolls:[]},
 						defender: evt.defender,
-						defender_dice: {total:0, parts:[], Hit:{Locked:[], Burned:[], Rolled:[]}, Block:{Locked:[], Burned:[], Rolled:[]}},
+						defender_dice: {total:0, parts:[], rolls:[]},
 						};
 					delete this.attacker;
 					delete evt.role;
@@ -106,10 +106,7 @@ Parser.Parsers['1.9.0.0'] = new Parser(
 					target = this.combat_cache.defender_dice;
 				else
 					return undefined;
-				if (!(evt.type in target)) return undefined;
-				target = target[evt.type];
-				if (evt.source in target)
-					target[evt.source].push(evt.symbol);
+				target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
 			}
 		},
 		{name:"combatEnd", re:/Combat: CombatManager\.DoApplyCombat combatResult\.(Attacking|Defending)PlayerResult == CombatResult\.Result\.(\w+)/i, map:["source", "result"], action:function(evt)

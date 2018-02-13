@@ -59,7 +59,10 @@ Name.db = {
 	SIG23 : "Spinel",
 	SIG24 : "Chrysocolla",
 	SIG25 : "Taaffeit",
+	SIG26 : "Black Opal", //bandit version
+	SIG27 : "Pink Topaz", //bandit version
 	SIG28 : "Amethyst", //bandit version
+	SIG29 : "Celestite", //bandit version
 	// ================ Amulets ================
 	AMU01 : "Scratch Amulet",
 	AMU02 : "Soak Amulet",
