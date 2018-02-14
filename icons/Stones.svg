@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="0.444389in"
+   height="0.444389in"
+   viewBox="0 0 32 32"
+   id="svg2852"
+   version="1.1"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="Stones.svg">
+  <metadata
+     id="metadata2863">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs2861">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 19.997505 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="39.99501 : 19.997505 : 1"
+       inkscape:persp3d-origin="19.997505 : 13.33167 : 1"
+       id="perspective2865" />
+  </defs>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="964"
+     inkscape:window-height="886"
+     id="namedview2859"
+     showgrid="false"
+     inkscape:zoom="5.9007361"
+     inkscape:cx="19.997505"
+     inkscape:cy="19.997505"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2852" />
+  <path
+     id="line4"
+     fill="none"
+     stroke="black"
+     stroke-width="1"
+     d="m 12.65,2.48 c -0.35,0.61 -0.56,0.82 -0.74,1.04 0.61,6.65 9.35,4.31 9.35,4.31 0,0 -0.39,-0.92 -0.39,-0.92 0,0 -7.3,2.22 -8.22,-4.43 z" />
+  <path
+     id="line3"
+     fill="none"
+     stroke="black"
+     stroke-width="1"
+     d="m 10,7.74 c 0,0 -0.17,0.39 -0.3,1.22 3.43,7.95 10.95,5.56 13.6,5.21 0.05,0 -0.39,-1.13 -0.39,-1.13 C 13.26,16.3 10,7.74 10,7.74 z" />
+  <path
+     id="line2"
+     fill="none"
+     stroke="black"
+     stroke-width="1"
+     d="M 8.39,23.09            C 15.22,20.61 17.00,20.09 23.91,20.00              23.91,20.00 24.00,19.48 23.91,19.04              18.48,19.09 13.17,19.70 8.26,22.22              8.35,22.70 8.17,22.52 8.39,23.09 Z" />
+  <path
+     id="line1"
+     fill="none"
+     stroke="black"
+     stroke-width="1"
+     d="m 11.83,29.96 c 0.74,0.56 1.3,0.82 1.3,0.82 0,0 -0.17,-7.61 10.65,-8.43 0.05,-0.74 0.13,-1.39 0.13,-1.39 -4.39,0.56 -10.69,2.39 -12.08,9 z" />
+  <path
+     id="base"
+     fill="none"
+     stroke="black"
+     stroke-width="1"
+     d="M 15.57,0.87            C 20.30,1.30 24.09,14.52 23.96,20.00              23.78,24.39 24.13,30.78 16.30,31.00              8.57,30.87 9.33,25.78 8.70,24.91              8.67,24.87 8.00,20.00 8.00,20.00              7.91,15.26 10.04,1.52 15.57,0.87 Z" />
+</svg>

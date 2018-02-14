@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+              "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="0.444444in" height="0.513889in"
+     viewBox="0 0 32 37">
+  <path id="Выделение"
+        fill="none" stroke="black" stroke-width="1"
+        d="M 18.00,3.36
+           C 38.37,5.23 34.99,34.80 15.00,32.80
+             -0.77,31.23 -5.40,9.27 13.00,3.36
+             14.95,3.23 15.97,2.99 18.00,3.36 Z" />
+  <path id="subsigil"
+        fill="none" stroke="black" stroke-width="1"
+        d="M 16.06,28.99
+           C 11.34,26.52 4.22,20.59 6.01,14.53
+             7.44,9.74 14.02,8.99 16.09,13.58
+             16.06,15.94 16.06,26.12 16.06,28.99 Z" />
+  <path id="sigil"
+        fill="none" stroke="black" stroke-width="1"
+        d="M 7.87,9.12
+           C -2.75,17.13 11.44,31.75 17.87,29.98
+             24.51,28.16 32.99,15.26 25.64,9.88
+             21.81,7.06 19.43,8.65 16.46,11.59
+             12.06,8.65 13.11,7.98 7.87,9.12 Z" />
+</svg>
