@@ -26,7 +26,7 @@
 //			endpos - saved position of match ending in the log file
 //			players - array of four objects describing individual players. 
 //				Each object should contain player's in-game name(name), Steam ID(steam) and chosen hero(hero).
-Parser.Parsers['1.9.0.0'] = new Parser(
+Parser.Parsers['1.9.6.0'] = new Parser(
 	// additional data
 	{
 		heroes_completed : [false, false, false, false],

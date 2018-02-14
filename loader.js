@@ -120,15 +120,27 @@ function LogFileSelected(file, update)
 					// we attach references to the recommended parser and the file slice straight to the button
 					btn.dataslice = file.slice(matches[i].startpos, matches[i].endpos);
 					btn.parser = recommendedParser;
+					
+					let starttime = matches[i].starttime.split(':').map(function(x){return parseInt(x,10)});
+					let endtime = matches[i].endtime.split(':').map(function(x){return parseInt(x,10)});
+					let duration = (endtime[0]*3600 + endtime[1]*60 + endtime[2]) - (starttime[0]*3600 + starttime[1]*60 + starttime[2]);
+					if (duration < 0) duration += 24*3600;
+					let hours = Math.trunc(duration / 3600).toString();
+					let minutes = ('0'+Math.trunc((duration % 3600) / 60).toString()).slice(-2);
+					let seconds = ('0'+Math.trunc(duration % 60).toString()).slice(-2);
+					let durationspan = document.createElement('span');
+					durationspan.setAttribute('class', 'match-duration');
+					durationspan.innerHTML = hours + ':' + minutes + ':' + seconds;
+					item.appendChild(durationspan);
 					// append player names and their chosen heroes
 					for (var p = 0; p < 4; p++)
 					{
 						let block = document.createElement('span');
 						block.setAttribute('class','participant');
-						let s = matches[i].players[p].name;
+						let s = sanitize(matches[i].players[p].name);
 						// turn name into a link to steam profile, if available.
-						if (typeof matches[i].players[p].steam !== 'undefined')
-							s = '<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+sanitize(s)+'</a>';
+						if ((typeof matches[i].players[p].steam !== 'undefined') && (matches[i].players[p].steam != '0'))
+							s = '<a href="https://steamcommunity.com/profiles/'+matches[i].players[p].steam+'">'+s+'</a>';
 						// add chosen hero, if available
 						if (typeof matches[i].players[p].hero !== 'undefined')
 							s += "("+Name(matches[i].players[p].hero)+")";

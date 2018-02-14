@@ -56,6 +56,9 @@ html, body {
 	border-radius: 8pt;
 	margin-bottom: 8pt;
 }
+#matches .match-duration {
+	margin: 8pt;
+}
 #matches .participant {
 	padding: 8pt;
 }
