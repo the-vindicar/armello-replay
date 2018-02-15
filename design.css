@@ -292,8 +292,6 @@ html, body {
 
 #turns li.event-combatEnd .roll-tooltip {
 	display: none;
-	position: absolute;
-	z-index: 1;
 	background-color: #222222;
 	color: #DDDDDD;
 	border: 1px solid white;
@@ -303,8 +301,17 @@ html, body {
 	cursor: default;
 }
 
-#turns li.event-combatEnd:hover .roll-tooltip {
-	display:table;
+#turns li.event-combatEnd:hover .roll-tooltip { 
+	display:table; 
+	position: absolute;
+}
+#turns li.event-combatEnd[selected] {
+	padding-bottom: 4pt;
+}
+#turns li.event-combatEnd[selected] .roll-tooltip, #turns li.event-combatEnd[selected]:hover .roll-tooltip { 
+	display:table; 
+	position: relative;
+	width:90%;	
 }
 
 #turns .roll-tooltip .attacker-name {
