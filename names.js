@@ -353,6 +353,10 @@ Hint.db = {
 	SIG23 : "Get a 10% bonus in all Quests.",
 	SIG24 : "Grants Scout on Heroes with 2 Health or less.",
 	SIG25 : "+1 Shield in Forests.",
+	SIG26 : "Gain Stealth in Settlements Day and Night.", //bandit version
+	SIG27 : "Doubles Income gained from Settlements.", //bandit version
+	SIG28 : "Gain +1 Magic for every Spell Card Burned.", //bandit version
+	SIG29 : "Ignore Mountain movement penalty.", //bandit version
 	// ================ Amulets ================
 	AMU01 : "+1 Fight.",
 	AMU02 : "+1 Body.",
