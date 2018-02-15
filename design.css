@@ -103,9 +103,9 @@ html, body {
 	text-decoration: white line-through;
 }
 
-#players .mark-prestige, #players .mark-rot, #players .mark-stones {
+#players .mark-prestige, #players .mark-rot, #players .mark-stones, #players .mark-bounty {
 	display: none;
-	font: 16pt "Armello Icons";
+	font: 14pt "Armello Icons";
 	text-decoration: none;
 	cursor: default;
 }
@@ -119,6 +119,10 @@ html, body {
 }
 
 #players .info[data-rotten] .mark-rot {
+	display: inline;
+}
+
+#players .info[data-bounty] .mark-bounty {
 	display: inline;
 }
 

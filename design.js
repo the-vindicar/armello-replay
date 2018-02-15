@@ -228,7 +228,7 @@ function updateHeroFor(player)
 	{
 		return (val !== 'TRK_DISCOUNT') && (val !== 'DEFAULT_STEALTH') && (val.slice(0,3) !== 'CLN') && (val.slice(0,3) !== 'POW') && (hero.equipment.indexOf(val) < 0) && (hero.followers.indexOf(val) < 0);
 	});
-	let effects = eff.map(Name).join('; ');
+	let effects = eff.map(PCard).join('; ');
 	let pacts = window.ArmelloMatchState.context.pacts.filter(function (p){return (p.initiator == id) || (p.recipient == id);});
 	for (let i = pacts.length-1; i >= 0 ; i--)
 	{
@@ -258,6 +258,11 @@ function updateHeroFor(player)
 		caption.setAttribute('data-rotten', 'true');
 	else
 		caption.removeAttribute('data-rotten');
+	
+	if (hero.bounty > 0)
+		caption.setAttribute('data-bounty', hero.bounty.toString());
+	else
+		caption.removeAttribute('data-bounty');
 }
 
 function ContextChanged(context, propname, action, value)
