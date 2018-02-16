@@ -32,7 +32,7 @@ Parser.Parsers['1.9.6.0'] = new Parser(
 		heroes_completed : [false, false, false, false],
 		played_cards_cache : {},
 		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: InGameState/i,
-		re_end : /(\d+:\d+:\d+)\W+Matchmaking: Exiting matchmaking state: InGameState/i,
+		re_end : /(\d+:\d+:\d+)\W+(?:Matchmaking: Exiting matchmaking state: InGameState|Analytics: (?:AnalyticsController: )?OnAppQuit:)/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
 		re_setuphero : /\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\(-?\d+,-?\d+\)\],/i,
 		chat_prepared : undefined,
