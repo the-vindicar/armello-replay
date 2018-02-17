@@ -24,7 +24,7 @@ html, body {
 	border-radius: 16pt;
 	background: transparent;
 	text-align: center;
-	font-size: 24pt;
+	font-size: xx-large;
 	cursor: pointer;
 }
 #dropzone.drag {border: 4pt solid silver;}
@@ -105,7 +105,7 @@ html, body {
 
 #players .mark-prestige, #players .mark-rot, #players .mark-stones, #players .mark-bounty {
 	display: none;
-	font: 14pt "Armello Icons";
+	font: larger "Armello Icons";
 	text-decoration: none;
 	cursor: default;
 }
@@ -163,56 +163,18 @@ html, body {
 	text-align: left; 
 	padding: 3pt 3pt 3pt 6pt;
 }
+#players .stats td::before { font: larger "Armello Icons"; }
 
-#players .stats .Fight::before {
-	font: 14pt "Armello Icons";
-	content: "F";
-}
-
-#players .stats .Body::before {
-	font: 14pt "Armello Icons";
-	content: "B ";
-}
-
-#players .stats .Wits::before {
-	font: 14pt "Armello Icons";
-	content: "W";
-}
-
-#players .stats .Spirit::before {
-	font: 14pt "Armello Icons";
-	content: "S";
-}
-
-#players .stats .SpiritStones::before {
-	font: 14pt "Armello Icons";
-	content: "T";
-}
-
-#players .stats .Prestige::before {
-	font: 14pt "Armello Icons";
-	content: "P ";
-}
-
-#players .stats .Health::before {
-	font: 14pt "Armello Icons";
-	content: "H ";
-}
-
-#players .stats .Gold::before {
-	font: 14pt "Armello Icons";
-	content: "G ";
-}
-
-#players .stats .Magic::before {
-	font: 14pt "Armello Icons";
-	content: "M ";
-}
-
-#players .stats .Rot::before {
-	font: 14pt "Armello Icons";
-	content: "R ";
-}
+#players .stats .Fight::before {content: "F";}
+#players .stats .Body::before {content: "B ";}
+#players .stats .Wits::before {content: "W";}
+#players .stats .Spirit::before {content: "S";}
+#players .stats .SpiritStones::before {content: "T";}
+#players .stats .Prestige::before {content: "P ";}
+#players .stats .Health::before {content: "H ";}
+#players .stats .Gold::before {content: "G ";}
+#players .stats .Magic::before {content: "M ";}
+#players .stats .Rot::before {content: "R ";}
 
 #players .items,#players .followers {
 	min-width: 64pt;
@@ -294,6 +256,11 @@ html, body {
 	font-weight: bold;
 }
 
+#turns li.event-attack::before, li.event-combatEnd::before {
+  font:smaller "Armello Icons";
+  content: "x ";
+}
+
 #turns li.event-combatEnd .roll-tooltip {
 	display: none;
 	background-color: #222222;
@@ -347,14 +314,14 @@ html, body {
 }
 
 #turns .roll-tooltip .attacker-dice {
-	font: 8pt "Armello Icons";
+	font: smaller "Armello Icons";
 	width: 50%;
 	text-align: right;
 	padding-right: 4pt;
 }
 
 #turns li.event-combatEnd .roll-tooltip .defender-dice {
-	font: 8pt "Armello Icons";
+	font: smaller "Armello Icons";
 	width: 50%;
 	text-align: left;
 	padding-left: 4pt;
@@ -383,6 +350,8 @@ html, body {
 	color: #DDDDDD;
 	border-radius: 2pt;
 	padding: 2pt;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 #map {
