@@ -191,7 +191,6 @@ Parser.Parsers['1.9.6.0'] = new Parser(
 		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\((\d+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["entity", "card","coords"], 
 			action:function (evt)
 			{
-				return undefined;
 				this.card_on_tile_cache = {entity:evt.entity, card:evt.card, coords:evt.coords};
 				return evt;
 			}
