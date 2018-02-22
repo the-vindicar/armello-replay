@@ -170,6 +170,29 @@ function describeEvent(evt)
 			let hero = context.entities.getItemById('id', evt.entity);
 			return describeEntity(hero)+' encounters '+PCard(tile.perilcard)+' at '+describeTile(evt.coords)+'.';
 		}; break;
+		case "settlementChangeOwner":
+		{
+			// TRK33 == Emissary
+			// TRK16 == Incite Revolt
+			let entity = (evt.reason == 'TRK33') ? evt.entity : context.entities.getLivingEntity('coords', evt.coords, false);
+			switch (evt.reason)
+			{
+				case 'KingsDec': 
+					return describeTile(evt.coords)+' has revolted.'; break;
+				case 'BaneTerrorise':
+				case 'KingsGuardTerrorise':
+				case 'TRK16':
+					return describeTile(evt.coords)+' has been terrorized by '+describeEntity(entity)+'.'; break;
+				default:
+					if (evt.type=='SettlementCaptured')
+					{
+						if (entity)
+							return describeTile(evt.coords)+' has been captured by '+describeEntity(entity)+'.';
+						else
+							return describeTile(evt.coords)+' has been pacified.'; 
+					}; break;
+			}
+		}; break;
 		// Other
 		case 'prestigeLeader': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
 		case 'declaration': return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
@@ -421,8 +444,25 @@ function MapHover(evt)
 	else if (tile = getItemAt(window.ArmelloMatchState.map, x, y, 1.0))
 	{
 		let text = describeTile(tile.item);
-		if (tile.item.type == 'ClanCastle')
-			text += '<br />' + sanitize(window.ArmelloMatchState.players.getItemById('corner', tile.item.corner).name);
+		switch (tile.item.type)
+		{
+			case 'ClanCastle': 
+				text += '<br />' + sanitize(window.ArmelloMatchState.players.getItemById('corner', tile.item.corner).name); break;
+			case 'Settlement':
+			{
+				if (tile.item.state.terrorized)
+					text += '<br />Terrorized';
+				else if (tile.item.state.owner)
+				{
+					let owner = window.ArmelloMatchState.entities.getItemById('id', tile.item.state.owner, false);
+					if (owner)
+						text += '<br />Owner: '+Name(owner.type);
+				}
+				if (tile.item.state.walls) text += '<br />Palisade Walls';
+				if (tile.item.state.spiritwalls) text += '<br />Stone Wards';
+				if (tile.item.state.industry) text += '<br />Patronage & Industry';
+			}; break;
+		}
 		if (tile.item.perilcard)
 		{
 			let ent = (tile.item.perilowner < 5) 

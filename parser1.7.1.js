@@ -189,12 +189,11 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*- Created (?:Feature )?Tile of Type: (\w+) at position: \((-?\d+,-?\d+)\),/i, map:["type", "coords"]},	
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
 		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\): Player=Player(\d+), Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "player", "coords"]},
-		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\w+ \((\w+)\),[^\]]+\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\],\s*\)/i, map:["player", "entity", "card", "coords"]},
-		{name:"preBuffPeril", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["card","coords"], 
+		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\((\d+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["entity", "card","coords"], 
 			action:function (evt)
 			{
-				this.card_on_tile_cache = evt;
-				return undefined;
+				this.card_on_tile_cache = {entity:evt.entity, card:evt.card, coords:evt.coords};
+				return evt;
 			}
 		},
 		{name:"buffPeril", re:/Gameplay: Peril\+Message\+BuffLevelChanged: Dispatch\(\[Peril \((\w+)\):/i, map:["peril"], 
@@ -202,6 +201,7 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 			{
 				if (this.card_on_tile_cache)
 				{
+					evt.entity = this.card_on_tile_cache.entity;
 					evt.card = this.card_on_tile_cache.card;
 					evt.coords = this.card_on_tile_cache.coords;
 					this.card_on_tile_cache = undefined;
@@ -214,6 +214,7 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 			{
 				if (this.card_on_tile_cache)
 				{
+					evt.entity = this.card_on_tile_cache.entity;
 					evt.card = this.card_on_tile_cache.card;
 					evt.coords = this.card_on_tile_cache.coords;
 					this.card_on_tile_cache = undefined;
@@ -222,6 +223,17 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 			}
 		},
 		{name:"clearPeril", re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i, map:["coords", "peril"]},
+		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i, map:["type", "coords", "reason"], action:function(evt)
+			{
+				if ((evt.reason=='Card') && this.card_on_tile_cache)
+				{
+					evt.entity = this.card_on_tile_cache.entity;
+					evt.reason = this.card_on_tile_cache.card;
+					this.card_on_tile_cache = undefined;
+				}
+				return evt;
+			}
+		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},

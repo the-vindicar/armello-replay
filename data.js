@@ -385,6 +385,10 @@ function MapTile(type, coords, corner)
 		configurable : false,
 	});
 	this.type = type;
+	if (type == 'Settlement')
+		this.state = {terrorized:false, owner:undefined, walls:false, spiritwalls:false, industry:false};
+	else
+		this.state = {};
 	this.peril = undefined;
 	this.perilcard = undefined;
 	this.perilowner = undefined;
@@ -434,6 +438,26 @@ MapTile.prototype.clearPeril = function ()
 	}
 	else
 		console.warn('Tried to clear a peril from a tile without peril.');	
+};
+MapTile.prototype.changeState = function (key, value)
+{
+	this.state[key] = value;
+	this.notify('state', 'change', this.state);
+}
+MapTile.prototype.terrorizeSettlement = function ()
+{
+	this.state.terrorized = true;
+	this.state.owner = undefined;
+	this.state.walls = false;
+	this.state.spiritwalls = false;
+	this.state.industry = false;
+	this.notify('state', 'change', this.state);
+};
+MapTile.prototype.captureSettlement = function (owner)
+{
+	this.state.terrorized = false;
+	this.state.owner = owner;
+	this.notify('state', 'change', this.state);
 };
 //==================================================================================================
 function MapMarker(type, coords, title, player)
@@ -544,6 +568,14 @@ function EntityCollection()
 }
 EntityCollection.prototype = Object.create(SerializableObservableCollection.prototype);
 EntityCollection.prototype.constructor = EntityCollection;
+EntityCollection.prototype.getLivingEntity = function (key, value, strict)
+{
+	for (var i = 0; i < this.items.length; i++)
+		if (!this.items[i].dead && this.items[i].hasOwnProperty(key) && (this.items[i][key] == value))
+			return this.items[i];
+	if ((typeof strict === 'undefined') || strict)
+		throw new Error(this.constructor.name+": There is no item with "+key.toString()+" = "+value);
+};
 EntityCollection.prototype.deserializeItems = function(data)
 {
 	var entitycopier = SerializableObservableCollection.getSimpleReviver(Entity);
@@ -686,10 +718,15 @@ MatchState.prototype.processEvent = function (evt)
 			case "playCardOnTile":
 			{
 				let tile = this.map.getItemById('coords', evt.coords);
-				if ((evt.card == 'MAG36') && (tile.type == 'Swamp'))// Spirit Seeds
-					tile.changeType('Forest');
-				else if ((evt.card == 'TRK43') && (tile.type == 'Forest'))// Arson
-					tile.changeType('Swamp');
+				switch (evt.card+'>'+tile.type)
+				{
+					case 'MAG36>Swamp': tile.changeType('Forest'); break; //Spirit Seeds
+					case 'TRK43>Forest': tile.changeType('Swamp'); break; //Arson
+					case 'TRK46>Settlement': tile.changeState('walls', true); break;//Palisade Walls
+					case 'TRK37>Settlement': tile.changeState('spiritwalls', true); break;//Stone Wards
+					case 'TRK13>Settlement': tile.changeState('industry', true); break;//Patronage & Industry
+				}
+	
 			}; break;
 			case "putPeril": 
 			{
@@ -702,6 +739,17 @@ MatchState.prototype.processEvent = function (evt)
 				tile.buffPeril(evt.card); 
 			}; break;
 			case "clearPeril": this.map.getItemById('peril', evt.peril).clearPeril(); break;
+			case "settlementChangeOwner":
+			{
+				let tile = this.map.getItemById('coords', evt.coords);
+				// TRK33 == Emissary
+				let entity = (evt.reason == 'TRK33') ? evt.entity : this.entities.getLivingEntity('coords', evt.coords, false);
+				// TRK16 == Incite Revolt
+				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsDec' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'TRK16'))
+					tile.terrorizeSettlement();
+				else
+					tile.captureSettlement(entity ? entity.id : undefined);
+			}; break;
 			// Markers
 			case "predictBane": 
 			{
