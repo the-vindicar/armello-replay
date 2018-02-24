@@ -174,7 +174,7 @@ function describeEvent(evt)
 		{
 			// TRK33 == Emissary
 			// TRK16 == Incite Revolt
-			let entity = (evt.reason == 'TRK33') ? evt.entity : context.entities.getLivingEntity('coords', evt.coords, false);
+			let entity = (evt.reason.slice(0,3) == 'TRK') ? evt.entity : context.entities.getLivingEntity('coords', evt.coords, false);
 			switch (evt.reason)
 			{
 				case 'KingsDec': 

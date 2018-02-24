@@ -3,8 +3,17 @@ function renderMap(canvas, context, highlight)
 {
 	let ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	let settlements = [];
 	for (let i = 0; i < context.map.items.length; i++)
-		renderTile(context.map.items[i], ctx);
+	{
+		let tile = context.map.items[i];
+		renderTile(tile, ctx);
+		if (tile.type == 'Settlement')
+			settlements.push(tile);
+	}
+	
+	for (let i = 0; i < settlements.length; i++)
+		renderSettlementEffects(settlements[i], ctx, context.entities);
 	for (let i = 0; i < context.markers.items.length; i++)
 		renderMarker(context.markers.items[i], context, ctx);
 	for (let i = 0; i < context.entities.items.length; i++)
@@ -50,10 +59,10 @@ gridToCanvas.vDim = gridToCanvas.tileSize * 2;
 gridToCanvas.GridWidth = gridToCanvas.uSize * gridToCanvas.uDim;
 gridToCanvas.GridHeight = gridToCanvas.vSize * (1.5 * (gridToCanvas.tileSize+2));
 
-function getHex(tile)
+function getHex(tile, radius)
 {
 	const cnv = gridToCanvas(tile.u, tile.v);
-	const sz = gridToCanvas.tileSize + 1;
+	const sz = radius ? radius : (gridToCanvas.tileSize + 1);
 	let res = [];
 	for (let i=0; i<6; i++)
 		res.push({x : cnv.x + sz * Math.cos(i*Math.PI/3 + Math.PI/2), y : cnv.y + sz * Math.sin(i*Math.PI/3 + Math.PI/2)});
@@ -95,14 +104,17 @@ function renderTile(tile, ctx)
 	ctx.fill();
 	if (tile.perilcard)
 	{
-		if (tile.perilcard.slice(0,3) === 'PPN')
-			strokeTile(ctx, style, hex, [1,2,3,4,5]);
-		else if (tile.perilcard.slice(0,3) === 'PPS')
-			strokeTile(ctx, style, hex, [4,5,0,1,2]);
-		else if (tile.perilcard.slice(0,3) === 'PPE')
-			strokeTile(ctx, style, hex, [3,4,5,0]);
-		else if (tile.perilcard.slice(0,3) === 'PPW')
-			strokeTile(ctx, style, hex, [0,1,2,3]);
+		if (tile.perilcard.slice(0,2) === 'PP')
+		{
+			let minihex = getHex(tile, gridToCanvas.tileSize - renderTile.styles.KingsPalace.lineWidth/2);
+			switch (tile.perilcard[2])
+			{
+				case 'N': strokeTile(ctx, style, minihex, [1,2,3,4,5]); break;
+				case 'S': strokeTile(ctx, style, minihex, [4,5,0,1,2]); break;
+				case 'E': strokeTile(ctx, style, minihex, [3,4,5,0]); break;
+				case 'W': strokeTile(ctx, style, minihex, [0,1,2,3]); break;
+			}
+		}
 		else
 		{
 			let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, gridToCanvas.tileSize);
@@ -118,7 +130,7 @@ function renderTile(tile, ctx)
 }
 renderTile.styles = {
 	ClanCastle : { fill: 'dimgray'},
-	KingsPalace : { fill: 'royalblue', stroke: 'white', lineWidth:10},
+	KingsPalace : { fill: 'royalblue', stroke: 'white', lineWidth:5},
 	KingTile : { fill: 'transparent'},
 	Plains : { fill: 'forestgreen'},
 	Forest : { fill: 'darkgreen'},
@@ -127,6 +139,83 @@ renderTile.styles = {
 	StoneCircle : { fill: 'darkturquoise'},
 	Dungeon : { fill: 'purple'},
 	Settlement : { fill: 'slategray'},
+};
+
+function renderSettlementEffects(tile, ctx, entities)
+{
+	const hex = getHex(tile);
+	if (tile.state.terrorized)
+	{
+		ctx.strokeStyle = renderSettlementEffects.effects.terrorized.stroke;
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.lineWidth = renderSettlementEffects.effects.terrorized.lineWidth;
+		ctx.beginPath();
+		for (let i = 0; i < 3; i++)
+		{
+			ctx.moveTo(hex[i].x, hex[i].y);
+			ctx.lineTo(hex[i+3].x, hex[i+3].y);
+		}
+		ctx.stroke();
+	}
+	else if (tile.state.owner)
+	{
+		let owner = entities.getLivingEntity('id', tile.state.owner, false);
+		if (owner && (owner instanceof Hero))
+		{
+			const cnv = gridToCanvas(tile.u, tile.v);
+			const sz = gridToCanvas.tileSize*renderSettlementEffects.effects.owner.radius;
+			let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, sz);
+			let fill = renderEntity.styles[owner.type.slice(0,-2)].fill;
+			pattern.addColorStop(0, fill);
+			pattern.addColorStop(0.4, fill);
+			pattern.addColorStop(1, renderTile.styles.Settlement.fill);
+			ctx.fillStyle = pattern;
+			let smallhex = getHex(tile, sz);
+			ctx.beginPath();
+			ctx.moveTo(smallhex[0].x, smallhex[0].y);
+			for (let i = 1; i < 6; i++)
+				ctx.lineTo(smallhex[i].x, smallhex[i].y);
+			ctx.closePath();
+			ctx.fill();
+		}
+	}
+	if (tile.state.walls)
+	{
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderSettlementEffects.effects.walls.linewidth / 2);
+		strokeTile(ctx, renderSettlementEffects.effects.walls, smallhex, [0,1,2,3,4,5,0]);
+	}
+	if (tile.state.spiritwalls)
+	{
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderSettlementEffects.effects.spiritwalls.radius);
+		for (let i = 0; i < 6; i++)
+		{
+			let pattern = ctx.createRadialGradient(smallhex[i].x, smallhex[i].y, 0, smallhex[i].x, smallhex[i].y, renderSettlementEffects.effects.spiritwalls.radius);
+			pattern.addColorStop(0, renderSettlementEffects.effects.spiritwalls.colora);
+			pattern.addColorStop(1, renderSettlementEffects.effects.spiritwalls.colorb);
+			ctx.fillStyle = pattern;
+			ctx.beginPath();
+			ctx.arc(smallhex[i].x, smallhex[i].y, renderSettlementEffects.effects.spiritwalls.radius, 0, 2*Math.PI);
+			ctx.fill();
+		}
+	}
+	if (tile.state.industry)
+	{
+		const cnv = gridToCanvas(tile.u, tile.v);
+		let r = Math.trunc(gridToCanvas.tileSize * renderSettlementEffects.effects.industry.radius);
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = renderSettlementEffects.effects.industry.text;
+		ctx.font = r.toString()+'px Armello Icons';
+		ctx.fillText('G', cnv.x, cnv.y);
+	}
+}
+renderSettlementEffects.effects = {
+	owner: {radius: 0.6},
+	terrorized: {stroke: 'black', lineWidth: 5},
+	walls: {stroke: 'white', lineWidth: 3},
+	spiritwalls: {colora: 'blue', colorb: 'cyan', radius: 6},
+	industry: {text: 'white', radius: 0.5},
 };
 //==================================================================================================
 function renderEntity(entity, ctx)
