@@ -3,17 +3,13 @@ function renderMap(canvas, context, highlight)
 {
 	let ctx = canvas.getContext('2d');
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	let settlements = [];
 	for (let i = 0; i < context.map.items.length; i++)
 	{
 		let tile = context.map.items[i];
 		renderTile(tile, ctx);
-		if (tile.type == 'Settlement')
-			settlements.push(tile);
+		renderTileEffects(tile, ctx, context.entities);
 	}
 	
-	for (let i = 0; i < settlements.length; i++)
-		renderSettlementEffects(settlements[i], ctx, context.entities);
 	for (let i = 0; i < context.markers.items.length; i++)
 		renderMarker(context.markers.items[i], context, ctx);
 	for (let i = 0; i < context.entities.items.length; i++)
@@ -141,15 +137,15 @@ renderTile.styles = {
 	Settlement : { fill: 'slategray'},
 };
 
-function renderSettlementEffects(tile, ctx, entities)
+function renderTileEffects(tile, ctx, entities)
 {
 	const hex = getHex(tile);
 	if (tile.state.terrorized)
 	{
-		ctx.strokeStyle = renderSettlementEffects.effects.terrorized.stroke;
+		ctx.strokeStyle = renderTileEffects.effects.terrorized.stroke;
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
-		ctx.lineWidth = renderSettlementEffects.effects.terrorized.lineWidth;
+		ctx.lineWidth = renderTileEffects.effects.terrorized.lineWidth;
 		ctx.beginPath();
 		for (let i = 0; i < 3; i++)
 		{
@@ -164,7 +160,7 @@ function renderSettlementEffects(tile, ctx, entities)
 		if (owner && (owner instanceof Hero))
 		{
 			const cnv = gridToCanvas(tile.u, tile.v);
-			const sz = gridToCanvas.tileSize*renderSettlementEffects.effects.owner.radius;
+			const sz = gridToCanvas.tileSize*renderTileEffects.effects.owner.radius;
 			let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, sz);
 			let fill = renderEntity.styles[owner.type.slice(0,-2)].fill;
 			pattern.addColorStop(0, fill);
@@ -180,42 +176,74 @@ function renderSettlementEffects(tile, ctx, entities)
 			ctx.fill();
 		}
 	}
-	if (tile.state.walls)
+	if (tile.hasEffect('TRK37'))
 	{
-		let smallhex = getHex(tile, gridToCanvas.tileSize - renderSettlementEffects.effects.walls.linewidth / 2);
-		strokeTile(ctx, renderSettlementEffects.effects.walls, smallhex, [0,1,2,3,4,5,0]);
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.walls.linewidth / 2);
+		strokeTile(ctx, renderTileEffects.effects.walls, smallhex, [0,1,2,3,4,5,0]);
 	}
-	if (tile.state.spiritwalls)
+	if (tile.hasEffect('TRK46'))
 	{
-		let smallhex = getHex(tile, gridToCanvas.tileSize - renderSettlementEffects.effects.spiritwalls.radius);
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.spiritwalls.radius);
 		for (let i = 0; i < 6; i++)
 		{
-			let pattern = ctx.createRadialGradient(smallhex[i].x, smallhex[i].y, 0, smallhex[i].x, smallhex[i].y, renderSettlementEffects.effects.spiritwalls.radius);
-			pattern.addColorStop(0, renderSettlementEffects.effects.spiritwalls.colora);
-			pattern.addColorStop(1, renderSettlementEffects.effects.spiritwalls.colorb);
+			let pattern = ctx.createRadialGradient(smallhex[i].x, smallhex[i].y, 0, smallhex[i].x, smallhex[i].y, renderTileEffects.effects.spiritwalls.radius);
+			pattern.addColorStop(0, renderTileEffects.effects.spiritwalls.colora);
+			pattern.addColorStop(1, renderTileEffects.effects.spiritwalls.colorb);
 			ctx.fillStyle = pattern;
 			ctx.beginPath();
-			ctx.arc(smallhex[i].x, smallhex[i].y, renderSettlementEffects.effects.spiritwalls.radius, 0, 2*Math.PI);
+			ctx.arc(smallhex[i].x, smallhex[i].y, renderTileEffects.effects.spiritwalls.radius, 0, 2*Math.PI);
 			ctx.fill();
 		}
 	}
-	if (tile.state.industry)
+	if (tile.hasEffect('TRK13'))
 	{
 		const cnv = gridToCanvas(tile.u, tile.v);
-		let r = Math.trunc(gridToCanvas.tileSize * renderSettlementEffects.effects.industry.radius);
+		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.industry.radius);
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
-		ctx.fillStyle = renderSettlementEffects.effects.industry.text;
+		ctx.fillStyle = renderTileEffects.effects.industry.text;
 		ctx.font = r.toString()+'px Armello Icons';
 		ctx.fillText('G', cnv.x, cnv.y);
 	}
+	if (tile.hasEffect('MAG30')) // Wall of Thorns
+	{
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.thorns.lineWidth);
+		let minihex = getHex(tile, gridToCanvas.tileSize*0.8);
+		ctx.lineCap = 'round';
+		ctx.lineJoin = 'round';
+		ctx.lineWidth = renderTileEffects.effects.thorns.lineWidth;
+		ctx.strokeStyle = renderTileEffects.effects.thorns.stroke;
+		ctx.beginPath();
+		ctx.moveTo(minihex[5].x, minihex[5].y);
+		for (let i=0; i<6; i++)
+			ctx.lineTo(minihex[i].x, minihex[i].y);
+		for (let i=0; i<6; i++)
+		{
+			ctx.moveTo(minihex[i].x, minihex[i].y);
+			ctx.lineTo(smallhex[i].x, smallhex[i].y);
+		}
+		ctx.stroke();
+	}
+	if (tile.hasEffect('MAG46')) // Rotten Fog
+	{
+		let hex = getHex(tile, gridToCanvas.tileSize * renderTileEffects.effects.fog.radius);
+		ctx.fillStyle = renderTileEffects.effects.fog.fill;
+		ctx.beginPath();
+		ctx.moveTo(hex[0].x, hex[0].y);
+		for (let i=1; i<6; i++)
+			ctx.lineTo(hex[i].x, hex[i].y);
+		ctx.closePath();
+		ctx.fill();
+	}
 }
-renderSettlementEffects.effects = {
+renderTileEffects.effects = {
 	owner: {radius: 0.6},
 	terrorized: {stroke: 'black', lineWidth: 5},
 	walls: {stroke: 'white', lineWidth: 3},
 	spiritwalls: {colora: 'blue', colorb: 'cyan', radius: 6},
 	industry: {text: 'white', radius: 0.5},
+	thorns: {stroke: 'rgba(0,64,0,1.0)', lineWidth: 5},
+	fog: {fill: 'rgba(64,64,0,0.7)', radius: 1.0},
 };
 //==================================================================================================
 function renderEntity(entity, ctx)

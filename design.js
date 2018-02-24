@@ -458,17 +458,16 @@ function MapHover(evt)
 					if (owner)
 						text += '<br />Owner: '+Name(owner.type);
 				}
-				if (tile.item.state.walls) text += '<br />Palisade Walls';
-				if (tile.item.state.spiritwalls) text += '<br />Stone Wards';
-				if (tile.item.state.industry) text += '<br />Patronage & Industry';
 			}; break;
 		}
+		for (let i = 0; i < tile.item.effects.length; i++)
+			text += '<br />'+Name(tile.item.effects[i]);
 		if (tile.item.perilcard)
 		{
 			let ent = (tile.item.perilowner < 5) 
 				? window.ArmelloMatchState.players.getItemById('id', tile.item.perilowner).hero 
 				: window.ArmelloMatchState.entities.getItemById('id', tile.item.perilowner);
-			text += '<br />' + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
+			text += '<br />Peril: ' + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
 			if (tile.item.perilbuffs.length > 0)
 				text += '<br />' + tile.item.perilbuffs.map(Name).join(', ');
 		}

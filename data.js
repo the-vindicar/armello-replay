@@ -385,8 +385,9 @@ function MapTile(type, coords, corner)
 		configurable : false,
 	});
 	this.type = type;
+	this.effects = [];
 	if (type == 'Settlement')
-		this.state = {terrorized:false, owner:undefined, walls:false, spiritwalls:false, industry:false};
+		this.state = {terrorized:false, owner:undefined};
 	else
 		this.state = {};
 	this.peril = undefined;
@@ -439,18 +440,38 @@ MapTile.prototype.clearPeril = function ()
 	else
 		console.warn('Tried to clear a peril from a tile without peril.');	
 };
-MapTile.prototype.changeState = function (key, value)
+MapTile.prototype.hasEffect = function (effect)
 {
-	this.state[key] = value;
-	this.notify('state', 'change', this.state);
-}
+	return this.effects.indexOf(effect) >= 0;
+};
+MapTile.prototype.addEffect = function (effect)
+{
+	this.effects.push(effect);
+	this.notify('effects', 'change', this.effects);
+};
+MapTile.prototype.removeEffect = function (effect)
+{
+	let idx = this.effects.indexOf(effect);
+	if (idx >= 0)
+	{
+		this.effects.splice(idx,1);
+		this.notify('effects', 'change', this.effects);
+	}
+};
+MapTile.prototype.removeEffects = function (/*...*/)
+{
+	for (let i = 0; i < arguments.length; i++)
+	{
+		let idx = this.effects.indexOf(arguments[i]);
+		if (idx >= 0)
+			this.effects.splice(idx,1);
+	}
+	this.notify('effects', 'change', this.effects);
+};
 MapTile.prototype.terrorizeSettlement = function ()
 {
 	this.state.terrorized = true;
 	this.state.owner = undefined;
-	this.state.walls = false;
-	this.state.spiritwalls = false;
-	this.state.industry = false;
 	this.notify('state', 'change', this.state);
 };
 MapTile.prototype.captureSettlement = function (owner)
@@ -715,6 +736,11 @@ MatchState.prototype.processEvent = function (evt)
 			case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
 			// Map tiles
 			case "addTile": this.map.addNewItem(MapTile, evt.type, evt.coords, evt.corner); break;
+			case "addTileEffect": if (evt.card != 'None')
+			{
+				let tile = this.map.getItemById('coords', evt.coords);
+				tile.addEffect(evt.card);
+			}; break;
 			case "playCardOnTile":
 			{
 				let tile = this.map.getItemById('coords', evt.coords);
@@ -722,9 +748,6 @@ MatchState.prototype.processEvent = function (evt)
 				{
 					case 'MAG36>Swamp': tile.changeType('Forest'); break; //Spirit Seeds
 					case 'TRK43>Forest': tile.changeType('Swamp'); break; //Arson
-					case 'TRK46>Settlement': tile.changeState('walls', true); break;//Palisade Walls
-					case 'TRK37>Settlement': tile.changeState('spiritwalls', true); break;//Stone Wards
-					case 'TRK13>Settlement': tile.changeState('industry', true); break;//Patronage & Industry
 				}
 	
 			}; break;
@@ -743,10 +766,18 @@ MatchState.prototype.processEvent = function (evt)
 			{
 				let tile = this.map.getItemById('coords', evt.coords);
 				// TRK33 == Emissary
-				let entity = (evt.reason == 'TRK33') ? evt.entity : this.entities.getLivingEntity('coords', evt.coords, false);
+				let entity = ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'HeroClaim')) 
+					? this.entities.getLivingEntity('coords', evt.coords, false)
+					: evt.entity;
 				// TRK16 == Incite Revolt
 				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsDec' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'TRK16'))
+				{
 					tile.terrorizeSettlement();
+					// -Patronage & Industry
+					// -Palisade Walls
+					// -Stone Wards
+					tile.removeEffects('TRK13', 'TRK37', 'TRK46');
+				}
 				else
 					tile.captureSettlement(entity ? entity.id : undefined);
 			}; break;
@@ -789,8 +820,12 @@ MatchState.prototype.processEvent = function (evt)
 			{
 				this.context.nextRound();
 				if (this.context.round % 2 == 1) //morning - increase bounty levels
+				{
 					for (let p = 0; p < 4; p++)
 						this.players.items[p].hero.updateBounty();
+					for (let i = 0; i < this.map.items.length; i++)
+						this.map.items[i].removeEffects('MAG30', 'MAG46');
+				}
 			}; break;
 		}
 	}

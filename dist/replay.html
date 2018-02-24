@@ -119,8 +119,8 @@ console.warn('Player ',this.name,' lost a card ',card,' from their hand they nev
 {this.hasquit=true;this.notify('hasquit','change',this.hasquit);};function MapTile(type,coords,corner)
 {Observable.call(this);if(typeof coords!=='undefined')
 this.coords=coords;else
-this.coords="-1,-1";Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.type=type;if(type=='Settlement')
-this.state={terrorized:false,owner:undefined,walls:false,spiritwalls:false,industry:false};else
+this.coords="-1,-1";Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.type=type;this.effects=[];if(type=='Settlement')
+this.state={terrorized:false,owner:undefined};else
 this.state={};this.peril=undefined;this.perilcard=undefined;this.perilowner=undefined;this.perilbuffs=new Array();this.corner=corner;}
 MapTile.prototype=Object.create(Observable.prototype);MapTile.prototype.constructor=MapTile;MapTile.prototype.changeType=function(newtype)
 {this.type=newtype;this.notify('type','change',this.type);};MapTile.prototype.setPeril=function(peril,card,owner)
@@ -135,10 +135,16 @@ console.warn('Tried to apply a buff ('+buff+') to a tile without peril.');};MapT
 {if(typeof this.peril!=='undefined')
 {var peril=this.perilcard;this.peril=undefined;this.perilcard=undefined;this.perilowner=undefined;this.perilbuffs=[];this.notify('peril','remove',peril);}
 else
-console.warn('Tried to clear a peril from a tile without peril.');};MapTile.prototype.changeState=function(key,value)
-{this.state[key]=value;this.notify('state','change',this.state);}
-MapTile.prototype.terrorizeSettlement=function()
-{this.state.terrorized=true;this.state.owner=undefined;this.state.walls=false;this.state.spiritwalls=false;this.state.industry=false;this.notify('state','change',this.state);};MapTile.prototype.captureSettlement=function(owner)
+console.warn('Tried to clear a peril from a tile without peril.');};MapTile.prototype.hasEffect=function(effect)
+{return this.effects.indexOf(effect)>=0;};MapTile.prototype.addEffect=function(effect)
+{this.effects.push(effect);this.notify('effects','change',this.effects);};MapTile.prototype.removeEffect=function(effect)
+{let idx=this.effects.indexOf(effect);if(idx>=0)
+{this.effects.splice(idx,1);this.notify('effects','change',this.effects);}};MapTile.prototype.removeEffects=function()
+{for(let i=0;i<arguments.length;i++)
+{let idx=this.effects.indexOf(arguments[i]);if(idx>=0)
+this.effects.splice(idx,1);}
+this.notify('effects','change',this.effects);};MapTile.prototype.terrorizeSettlement=function()
+{this.state.terrorized=true;this.state.owner=undefined;this.notify('state','change',this.state);};MapTile.prototype.captureSettlement=function(owner)
 {this.state.terrorized=false;this.state.owner=owner;this.notify('state','change',this.state);};function MapMarker(type,coords,title,player)
 {Observable.call(this);this.type=type;this.coords=(typeof coords!=='undefined')?coords:'-1,-1';Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.title=(typeof title!=='undefined')?title:'';this.player=player;}
 MapMarker.prototype=Object.create(Observable.prototype);MapMarker.prototype.constructor=MapMarker;MapMarker.prototype.moveTo=function(coords)
@@ -186,15 +192,18 @@ MatchState.prototype=Object.create(Observable.prototype);MatchState.prototype.co
 {if(ent.bounty>0)
 ent.toggleBounty();this.context.clearPactsFor(ent.player);}
 else
-ent.kill();};break;case"addEffect":this.entities.getItemById('id',evt.entity).addEffect(evt.card);break;case"removeEffect":this.entities.getItemById('id',evt.entity).removeEffect(evt.card);break;case"equipCard":this.entities.getItemById('id',evt.entity).equipCard(parseInt(evt.slot),evt.card);break;case"unequipCard":this.entities.getItemById('id',evt.entity).unequipCard(evt.slot,evt.card);break;case"gainCard":this.players.getItemById('id',evt.player).gainCard(evt.card);break;case"loseCard":this.players.getItemById('id',evt.player).loseCard(evt.card);break;case"changeStats":this.entities.getItemById('id',evt.entity).changeStat(evt.stat,evt.value);break;case"gainPact":this.context.addPact(evt.card,evt.player1,evt.player2);break;case"losePact":this.context.breakPactBetween(evt.card,evt.player1,evt.player2);break;case"toggleBounty":this.entities.getItemById('id',evt.entity).toggleBounty();break;case"toggleCorrupted":this.entities.getItemById('id',evt.entity).toggleCorrupted();break;case"addTile":this.map.addNewItem(MapTile,evt.type,evt.coords,evt.corner);break;case"playCardOnTile":{let tile=this.map.getItemById('coords',evt.coords);switch(evt.card+'>'+tile.type)
-{case'MAG36>Swamp':tile.changeType('Forest');break;case'TRK43>Forest':tile.changeType('Swamp');break;case'TRK46>Settlement':tile.changeState('walls',true);break;case'TRK37>Settlement':tile.changeState('spiritwalls',true);break;case'TRK13>Settlement':tile.changeState('industry',true);break;}};break;case"putPeril":{let id=(evt.owner<5)?this.players.getItemById('id',evt.owner).hero.id:evt.owner;this.map.getItemById('coords',evt.coords).setPeril(evt.peril,evt.card,id);};break;case"buffPeril":{let tile=this.map.getItemById('peril',evt.peril);tile.buffPeril(evt.card);};break;case"clearPeril":this.map.getItemById('peril',evt.peril).clearPeril();break;case"settlementChangeOwner":{let tile=this.map.getItemById('coords',evt.coords);let entity=(evt.reason=='TRK33')?evt.entity:this.entities.getLivingEntity('coords',evt.coords,false);if((evt.reason=='BaneTerrorise')||(evt.reason=='KingsDec')||(evt.reason=='KingsGuardTerrorise')||(evt.reason=='TRK16'))
-tile.terrorizeSettlement();else
+ent.kill();};break;case"addEffect":this.entities.getItemById('id',evt.entity).addEffect(evt.card);break;case"removeEffect":this.entities.getItemById('id',evt.entity).removeEffect(evt.card);break;case"equipCard":this.entities.getItemById('id',evt.entity).equipCard(parseInt(evt.slot),evt.card);break;case"unequipCard":this.entities.getItemById('id',evt.entity).unequipCard(evt.slot,evt.card);break;case"gainCard":this.players.getItemById('id',evt.player).gainCard(evt.card);break;case"loseCard":this.players.getItemById('id',evt.player).loseCard(evt.card);break;case"changeStats":this.entities.getItemById('id',evt.entity).changeStat(evt.stat,evt.value);break;case"gainPact":this.context.addPact(evt.card,evt.player1,evt.player2);break;case"losePact":this.context.breakPactBetween(evt.card,evt.player1,evt.player2);break;case"toggleBounty":this.entities.getItemById('id',evt.entity).toggleBounty();break;case"toggleCorrupted":this.entities.getItemById('id',evt.entity).toggleCorrupted();break;case"addTile":this.map.addNewItem(MapTile,evt.type,evt.coords,evt.corner);break;case"addTileEffect":if(evt.card!='None')
+{let tile=this.map.getItemById('coords',evt.coords);tile.addEffect(evt.card);};break;case"playCardOnTile":{let tile=this.map.getItemById('coords',evt.coords);switch(evt.card+'>'+tile.type)
+{case'MAG36>Swamp':tile.changeType('Forest');break;case'TRK43>Forest':tile.changeType('Swamp');break;}};break;case"putPeril":{let id=(evt.owner<5)?this.players.getItemById('id',evt.owner).hero.id:evt.owner;this.map.getItemById('coords',evt.coords).setPeril(evt.peril,evt.card,id);};break;case"buffPeril":{let tile=this.map.getItemById('peril',evt.peril);tile.buffPeril(evt.card);};break;case"clearPeril":this.map.getItemById('peril',evt.peril).clearPeril();break;case"settlementChangeOwner":{let tile=this.map.getItemById('coords',evt.coords);let entity=((evt.reason=='BaneTerrorise')||(evt.reason=='KingsGuardTerrorise')||(evt.reason=='HeroClaim'))?this.entities.getLivingEntity('coords',evt.coords,false):evt.entity;if((evt.reason=='BaneTerrorise')||(evt.reason=='KingsDec')||(evt.reason=='KingsGuardTerrorise')||(evt.reason=='TRK16'))
+{tile.terrorizeSettlement();tile.removeEffects('TRK13','TRK37','TRK46');}
+else
 tile.captureSettlement(entity?entity.id:undefined);};break;case"predictBane":{let old;while(old=this.markers.getItemById('type','banespawn',false))
 this.markers.removeItem(old);this.markers.addNewItem(MapMarker,'banespawn',evt.coords,'Incoming Bane');};break;case"spawnSpiritStone":{this.markers.addNewItem(MapMarker,'stone',evt.coords,'Spirit Stone');};break;case"removeSpiritStone":{for(let i=0;i<this.markers.items.length;i++)
 if((this.markers.items[i].type=='stone')&&(this.markers.items[i].coords==evt.coords))
 {this.markers.removeItem(this.markers.items[i]);break;}};break;case"setQuest":{this.markers.removeItemById('player',evt.player,false);let player=this.players.getItemById('id',evt.player);player.nextQuest();this.markers.addNewItem(MapMarker,'quest',evt.coords,Name(player.hero.type)+" quest #"+player.quests,evt.player);};break;case"prestigeLeader":this.context.setPrestigeLeader(evt.player);break;case"declaration":this.context.setDeclaration(evt.type);break;case"playerStart":this.players.addNewItem(Player,evt.player,evt.alias,evt.loc,evt.steam);break;case"playerQuit":this.players.getItemById('id',evt.player).quit();break;case"startTurn":this.context.setTurn(evt.entity);break;case"endTurn":this.context.setTurn(undefined);break;case"nextRound":{this.context.nextRound();if(this.context.round%2==1)
-for(let p=0;p<4;p++)
-this.players.items[p].hero.updateBounty();};break;}}
+{for(let p=0;p<4;p++)
+this.players.items[p].hero.updateBounty();for(let i=0;i<this.map.items.length;i++)
+this.map.items[i].removeEffects('MAG30','MAG46');}};break;}}
 catch(err)
 {console.error("Error when processing event: ",evt);throw err;}};</script>
 	<script data-loader="true">function ParserItem(owner,name,re,map,action)
@@ -292,7 +301,7 @@ return undefined;}},{name:"losePact",re:/Gameplay: HeroPactManager\+Message\+Los
 {if(this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"buffPeril",re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\):/i,map:["peril"],action:function(evt)
 {if(this.card_on_tile_cache)
-{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
+{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"addTileEffect",re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+),\s*Type:(\w+)\]\)/i,map:["coords","card","type"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
 {if((evt.reason=='Card')&&this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.reason=this.card_on_tile_cache.card;this.card_on_tile_cache=undefined;}
 return evt;}},{name:"setQuest",re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i,map:["player","coords"]},{name:"prestigeLeader",re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i,map:["player"]},{name:"declaration",re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i,map:["type"]},{name:"playerStart",re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i,map:["loc","player","alias","steam"]},{name:"playerQuit",re:/Matchmaking: NetworkRoomSteam: OnRoomPlayerDisconnected: .+ \(Player(\d)\), error (\w+)/i,map:["player","reason"]},{name:"nextRound",re:/Game: TurnManager\+Message\+PhaseStart: Dispatch\((\w+)\)/i,map:["type"]},{name:"startTurn",re:/Player: Player\+Message\+StartTurn: Dispatch\(\[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"startTurn",re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i,map:["entity"]},{name:"endTurn",re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\): .+? \((\w+)\)/i,map:["player","entity"],},{name:"victory",re:/Winner: \[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"chat",re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+),/i,map:["player","type"],action:function(evt)
@@ -332,7 +341,7 @@ return undefined;}},{name:"losePact",re:/Gameplay: HeroPactManager\+Message\+Los
 {if(this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"buffPeril",re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\):/i,map:["peril"],action:function(evt)
 {if(this.card_on_tile_cache)
-{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
+{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"addTileEffect",re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+),\s*Type:(\w+)\]\)/i,map:["coords","card","type"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
 {if((evt.reason=='Card')&&this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.reason=this.card_on_tile_cache.card;this.card_on_tile_cache=undefined;}
 return evt;}},{name:"setQuest",re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i,map:["player","coords"]},{name:"prestigeLeader",re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i,map:["player"]},{name:"declaration",re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i,map:["type"]},{name:"playerStart",re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i,map:["loc","player","alias","steam"]},{name:"playerQuit",re:/Matchmaking: NetworkRoomSteam: OnRoomPlayerDisconnected: .+ \(Player(\d)\), error (\w+)/i,map:["player","reason"]},{name:"nextRound",re:/Game: TurnManager\+Message\+PhaseStartForKing: Dispatch\((\w+)\)/i,map:["type"]},{name:"startTurn",re:/Player: Player\+Message\+StartTurn: Dispatch\(\[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"startTurn",re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i,map:["entity"]},{name:"endTurn",re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\): .+? \((\w+)\)/i,map:["player","entity"],},{name:"victory",re:/Winner: \[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"chat",re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+),/i,map:["player","type"],action:function(evt)
@@ -372,7 +381,7 @@ return undefined;}},{name:"losePact",re:/Gameplay: HeroPactManager\+Message\+Los
 {if(this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"buffPeril",re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\):/i,map:["peril"],action:function(evt)
 {if(this.card_on_tile_cache)
-{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
+{evt.entity=this.card_on_tile_cache.entity;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"addTileEffect",re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+),\s*Type:(\w+)\]\)/i,map:["coords","card","type"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
 {if((evt.reason=='Card')&&this.card_on_tile_cache)
 {evt.entity=this.card_on_tile_cache.entity;evt.reason=this.card_on_tile_cache.card;this.card_on_tile_cache=undefined;}
 return evt;}},{name:"setQuest",re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i,map:["player","coords"]},{name:"prestigeLeader",re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i,map:["player"]},{name:"declaration",re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i,map:["type"]},{name:"playerStart",re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i,map:["loc","player","alias","steam"]},{name:"playerQuit",re:/Matchmaking: NetworkRoomSteam: OnRoomPlayerDisconnected: .+ \(Player(\d)\), error (\w+)/i,map:["player","reason"]},{name:"nextRound",re:/Game: TurnManager\+Message\+PhaseStartForKing: Dispatch\((\w+)\)/i,map:["type"]},{name:"startTurn",re:/Player: Player\+Message\+StartTurn: Dispatch\(\[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"startTurn",re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i,map:["entity"]},{name:"endTurn",re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\): .+? \((\w+)\)/i,map:["player","entity"],},{name:"victory",re:/Winner: \[Player .+ \(Player(\d)\): [^(]+ \((\w+)\)/i,map:["player","entity"]},{name:"chat",re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+),/i,map:["player","type"],action:function(evt)
@@ -465,11 +474,9 @@ jumpToEvent(first.getAttribute('data-event-index'),true);}).catch(function(err)
 {let log=document.getElementById('log')
 if(log)log.removeAttribute('disabled');update(0,"Parsing error: "+err.toString());console.error(err);});}</script>
 	<script>function renderMap(canvas,context,highlight)
-{let ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);let settlements=[];for(let i=0;i<context.map.items.length;i++)
-{let tile=context.map.items[i];renderTile(tile,ctx);if(tile.type=='Settlement')
-settlements.push(tile);}
-for(let i=0;i<settlements.length;i++)
-renderSettlementEffects(settlements[i],ctx,context.entities);for(let i=0;i<context.markers.items.length;i++)
+{let ctx=canvas.getContext('2d');ctx.clearRect(0,0,canvas.width,canvas.height);for(let i=0;i<context.map.items.length;i++)
+{let tile=context.map.items[i];renderTile(tile,ctx);renderTileEffects(tile,ctx,context.entities);}
+for(let i=0;i<context.markers.items.length;i++)
 renderMarker(context.markers.items[i],context,ctx);for(let i=0;i<context.entities.items.length;i++)
 {let e=context.entities.items[i];if(!e.dead)
 renderEntity(e,ctx);}
@@ -496,23 +503,31 @@ ctx.lineTo(hex[i].x,hex[i].y);ctx.closePath();ctx.fill();if(tile.perilcard)
 {case'N':strokeTile(ctx,style,minihex,[1,2,3,4,5]);break;case'S':strokeTile(ctx,style,minihex,[4,5,0,1,2]);break;case'E':strokeTile(ctx,style,minihex,[3,4,5,0]);break;case'W':strokeTile(ctx,style,minihex,[0,1,2,3]);break;}}
 else
 {let pattern=ctx.createRadialGradient(cnv.x,cnv.y,0,cnv.x,cnv.y,gridToCanvas.tileSize);pattern.addColorStop(0.55,'transparent');pattern.addColorStop(0.75,'black');pattern.addColorStop(0.85,'transparent');ctx.fillStyle=pattern;ctx.beginPath();ctx.arc(cnv.x,cnv.y,gridToCanvas.tileSize,0,2*Math.PI);ctx.fill();}}}
-renderTile.styles={ClanCastle:{fill:'dimgray'},KingsPalace:{fill:'royalblue',stroke:'white',lineWidth:5},KingTile:{fill:'transparent'},Plains:{fill:'forestgreen'},Forest:{fill:'darkgreen'},Swamp:{fill:'saddlebrown'},Mountains:{fill:'paleturquoise'},StoneCircle:{fill:'darkturquoise'},Dungeon:{fill:'purple'},Settlement:{fill:'slategray'},};function renderSettlementEffects(tile,ctx,entities)
+renderTile.styles={ClanCastle:{fill:'dimgray'},KingsPalace:{fill:'royalblue',stroke:'white',lineWidth:5},KingTile:{fill:'transparent'},Plains:{fill:'forestgreen'},Forest:{fill:'darkgreen'},Swamp:{fill:'saddlebrown'},Mountains:{fill:'paleturquoise'},StoneCircle:{fill:'darkturquoise'},Dungeon:{fill:'purple'},Settlement:{fill:'slategray'},};function renderTileEffects(tile,ctx,entities)
 {const hex=getHex(tile);if(tile.state.terrorized)
-{ctx.strokeStyle=renderSettlementEffects.effects.terrorized.stroke;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=renderSettlementEffects.effects.terrorized.lineWidth;ctx.beginPath();for(let i=0;i<3;i++)
+{ctx.strokeStyle=renderTileEffects.effects.terrorized.stroke;ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=renderTileEffects.effects.terrorized.lineWidth;ctx.beginPath();for(let i=0;i<3;i++)
 {ctx.moveTo(hex[i].x,hex[i].y);ctx.lineTo(hex[i+3].x,hex[i+3].y);}
 ctx.stroke();}
 else if(tile.state.owner)
 {let owner=entities.getLivingEntity('id',tile.state.owner,false);if(owner&&(owner instanceof Hero))
-{const cnv=gridToCanvas(tile.u,tile.v);const sz=gridToCanvas.tileSize*renderSettlementEffects.effects.owner.radius;let pattern=ctx.createRadialGradient(cnv.x,cnv.y,0,cnv.x,cnv.y,sz);let fill=renderEntity.styles[owner.type.slice(0,-2)].fill;pattern.addColorStop(0,fill);pattern.addColorStop(0.4,fill);pattern.addColorStop(1,renderTile.styles.Settlement.fill);ctx.fillStyle=pattern;let smallhex=getHex(tile,sz);ctx.beginPath();ctx.moveTo(smallhex[0].x,smallhex[0].y);for(let i=1;i<6;i++)
+{const cnv=gridToCanvas(tile.u,tile.v);const sz=gridToCanvas.tileSize*renderTileEffects.effects.owner.radius;let pattern=ctx.createRadialGradient(cnv.x,cnv.y,0,cnv.x,cnv.y,sz);let fill=renderEntity.styles[owner.type.slice(0,-2)].fill;pattern.addColorStop(0,fill);pattern.addColorStop(0.4,fill);pattern.addColorStop(1,renderTile.styles.Settlement.fill);ctx.fillStyle=pattern;let smallhex=getHex(tile,sz);ctx.beginPath();ctx.moveTo(smallhex[0].x,smallhex[0].y);for(let i=1;i<6;i++)
 ctx.lineTo(smallhex[i].x,smallhex[i].y);ctx.closePath();ctx.fill();}}
-if(tile.state.walls)
-{let smallhex=getHex(tile,gridToCanvas.tileSize-renderSettlementEffects.effects.walls.linewidth/2);strokeTile(ctx,renderSettlementEffects.effects.walls,smallhex,[0,1,2,3,4,5,0]);}
-if(tile.state.spiritwalls)
-{let smallhex=getHex(tile,gridToCanvas.tileSize-renderSettlementEffects.effects.spiritwalls.radius);for(let i=0;i<6;i++)
-{let pattern=ctx.createRadialGradient(smallhex[i].x,smallhex[i].y,0,smallhex[i].x,smallhex[i].y,renderSettlementEffects.effects.spiritwalls.radius);pattern.addColorStop(0,renderSettlementEffects.effects.spiritwalls.colora);pattern.addColorStop(1,renderSettlementEffects.effects.spiritwalls.colorb);ctx.fillStyle=pattern;ctx.beginPath();ctx.arc(smallhex[i].x,smallhex[i].y,renderSettlementEffects.effects.spiritwalls.radius,0,2*Math.PI);ctx.fill();}}
-if(tile.state.industry)
-{const cnv=gridToCanvas(tile.u,tile.v);let r=Math.trunc(gridToCanvas.tileSize*renderSettlementEffects.effects.industry.radius);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=renderSettlementEffects.effects.industry.text;ctx.font=r.toString()+'px Armello Icons';ctx.fillText('G',cnv.x,cnv.y);}}
-renderSettlementEffects.effects={owner:{radius:0.6},terrorized:{stroke:'black',lineWidth:5},walls:{stroke:'white',lineWidth:3},spiritwalls:{colora:'blue',colorb:'cyan',radius:6},industry:{text:'white',radius:0.5},};function renderEntity(entity,ctx)
+if(tile.hasEffect('TRK37'))
+{let smallhex=getHex(tile,gridToCanvas.tileSize-renderTileEffects.effects.walls.linewidth/2);strokeTile(ctx,renderTileEffects.effects.walls,smallhex,[0,1,2,3,4,5,0]);}
+if(tile.hasEffect('TRK46'))
+{let smallhex=getHex(tile,gridToCanvas.tileSize-renderTileEffects.effects.spiritwalls.radius);for(let i=0;i<6;i++)
+{let pattern=ctx.createRadialGradient(smallhex[i].x,smallhex[i].y,0,smallhex[i].x,smallhex[i].y,renderTileEffects.effects.spiritwalls.radius);pattern.addColorStop(0,renderTileEffects.effects.spiritwalls.colora);pattern.addColorStop(1,renderTileEffects.effects.spiritwalls.colorb);ctx.fillStyle=pattern;ctx.beginPath();ctx.arc(smallhex[i].x,smallhex[i].y,renderTileEffects.effects.spiritwalls.radius,0,2*Math.PI);ctx.fill();}}
+if(tile.hasEffect('TRK13'))
+{const cnv=gridToCanvas(tile.u,tile.v);let r=Math.trunc(gridToCanvas.tileSize*renderTileEffects.effects.industry.radius);ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=renderTileEffects.effects.industry.text;ctx.font=r.toString()+'px Armello Icons';ctx.fillText('G',cnv.x,cnv.y);}
+if(tile.hasEffect('MAG30'))
+{let smallhex=getHex(tile,gridToCanvas.tileSize-renderTileEffects.effects.thorns.lineWidth);let minihex=getHex(tile,gridToCanvas.tileSize*0.8);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=renderTileEffects.effects.thorns.lineWidth;ctx.strokeStyle=renderTileEffects.effects.thorns.stroke;ctx.beginPath();ctx.moveTo(minihex[5].x,minihex[5].y);for(let i=0;i<6;i++)
+ctx.lineTo(minihex[i].x,minihex[i].y);for(let i=0;i<6;i++)
+{ctx.moveTo(minihex[i].x,minihex[i].y);ctx.lineTo(smallhex[i].x,smallhex[i].y);}
+ctx.stroke();}
+if(tile.hasEffect('MAG46'))
+{let hex=getHex(tile,gridToCanvas.tileSize*renderTileEffects.effects.fog.radius);ctx.fillStyle=renderTileEffects.effects.fog.fill;ctx.beginPath();ctx.moveTo(hex[0].x,hex[0].y);for(let i=1;i<6;i++)
+ctx.lineTo(hex[i].x,hex[i].y);ctx.closePath();ctx.fill();}}
+renderTileEffects.effects={owner:{radius:0.6},terrorized:{stroke:'black',lineWidth:5},walls:{stroke:'white',lineWidth:3},spiritwalls:{colora:'blue',colorb:'cyan',radius:6},industry:{text:'white',radius:0.5},thorns:{stroke:'rgba(0,64,0,1.0)',lineWidth:5},fog:{fill:'rgba(64,64,0,0.7)',radius:1.0},};function renderEntity(entity,ctx)
 {let type=(entity instanceof Hero)?entity.type.slice(0,-2):entity.type;let style=renderEntity.styles[type];if(!style)
 {console.warn('No render style for entity',entity);return;}
 let cnv=gridToCanvas(entity.u,entity.v);let r=gridToCanvas.tileSize*style.size;ctx.beginPath();ctx.arc(cnv.x,cnv.y,r,0,2*Math.PI);ctx.fillStyle=style.fill;ctx.strokeStyle=style.stroke;ctx.lineWidth=style.lineWidth;ctx.fill();ctx.stroke();let text;if(entity instanceof Hero)text=entity.playerid;else if(entity.type==='King')text='K';else if(entity.type==='KingsGuard')text='G';else if(entity.type==='Bane')text='B';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=style.text;ctx.font=r.toString()+'px Arial';ctx.fillText(text,cnv.x,cnv.y);}
@@ -650,10 +665,10 @@ else if(tile=getItemAt(window.ArmelloMatchState.map,x,y,1.0))
 {case'ClanCastle':text+='<br />'+sanitize(window.ArmelloMatchState.players.getItemById('corner',tile.item.corner).name);break;case'Settlement':{if(tile.item.state.terrorized)
 text+='<br />Terrorized';else if(tile.item.state.owner)
 {let owner=window.ArmelloMatchState.entities.getItemById('id',tile.item.state.owner,false);if(owner)
-text+='<br />Owner: '+Name(owner.type);}
-if(tile.item.state.walls)text+='<br />Palisade Walls';if(tile.item.state.spiritwalls)text+='<br />Stone Wards';if(tile.item.state.industry)text+='<br />Patronage & Industry';};break;}
-if(tile.item.perilcard)
-{let ent=(tile.item.perilowner<5)?window.ArmelloMatchState.players.getItemById('id',tile.item.perilowner).hero:window.ArmelloMatchState.entities.getItemById('id',tile.item.perilowner);text+='<br />'+Name(tile.item.perilcard)+'('+Name(ent.type)+')';if(tile.item.perilbuffs.length>0)
+text+='<br />Owner: '+Name(owner.type);}};break;}
+for(let i=0;i<tile.item.effects.length;i++)
+text+='<br />'+Name(tile.item.effects[i]);if(tile.item.perilcard)
+{let ent=(tile.item.perilowner<5)?window.ArmelloMatchState.players.getItemById('id',tile.item.perilowner).hero:window.ArmelloMatchState.entities.getItemById('id',tile.item.perilowner);text+='<br />Peril: '+Name(tile.item.perilcard)+'('+Name(ent.type)+')';if(tile.item.perilbuffs.length>0)
 text+='<br />'+tile.item.perilbuffs.map(Name).join(', ');}
 tooltip.innerHTML=text;tooltip.style='visibility:visible; right:'+rx.toString()+'px; bottom:'+by.toString()+'px';}
 else
