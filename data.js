@@ -748,6 +748,7 @@ MatchState.prototype.processEvent = function (evt)
 				{
 					case 'MAG36>Swamp': tile.changeType('Forest'); break; //Spirit Seeds
 					case 'TRK43>Forest': tile.changeType('Swamp'); break; //Arson
+					case 'TRK46>Settlement': tile.addEffect('TRK46'); break; //Palisade Walls
 				}
 	
 			}; break;

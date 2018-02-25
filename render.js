@@ -176,12 +176,12 @@ function renderTileEffects(tile, ctx, entities)
 			ctx.fill();
 		}
 	}
-	if (tile.hasEffect('TRK37'))
+	if (tile.hasEffect('TRK46')) //palisade walls
 	{
-		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.walls.linewidth / 2);
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.walls.lineWidth / 2);
 		strokeTile(ctx, renderTileEffects.effects.walls, smallhex, [0,1,2,3,4,5,0]);
 	}
-	if (tile.hasEffect('TRK46'))
+	if (tile.hasEffect('TRK37')) // stone wards
 	{
 		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.spiritwalls.radius);
 		for (let i = 0; i < 6; i++)
@@ -195,7 +195,7 @@ function renderTileEffects(tile, ctx, entities)
 			ctx.fill();
 		}
 	}
-	if (tile.hasEffect('TRK13'))
+	if (tile.hasEffect('TRK13')) //patronage and industry
 	{
 		const cnv = gridToCanvas(tile.u, tile.v);
 		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.industry.radius);
