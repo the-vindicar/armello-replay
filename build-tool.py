@@ -21,17 +21,17 @@ except ImportError: #leave them alone if not
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print 'Usage: '+path.basename(sys.argv[0])+' source.html destination.html'
-        print 'Takes source file and replaces all references to external JS and CSS files with the contents of those files.'
-        print 'Results are written to the destination file.'
+        print('Usage: '+path.basename(sys.argv[0])+' source.html destination.html')
+        print('Takes source file and replaces all references to external JS and CSS files with the contents of those files.')
+        print('Results are written to the destination file.')
         if jsmin_available:
-            print 'JavaScript files will be minified.'
+            print('JavaScript files will be minified.')
         else:
-            print 'JavaScript files will not be minified, since jsmin module is not found.'
+            print('JavaScript files will not be minified, since jsmin module is not found.')
         if cssmin_available:
-            print 'CSS files will be minified.'
+            print('CSS files will be minified.')
         else:
-            print 'CSS files will not be minified, since cssmin module is not found.'
+            print('CSS files will not be minified, since cssmin module is not found.')
         sys.exit(0);
     srcpath = sys.argv[1]
     dstpath = sys.argv[2]
@@ -42,32 +42,32 @@ if __name__ == '__main__':
     # replace CSS links with <style> tags
     for link in list(head.findall(".//link[@rel='stylesheet']")):
         href = link.get("href")
-        print "Replacing CSS reference: "+href
+        print("Replacing CSS reference: "+href)
         try:
             with open(path.join(basepath, href), 'rt') as cssfile:
                 css = cssmin(cssfile.read())
-            print "\tInserting "+str(len(css))+" bytes."
+            print("\tInserting "+str(len(css))+" bytes.")
             style = ET.Element('style')
-            style.text = css.decode('utf8')
+            style.text = css
             linkidx = list(head).index(link)
             head.remove(link)
             head.insert(linkidx, style)
         except Exception as E:
-            print "Failed to replace CSS reference: "+href
-            print "Reason: "+str(E)
+            print("Failed to replace CSS reference: "+href)
+            print("Reason: "+str(E))
     #replace JS links with inline JS
     for script in list(head.findall(".//script[@src]")):
         href = script.get('src')
-        print "Replacing JS reference: "+href
+        print("Replacing JS reference: "+href)
         try:
             with open(path.join(basepath, href), 'rt') as jsfile:
                 js = jsmin(jsfile.read())
-            print "\tInserting "+str(len(js))+" bytes."
+            print("\tInserting "+str(len(js))+" bytes.")
             script.attrib.pop('src')
-            script.text = js.decode('utf8')
+            script.text = js
         except Exception as E:
-            print "Failed to replace JS reference: "+href
-            print "Reason: "+str(E)
+            print("Failed to replace JS reference: "+href)
+            print("Reason: "+str(E))
     #with open(dstpath, 'wt') as dst:
     #    dst.write(ET.tostring(root, encoding="utf8", method="html"))
     dom.write(dstpath, encoding="utf8", method="html")
