@@ -30,7 +30,6 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 	// additional data
 	{
 		heroes_completed : [false, false, false, false],
-		played_cards_cache : {},
 		attacker : undefined,
 		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: InGameState/i,
 		re_end : /(\d+:\d+:\d+)\W+Matchmaking: Exiting matchmaking state: InGameState/i,
@@ -38,6 +37,7 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 		re_setuphero : /\[Hero (\w+) \((\d+)\):\s*Player=Player(\d),\s*Pos=\(-?\d+,-?\d+\)\],/i,
 		chat_prepared : undefined,
 		disconnect_cache : undefined,
+		card_on_hero_cache: undefined,
 		card_on_tile_cache: undefined,
 	},
 	//parser items describe translation of game log lines into event objects
@@ -132,22 +132,23 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 		{name:"loseCard", re:/Player: Player\+Message\+RemoveCardFromHand: Dispatch\(\[Player.+?\(Player(\d)\):.+?\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\]\)/i, map:["player", "card"]},
 		{name:"changeStats", re:/Gameplay: CreatureStats\+Message\+ChangeStats: Dispatch\(\[StatsChange: (\w+): creature:\[.+ \((\d+)\):.+?\] mod:(-?\d+) now:(-?\d+)\]\)/i, map:["stat", "entity", "delta", "value"]},
 		{name:"playCardOnCreature", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\): .+?\((\d+)\), [^\]]*\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[[^\(]+ \((\d+)\):/i, map:["player1", "entity1", "card", "entity2"]},
-		{name:"preGainPact", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\): .+?\((\d+)\), [^\]]*\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[[^\(]+ \((\d+)\): .*?Player=Player(\d),/i, map:["player1", "entity1", "card", "entity2", "player2"], action: function(evt)
+		{name:"preGainPact", re:/Player: Player\+Message\+PlayCardOnCreature: Dispatch\(\[Player .+? \(Player(\d)\):.+?\], \[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+], \[Hero .+? \((\d+)\):/i, map:["player", "card", "entity"], action: function(evt)
 			{
 				// we cache info about players playing cards on each other, since a pact is always related to the last card played
 				// so we know which card was used to initiate the pact
-				this.played_cards_cache[evt.player1+"to"+evt.player2] = evt.card;
+				this.card_on_hero_cache = {player:evt.player, entity:evt.entity, card:evt.card};
 				return undefined;
 			}
 		},
-		{name:"gainPact", re:/Gameplay: HeroPactManager\+Message\+GainPact: Dispatch\(\[.+? \(\d+\): Player=Player(\d),.+?\], \[.+? \(\d+\): Player=Player(\d),.+?\]/i, map:["player1", "player2"], action: function(evt)
+		{name:"gainPact", re:/Gameplay: HeroPactManager\+Message\+GainPact:/i, map:[], action: function(evt)
 			{
 				// sadly, there is no way to get the type of the pact, so we have to rely on our cache
-				let x = this.played_cards_cache[evt.player1+"to"+evt.player2];
-				if (typeof x !== 'undefined')
+				if (this.card_on_hero_cache)
 				{
-					evt.card = x;
-					delete this.played_cards_cache[evt.player1+"to"+evt.player2];
+					evt.player = this.card_on_hero_cache.player;
+					evt.entity = this.card_on_hero_cache.entity;
+					evt.card = this.card_on_hero_cache.card;
+					this.card_on_hero_cache = undefined;
 					return evt;
 				}
 				else

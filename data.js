@@ -699,7 +699,16 @@ MatchState.prototype.processEvent = function (evt)
 				let hero = new Hero(evt.entity);
 				this.entities.addItem(hero);
 				let player = this.players.getItemById('id',evt.player);
-				player.setHero(hero, evt.corner);
+				let corner;
+				switch (evt.coords)
+				{
+					case '0,0':  corner = 'Northeast';break;
+					case '7,0':  corner = 'Northwest';break;
+					case '3,8':  corner = 'Southwest';break;
+					case '-4,0': corner = 'Southeast';break;
+					default: if (evt.corner) corner = evt.corner; break;
+				}
+				player.setHero(hero, corner);
 			}; break;
 			case "setupHero": 
 			{
@@ -715,13 +724,18 @@ MatchState.prototype.processEvent = function (evt)
 				{
 					if (ent.bounty > 0)
 						ent.toggleBounty();
-					this.context.clearPactsFor(ent.player);
+					this.context.clearPactsFor(ent.playerid);
 				}
 				else
 					// apparently entities can receive updates even after they has been killed...
 					//this.entities.removeItem(ent);
 					// so we just mark them as dead.
 					ent.kill();
+			}; break;
+			case "applyKingsDecToGuard": if (this.context.proclamation == 'DECL_0028')
+			{
+				let ent = this.entities.getItemById('id', evt.entity); 
+				ent.kill();
 			}; break;
 			case "addEffect": this.entities.getItemById('id', evt.entity).addEffect(evt.card); break;
 			case "removeEffect": this.entities.getItemById('id', evt.entity).removeEffect(evt.card); break;
@@ -730,7 +744,12 @@ MatchState.prototype.processEvent = function (evt)
 			case "gainCard": this.players.getItemById('id', evt.player).gainCard(evt.card); break;
 			case "loseCard": this.players.getItemById('id', evt.player).loseCard(evt.card); break;
 			case "changeStats": this.entities.getItemById('id', evt.entity).changeStat(evt.stat, evt.value); break;
-			case "gainPact": this.context.addPact(evt.card, evt.player1, evt.player2); break;
+			case "gainPact": 
+			{
+				let p1 = evt.player;
+				let p2 = this.entities.getItemById('id', evt.entity).playerid;
+				this.context.addPact(evt.card, p1, p2); 
+			}; break;
 			case "losePact": this.context.breakPactBetween(evt.card, evt.player1, evt.player2); break;
 			case "toggleBounty": this.entities.getItemById('id', evt.entity).toggleBounty(); break;
 			case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
@@ -815,7 +834,11 @@ MatchState.prototype.processEvent = function (evt)
 			case "declaration": this.context.setDeclaration(evt.type); break;
 			case "playerStart": this.players.addNewItem(Player, evt.player, evt.alias, evt.loc, evt.steam); break;
 			case "playerQuit": this.players.getItemById('id', evt.player).quit(); break;
-			case "startTurn": this.context.setTurn(evt.entity); break;
+			case "startTurn": 
+			{
+				let entity = evt.entity ? evt.entity : this.entities.getItemById('playerid', evt.player).id;
+				this.context.setTurn(entity); 
+			}; break;
 			case "endTurn": this.context.setTurn(undefined); break;
 			case "nextRound": 
 			{

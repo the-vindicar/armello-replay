@@ -193,7 +193,7 @@ function MatchSelected(file, parser, update)
 					let target = Math.min(events.length, i+50);
 					while (i < target)
 					{
-						window.ArmelloMatchState.processEvent(events[i]); // processing another event
+						window.ArmelloMatchState.processEvent(events[i]); // processing the event
 						if (!gamebegan && (events[i].name === 'nextRound'))
 							gamebegan = true;
 						let desc = describeEvent(events[i]); // trying to get a description

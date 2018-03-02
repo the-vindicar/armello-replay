@@ -93,6 +93,7 @@ Parser.prototype._parseLine = function (line, pos)
 };
 Parser.prototype.findMatches = function (file, linecb)
 {
+	this.data = Object.create(this.data_init);
 	let matchfinderfunc = this.matchFinderFunc;
 	if (typeof linecb !== 'function')
 		return Parser._scanFile(file, matchfinderfunc);
@@ -146,8 +147,8 @@ Parser._findClosest = function (version)
 			let greater = vs.filter(function (v) { return v[n] > ver[n]; }).sort();
 			if (greater.length > 0) // there are Parsers with greater version number - use the first one since it's the closest
 				return greater[0].join('.');
-			else // All Parsers in temp have smaller version number - use the last one and hope for the best
-				return temp[temp.length-1].join('.');
+			else // All Parsers in vs have smaller version number - use the last one and hope for the best
+				return vs[vs.length-1].join('.');
 		}
 		else if (temp.length == 1) // there is only one match - return it and be done
 			return temp[0].join('.');
@@ -177,7 +178,7 @@ Parser.provideParserForFile = function (file)
 		reader.onloadend = function (event) //once data is accessible
 		{ 
 			//the only version line that seems to be present for all versions of the game
-			var re = /Build ID: .+\/((?:\d+\.)+\d+)-/ig;
+			var re = /Build\s*ID:.+\/((?:\d+\.)+\d+)-/ig;
 			var version;
 			//trying to find a match
 			var match = re.exec(event.target.result);
@@ -196,6 +197,19 @@ Parser.provideParserForFile = function (file)
 		//sending read request
 		reader.readAsText(file.slice(0, slicesize));
 	});
+};
+// returns the byte length of an utf8 string
+Parser._UTF8size = function (str)
+{
+	var s = str.length;
+	for (var i=str.length-1; i>=0; i--) 
+	{
+		var code = str.charCodeAt(i);
+		if (code > 0x7f && code <= 0x7ff) s++;
+		else if (code > 0x7ff && code <= 0xffff) s+=2;
+		if (code >= 0xDC00 && code <= 0xDFFF) i--; //trail surrogate
+	}
+	return s;
 };
 // Scans provided file line by line, calling linefunc for each line.
 // Returns Promise that resolves once the file has been processed and returns array of values returned by linefunc.
@@ -239,7 +253,7 @@ Parser._scanFile = function (file, linefunc)
 					reject(err); 
 					return;
 				}
-				startpos += i+1; // adjust starting position to match the next line
+				startpos += Parser._UTF8size(line); // adjust starting position to match the next line
 			}
 			// done with the chunk
 			// adjust starting position of the next chunk

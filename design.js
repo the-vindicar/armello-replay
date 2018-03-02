@@ -123,8 +123,17 @@ function describeEvent(evt)
 		}; break;
 		case 'gainCard': return describeEntity(context.players.getItemById('id', evt.player).hero)+' gets "'+PCard(evt.card)+'".'; break;
 		case 'loseCard': return describeEntity(context.players.getItemById('id', evt.player).hero)+' loses "'+PCard(evt.card)+'" from their hand.'; break;
-		case 'playCardOnCreature': return describeEntity(evt.entity1)+' plays '+PCard(evt.card)+' on '+describeEntity(evt.entity2); break;
-		case 'playCardOnTile': return describeEntity(evt.entity)+' plays '+PCard(evt.card)+' on '+describeTile(evt.coords); break;
+		case 'playCardOnCreature': 
+		{
+			let ent1 = context.entities.getItemById('playerid', evt.player);
+			let ent2 = context.entities.getItemById('id', evt.entity);
+			return describeEntity(ent1)+' plays '+PCard(evt.card)+' on '+describeEntity(ent2); 
+		}; break;
+		case 'playCardOnTile': 
+		{
+			let entity = evt.entity ? context.entities.getItemById('id', evt.entity) : context.entities.getItemById('playerid', evt.player);
+			return describeEntity(entity)+' plays '+PCard(evt.card)+' on '+describeTile(evt.coords); 
+		}; break;
 		case 'changeStats': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
@@ -174,7 +183,11 @@ function describeEvent(evt)
 		{
 			// TRK33 == Emissary
 			// TRK16 == Incite Revolt
-			let entity = (evt.reason.slice(0,3) == 'TRK') ? evt.entity : context.entities.getLivingEntity('coords', evt.coords, false);
+			let entity; 
+			if (evt.reason.slice(0,3) == 'TRK') 
+				entity = evt.entity ? context.entities.getItemById('id', evt.entity) : context.entities.getItemById('playerid', evt.player);
+			else 
+				entity = context.entities.getLivingEntity('coords', evt.coords, false);
 			switch (evt.reason)
 			{
 				case 'KingsDec': 
@@ -198,7 +211,8 @@ function describeEvent(evt)
 		case 'declaration': return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
 		case 'playerQuit': 
 		{
-			let s = sanitize(context.players.getItemById('id', evt.player).name);
+			let pl = context.players.getItemById('id', evt.player);
+			let s = sanitize(pl.name);
 			switch (evt.reason)
 			{
 				case 'PeerLeftRoom': s += ' has quit the game.'; break;
@@ -207,7 +221,11 @@ function describeEvent(evt)
 			}
 			return s;
 		}; break;
-		case 'startTurn': return "It's now "+describeEntity(context.entities.getItemById('id', evt.entity))+"'s turn."; break;
+		case 'startTurn': 
+		{
+			let entity = evt.entity ? context.entities.getItemById('id', evt.entity) : context.entities.getItemById('playerid', evt.player);
+			return "It's now "+describeEntity(entity)+"'s turn."; 
+		}; break;
 		case 'nextRound': return ((context.context.round % 2 == 0) ? 'Day ' : 'Night ')+(Math.floor(context.context.round / 2) + 1).toString(); break;
 		case 'victory': return sanitize(context.players.getItemById('id', evt.player).name)+' wins the game!'; break;
 		case 'chat': 
@@ -365,6 +383,7 @@ function jumpToEvent(eventid, scrollto)
 		if (scrollto)
 			target.scrollIntoView(true);
 	}
+	window.location.hash = target.getAttribute('data-event-index');
 	return true;
 }
 
@@ -388,13 +407,57 @@ function EventClicked(evt)
 	// if click isn't on an event, or if the event is already selected, do nothing
 	if ((target.id === 'turns') || target.hasAttribute('selected')) return;
 	evt.preventDefault();
-	if (jumpToEvent(target.getAttribute('data-event-index'), false))
-		// change window location hash - so user can link to a specific event in the file
-		// this will trigger hashchange event, but that's okay,
-		// since jumpToEvent() won't do anything if the event is already selected.
-		window.location.hash = target.getAttribute('data-event-index');
+	jumpToEvent(target.getAttribute('data-event-index'), false);
 }
 
+function PrevEvent(evt)
+{
+	let current = document.querySelector('#turns *[selected]');
+	if (current.previousElementSibling)
+		jumpToEvent(current.previousElementSibling.getAttribute('data-event-index'), true);
+}
+
+function NextEvent()
+{
+	let current = document.querySelector('#turns *[selected]');
+	if (current.nextElementSibling)
+		jumpToEvent(current.nextElementSibling.getAttribute('data-event-index'), true);
+}
+
+function PrevTurn()
+{
+	let current = document.querySelector('#turns *[selected]');
+	let matcher = /\bevent-startTurn\b/i;
+	let target = current.previousElementSibling;
+	while (target && !matcher.test(target.className))
+		target = target.previousElementSibling;
+	if (target)
+		jumpToEvent(target.getAttribute('data-event-index'), true);
+}
+
+function NextTurn()
+{
+	let current = document.querySelector('#turns *[selected]');
+	let matcher = /\bevent-startTurn\b/i;
+	let target = current.nextElementSibling;
+	while (target && !matcher.test(target.className))
+		target = target.nextElementSibling;
+	if (target)
+		jumpToEvent(target.getAttribute('data-event-index'), true);
+}
+
+function FirstEvent()
+{
+	let turns = document.querySelector('#turns');
+	jumpToEvent(turns.firstElementChild.getAttribute('data-event-index'), true);
+}
+
+function LastEvent()
+{
+	let turns = document.querySelector('#turns');
+	jumpToEvent(turns.lastElementChild.getAttribute('data-event-index'), true);
+}
+//================================================================================================
 function EventHover(evt)
 {
 	if (/\bentity|tile\b/.test(evt.target.className))
@@ -488,6 +551,45 @@ function MapLeave(evt)
 	tooltip.style = '';
 }
 //================================================================================================
+function KeyUp(evt)
+{
+	switch (evt.key)
+	{
+		case 'Up':
+		case 'ArrowUp':
+		{
+			evt.preventDefault();
+			PrevEvent();
+		}; break;
+		case 'Down':
+		case 'ArrowDown':
+		{
+			evt.preventDefault();
+			NextEvent();
+		}; break;
+		case 'PageUp':
+		{
+			evt.preventDefault();
+			PrevTurn();
+		}; break;
+		case 'PageDown':
+		{
+			evt.preventDefault();
+			NextTurn();
+		}; break;
+		case 'Home':
+		{
+			evt.preventDefault();
+			FirstEvent();
+		}; break;
+		case 'End':
+		{
+			evt.preventDefault();
+			LastEvent();
+		}; break;
+	}
+}
+//================================================================================================
 function deleteIfPresent(selector)
 {
 	let nodes = document.querySelectorAll(selector);
@@ -520,6 +622,8 @@ function switchToMainView()
 	turns.addEventListener('mouseover', EventHover, false);
 	// respond to location hash being changed
 	window.addEventListener('hashchange', HashChanged, false);
+	// respond to keypresses
+	window.addEventListener('keyup', KeyUp, false);
 }
 //================================================================================================
 window.addEventListener('load', function(evt) {
