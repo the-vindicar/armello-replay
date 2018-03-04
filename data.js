@@ -743,7 +743,16 @@ MatchState.prototype.processEvent = function (evt)
 			case "unequipCard": this.entities.getItemById('id', evt.entity).unequipCard(evt.slot, evt.card); break;
 			case "gainCard": this.players.getItemById('id', evt.player).gainCard(evt.card); break;
 			case "loseCard": this.players.getItemById('id', evt.player).loseCard(evt.card); break;
-			case "changeStats": this.entities.getItemById('id', evt.entity).changeStat(evt.stat, evt.value); break;
+			case "changeStats": 
+			{
+				let ent = this.entities.getItemById('id', evt.entity);
+				let before = ent[evt.stat];
+				ent.changeStat(evt.stat, evt.value);
+				let after = ent[evt.stat];
+				// As of 1.10 there are no more "hero corrupted" log events. We do it manually.
+				if ((evt.stat == 'Rot') && (ent instanceof Hero) && ((before < 5) != (after < 5)))
+					ent.toggleCorrupted();
+			}; break;
 			case "gainPact": 
 			{
 				let p1 = evt.player;
@@ -752,7 +761,8 @@ MatchState.prototype.processEvent = function (evt)
 			}; break;
 			case "losePact": this.context.breakPactBetween(evt.card, evt.player1, evt.player2); break;
 			case "toggleBounty": this.entities.getItemById('id', evt.entity).toggleBounty(); break;
-			case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
+			// RIP as of 1.10
+			//case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
 			// Map tiles
 			case "addTile": this.map.addNewItem(MapTile, evt.type, evt.coords, evt.corner); break;
 			case "addTileEffect": if (evt.card != 'None')
