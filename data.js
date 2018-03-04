@@ -789,6 +789,8 @@ MatchState.prototype.processEvent = function (evt)
 				{
 					case 'MAG36>Swamp': tile.changeType('Forest'); break; //Spirit Seeds
 					case 'TRK43>Forest': tile.changeType('Swamp'); break; //Arson
+					case 'TRK44>Settlement': tile.addEffect('TRK44PRE'); break; //Roxy's Recruiting
+					case 'TRK45>Settlement': tile.addEffect('TRK45PRE'); break; //Biff's Black Market
 					case 'TRK46>Settlement': tile.addEffect('TRK46'); break; //Palisade Walls
 				}
 	
@@ -817,11 +819,15 @@ MatchState.prototype.processEvent = function (evt)
 					tile.terrorizeSettlement();
 					// -Patronage & Industry
 					// -Palisade Walls
+					// -Roxy's Recruiting
+					// -Biff's Black Market
 					// -Stone Wards
-					tile.removeEffects('TRK13', 'TRK37', 'TRK46');
+					tile.removeEffects('TRK13', 'TRK37', 'TRK44PRE', 'TRK45PRE', 'TRK44', 'TRK45', 'TRK46');
 				}
 				else
+				{
 					tile.captureSettlement(entity ? entity.id : undefined);
+				}
 			}; break;
 			// Markers
 			case "predictBane": 
@@ -846,10 +852,26 @@ MatchState.prototype.processEvent = function (evt)
 			}; break;
 			case "setQuest": 
 			{
-				this.markers.removeItemById('player', evt.player, false);
 				let player = this.players.getItemById('id', evt.player);
 				player.nextQuest();
 				this.markers.addNewItem(MapMarker, 'quest', evt.coords, Name(player.hero.type)+" quest #"+player.quests, evt.player);
+			}; break;
+			case "completeQuest":
+			{
+				let hero = this.entities.getItemById('id', this.context.active);
+				if (!(hero instanceof Hero)) return;
+				let quest = this.markers.getItemById('player', hero.playerid, false);
+				if (hero.coords == quest.coords) // a story quest
+				{
+					this.markers.removeItem(quest);
+				}
+				else
+				{
+					let tile = this.map.getItemById('coords', hero.coords);
+					// Roxy's Recruiting & Biff's Black Market
+					if (tile.hasEffect('TRK44') || tile.hasEffect('TRK45'))
+						tile.removeEffects('TRK44', 'TRK45');
+				}
 			}; break;
 			// Other
 			case "prestigeLeader": this.context.setPrestigeLeader(evt.player); break;
@@ -870,7 +892,24 @@ MatchState.prototype.processEvent = function (evt)
 					for (let p = 0; p < 4; p++)
 						this.players.items[p].hero.updateBounty();
 					for (let i = 0; i < this.map.items.length; i++)
-						this.map.items[i].removeEffects('MAG30', 'MAG46');
+					{
+						let item = this.map.items[i];
+						item.removeEffects('MAG30', 'MAG46');
+					}
+				}
+				for (let i = 0; i < this.map.items.length; i++)
+				{
+					let item = this.map.items[i];
+					if (item.hasEffect('TRK44PRE'))
+					{
+						item.removeEffects('TRK44PRE');
+						item.addEffect('TRK44');
+					}
+					if (item.hasEffect('TRK45PRE'))
+					{
+						item.removeEffects('TRK45PRE');
+						item.addEffect('TRK45');
+					}
 				}
 			}; break;
 		}

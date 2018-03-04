@@ -207,6 +207,7 @@ function describeEvent(evt)
 			}
 		}; break;
 		// Other
+		case 'completeQuest': return describeEntity(context.context.active)+' has completed a quest.'; break;
 		case 'prestigeLeader': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
 		case 'declaration': return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
 		case 'playerQuit': 

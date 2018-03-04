@@ -286,6 +286,8 @@ Name.db = {
 	TRK43 : "Arson",
 	TRK44 : "Roxy's Recruiting",
 	TRK45 : "Biff's Black Market",
+	TRK44PRE : "Awaiting Roxy's Recruiting",
+	TRK45PRE : "Awaiting Biff's Black Market",
 	TRK46 : "Palisade Walls",
 	BRW01 : "Curse of Valour",
 	BRW02 : "Ill Fortune",

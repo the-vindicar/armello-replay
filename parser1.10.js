@@ -241,6 +241,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 			}
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
+		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
