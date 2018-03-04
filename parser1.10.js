@@ -126,7 +126,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		{name:"applyKingsDecToGuard", re:/KingsDec: KingsEffects\+Message\+ApplyEffectInSequence: Dispatch\(\[King's Guard.+?\((\d+)\):/i, map:["entity"]},
 		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
-		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\((?:\[.+?\])?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
+		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\(.+?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
 		{name:"removeEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+LoseStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
 		{name:"equipCard", re:/Gameplay: Creature\+Message\+EquipCard: Dispatch\(\[[^\(]+ \((\w+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], (\d)/i, map:["entity", "card", "slot"]},
