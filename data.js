@@ -299,6 +299,11 @@ Hero.prototype.toggleBounty = function()
 	this.bounty = (this.bounty == 0) ? 1 : 0;
 	this.notify('bounty', 'change', this.bounty);
 };
+Hero.prototype.setBounty = function(level)
+{
+	this.bounty = level;
+	this.notify('bounty', 'change', this.bounty);
+}
 //==================================================================================================
 function Player(id, name, location, steam)
 {
@@ -717,6 +722,13 @@ MatchState.prototype.processEvent = function (evt)
 				hero.moveTo(evt.coords);
 			}; break;
 			case "moveEntity": this.entities.getItemById('id', evt.entity).moveTo(evt.coords); break;
+			case "attack":
+			{
+				let attacker = this.entities.getItemById('id', evt.attacker);
+				let defender = this.entities.getItemById('id', evt.defender);
+				if ((attacker instanceof Hero) && (defender.type == 'King'))
+					attacker.setBounty(3);
+			}; break
 			case "killEntity": 
 			{
 				let ent = this.entities.getItemById('id', evt.entity); 

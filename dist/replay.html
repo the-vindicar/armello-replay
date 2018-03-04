@@ -105,7 +105,9 @@ else
 Entity.prototype.unequipCard.apply(this,arguments);};Hero.prototype.updateBounty=function()
 {if((this.bounty>0)&&(this.bounty<3))
 {this.bounty++;this.notify('bounty','change',this.bounty);}};Hero.prototype.toggleBounty=function()
-{this.bounty=(this.bounty==0)?1:0;this.notify('bounty','change',this.bounty);};function Player(id,name,location,steam)
+{this.bounty=(this.bounty==0)?1:0;this.notify('bounty','change',this.bounty);};Hero.prototype.setBounty=function(level)
+{this.bounty=level;this.notify('bounty','change',this.bounty);}
+function Player(id,name,location,steam)
 {Observable.call(this);this.id=id;this.location=location;this.hasquit=false;this.name=name;this.steam=steam;this.hand=new Array();this.heroid=undefined;Object.defineProperty(this,'hero',{value:undefined,enumerable:false,writable:true,configurable:false,});this.corner=undefined;this.quests=0;Object.defineProperty(this,'_herochanged',{value:Observable.prototype.notify.bind(this,'hero','change'),enumerable:false,writable:false,configurable:false,});}
 Player.prototype=Object.create(Observable.prototype);Player.prototype.constructor=Player;Player.prototype.setHero=function(hero,corner)
 {this.heroid=hero.id;this.hero=hero;this.hero.playerid=this.id;this.hero.subscribe(this._herochanged);this.notify('hero','set',hero);if(corner)
@@ -190,7 +192,9 @@ MatchState.prototype=Object.create(Observable.prototype);MatchState.prototype.co
 {switch(evt.name)
 {case"spawnNPC":this.entities.addNewItem(Entity,evt.entity,evt.type,evt.coords);break;case"spawnHero":{let hero=new Hero(evt.entity);this.entities.addItem(hero);let player=this.players.getItemById('id',evt.player);let corner;switch(evt.coords)
 {case'0,0':corner='Northeast';break;case'7,0':corner='Northwest';break;case'3,8':corner='Southwest';break;case'-4,0':corner='Southeast';break;default:if(evt.corner)corner=evt.corner;break;}
-player.setHero(hero,corner);};break;case"setupHero":{let hero=this.entities.getItemById('id',evt.entity);hero.setType(evt.type);hero.moveTo(evt.coords);};break;case"moveEntity":this.entities.getItemById('id',evt.entity).moveTo(evt.coords);break;case"killEntity":{let ent=this.entities.getItemById('id',evt.entity);if(ent instanceof Hero)
+player.setHero(hero,corner);};break;case"setupHero":{let hero=this.entities.getItemById('id',evt.entity);hero.setType(evt.type);hero.moveTo(evt.coords);};break;case"moveEntity":this.entities.getItemById('id',evt.entity).moveTo(evt.coords);break;case"attack":{let attacker=this.entities.getItemById('id',evt.attacker);let defender=this.entities.getItemById('id',evt.defender);if((attacker instanceof Hero)&&(defender.type=='King'))
+attacker.setBounty(3);};break
+case"killEntity":{let ent=this.entities.getItemById('id',evt.entity);if(ent instanceof Hero)
 {if(ent.bounty>0)
 ent.toggleBounty();this.context.clearPactsFor(ent.playerid);}
 else
@@ -759,9 +763,9 @@ function switchToMainView()
 {deleteIfPresent('#load');deleteIfPresent('script[data-loader]');document.getElementById('main').removeAttribute('style');let canvas=document.getElementById('map');canvas.setAttribute('width',gridToCanvas.GridWidth+2*gridToCanvas.xOffset);canvas.setAttribute('height',gridToCanvas.GridHeight+2*gridToCanvas.yOffset);canvas.addEventListener('mousemove',MapHover,false);canvas.addEventListener('mouseleave',MapLeave,false);window.ArmelloMatchState.players.subscribe(PlayersChanged);window.ArmelloMatchState.context.subscribe(ContextChanged);window.ArmelloMatchState.subscribe(OnUpdate);let turns=document.getElementById('turns');turns.addEventListener('click',EventClicked,false);turns.addEventListener('mouseover',EventHover,false);window.addEventListener('hashchange',HashChanged,false);window.addEventListener('keyup',KeyUp,false);}
 window.addEventListener('load',function(evt){window.ArmelloMatchState=new MatchState();if(('ArmelloMatchEvents'in window)&&('ArmelloMatchSnapshots'in window))
 {switchToMainView();let eventchosen=false;if(window.location.hash!=='')
-eventchosen=jumpToEvent(window.location.hash.slice(1),true);else
-{let current=document.querySelector('#turns *[selected]');current.removeAttribute('selected');if(current&&current.getAttribute('data-event-index'))
-eventchosen=jumpToEvent(current.getAttribute('data-event-index'),true);}
+eventchosen=jumpToEvent(window.location.hash.slice(1),true);if(!eventchosen)
+{let current=document.querySelector('#turns *[selected]');if(current&&current.getAttribute('data-event-index'))
+{current.removeAttribute('selected');eventchosen=jumpToEvent(current.getAttribute('data-event-index'),true);}}
 if(!eventchosen)
 {let first=document.querySelector('#turns *[data-event-index]')
 jumpToEvent(first.getAttribute('data-event-index'),true);}}

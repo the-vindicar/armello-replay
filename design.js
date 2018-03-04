@@ -636,12 +636,14 @@ window.addEventListener('load', function(evt) {
 		let eventchosen = false;
 		if (window.location.hash !== '') // if we got a link to a certain event, we go to the corresponding point
 			eventchosen = jumpToEvent(window.location.hash.slice(1), true);
-		else // we haven't got a link, so we go to the point that is marked as selected
+		if (!eventchosen) // we haven't got a link, or it's wrong - jump to selected event
 		{
 			let current = document.querySelector('#turns *[selected]');
-			current.removeAttribute('selected');
 			if (current && current.getAttribute('data-event-index'))
+			{
+				current.removeAttribute('selected'); // have to do that to ensure jump
 				eventchosen = jumpToEvent(current.getAttribute('data-event-index'), true);
+			}
 		}
 		// we got wrong link or otherwise failed to find desired event - just load the first event
 		if (!eventchosen)
