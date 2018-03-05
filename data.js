@@ -861,7 +861,7 @@ MatchState.prototype.processEvent = function (evt)
 				let hero = this.entities.getItemById('id', this.context.active);
 				if (!(hero instanceof Hero)) return;
 				let quest = this.markers.getItemById('player', hero.playerid, false);
-				if (hero.coords == quest.coords) // a story quest
+				if (quest && (hero.coords == quest.coords)) // a story quest
 				{
 					this.markers.removeItem(quest);
 				}

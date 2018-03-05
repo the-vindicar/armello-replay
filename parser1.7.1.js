@@ -191,6 +191,7 @@ Parser.Parsers['1.7.1.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*- Created (?:Feature )?Tile of Type: (\w+) at position: \((-?\d+,-?\d+)\),/i, map:["type", "coords"]},	
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
 		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\): Player=Player(\d+), Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "player", "coords"]},
+		{name:"takePeril", re:/Player: Player\+Message\+TakePerilEffect: Dispatch\(\[.+?\((\d+)\):.+?\], \[Card \w+: Asset:(\w+).+?\], \[Player .+? \(Player(\d)\):/i, map:["entity", "card", "player"]},
 		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[.+?\((\d+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["entity", "card","coords"], 
 			action:function (evt)
 			{

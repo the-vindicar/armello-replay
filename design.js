@@ -169,7 +169,7 @@ function describeEvent(evt)
 		case 'putPeril': 
 		{
 			let ent = (evt.owner < 5) 
-				? context.players.getItemById('id', evt.owner).hero 
+				? context.entites.getItemById('playerid', evt.owner)
 				: context.entities.getItemById('id', evt.owner);
 			return describeEntity(ent)+' puts '+PCard(evt.card)+' at '+describeTile(evt.coords)+'.'; 
 		}; break;
@@ -178,6 +178,11 @@ function describeEvent(evt)
 			let tile = context.map.getItemById('coords', evt.coords);
 			let hero = context.entities.getItemById('id', evt.entity);
 			return describeEntity(hero)+' encounters '+PCard(tile.perilcard)+' at '+describeTile(evt.coords)+'.';
+		}; break;
+		case 'takePeril':
+		{
+			let hero = context.entities.getItemById('playerid', evt.player);
+			return describeEntity(hero)+' fails '+describeEntity(evt.entity)+"'s peril.";
 		}; break;
 		case "settlementChangeOwner":
 		{
