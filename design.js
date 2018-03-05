@@ -169,7 +169,7 @@ function describeEvent(evt)
 		case 'putPeril': 
 		{
 			let ent = (evt.owner < 5) 
-				? context.entites.getItemById('playerid', evt.owner)
+				? context.entities.getItemById('playerid', evt.owner)
 				: context.entities.getItemById('id', evt.owner);
 			return describeEntity(ent)+' puts '+PCard(evt.card)+' at '+describeTile(evt.coords)+'.'; 
 		}; break;
