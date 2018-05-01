@@ -144,7 +144,7 @@ Name.db = {
 	CON08 : "Mountain Moss",
 	CON09 : "Bubble Tea",
 	CON10 : "Poisoned Gift",
-	//CON11 does not exist
+	CON11 : "Blackberry Dust",
 	CON12 : "Snake Venom",
 	FOL01 : "Alchemist",
 	FOL02 : "Apothecary",
@@ -435,6 +435,7 @@ Hint.db = {
 	CON08 : "Mountain Moss",
 	CON09 : "Bubble Tea",
 	CON10 : "Poisoned Gift",
+	CON11 : "Blackberry Dust",
 	CON12 : "Snake Venom",
 	FOL01 : "Alchemist",
 	FOL02 : "Apothecary",
