@@ -33,7 +33,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: InGameState/i,
 		re_end : /(\d+:\d+:\d+)\W+(?:Matchmaking: Exiting matchmaking state: InGameState|Analytics: (?:AnalyticsController: )?OnAppQuit:)/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
-		re_spawnhero : /NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d  \(Processing\) \(Player(\d), (\d+),/i,
+		re_spawnhero : /NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d\s+\(Processing\) \(Player(\d), (\d+),/i,
 		re_setuphero : /\[Hero (\w+) \((\d+)\):/i,
 
 		heroes_completed : {},
@@ -61,7 +61,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		},
 		{name:"moveEntity", re:/Gameplay: Creature\+Message\+SnapPosition: Dispatch\(\[.+? \((\w+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
 		{name:"moveEntity", re:/Gameplay: Creature\+Message\+MoveEnd: Dispatch\(\[.+? \((\w+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
-		{name:"attack", re:/Combat:\s+(Attacker|Defender): \[.+?\((\w+)\):/i, map:["role", "entity"], action : function(evt)
+		{name:"attack", re:/Combat:\s+(Attacker|Defender): \[.+?\((\d+)\):/i, map:["role", "entity"], action : function(evt)
 			{
 				if (evt.role === "Attacker")
 				{
@@ -127,8 +127,8 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\(.+?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
-		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
-		{name:"removeEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+LoseStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},
+		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+)/i, map:["entity", "card"]},
+		{name:"removeEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+LoseStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+)/i, map:["entity", "card"]},
 		{name:"equipCard", re:/Gameplay: Creature\+Message\+EquipCard: Dispatch\(\[[^\(]+ \((\w+)\).+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], (\d)/i, map:["entity", "card", "slot"]},
 		{name:"unequipCard", re:/Gameplay: Creature\+Message\+UnequipCard: Dispatch\(\[[^(]+ \((\w+)\).+?Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], (\w+), (\d)/i, map:["entity", "card", "reason", "slot"]},
 		{name:"gainCard", re:/Player: Player\+Message\+AddCardToHand: Dispatch\(\[Player.+?\(Player(\d)\):.+?\[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \w+, (\w+)\)/i, map:["player", "card", "source"]},
@@ -205,7 +205,6 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 				if (this.card_on_tile_cache)
 				{
 					evt.player = this.card_on_tile_cache.player;
-					evt.entity = this.card_on_tile_cache.entity;
 					evt.card = this.card_on_tile_cache.card;
 					evt.coords = this.card_on_tile_cache.coords;
 					this.card_on_tile_cache = undefined;
@@ -219,7 +218,6 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 				if (this.card_on_tile_cache)
 				{
 					evt.player = this.card_on_tile_cache.player;
-					evt.entity = this.card_on_tile_cache.entity;
 					evt.card = this.card_on_tile_cache.card;
 					evt.coords = this.card_on_tile_cache.coords;
 					this.card_on_tile_cache = undefined;
@@ -234,7 +232,6 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 				if ((evt.reason=='Card') && this.card_on_tile_cache)
 				{
 					evt.player = this.card_on_tile_cache.player;
-					evt.entity = this.card_on_tile_cache.entity;
 					evt.reason = this.card_on_tile_cache.card;
 					this.card_on_tile_cache = undefined;
 				}
@@ -303,18 +300,22 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		var player;
 		// found beginning of the match
 		if (match = this.re_start.exec(line)) 
+		{
 			// all info on previous match (if any) is lost
 			this.matchinfo = {starttime:match[1], startpos: pos, endtime:"", endpos: 0, players: []};
+			this.pre_heroes_completed = {};
+		}
 		// found information about a player
 		else if ((match = this.re_player.exec(line)) && (typeof this.matchinfo !== 'undefined') && (this.matchinfo.players.length < 4))
 			// add player info
 			this.matchinfo.players.push({name:match[1], steam:match[2]});
 		// found information about player's hero id and it's not set yet
-		else if (this.matchinfo &&
-				(match = this.re_spawnhero.exec(line)) &&
-				(player = this.matchinfo.players[parseInt(match[1])-1]) &&
-				(!player.heroid))
-			player.heroid = match[2];
+		else if (this.matchinfo && (match = this.re_spawnhero.exec(line)))
+		{
+			player = this.matchinfo.players[parseInt(match[1])-1];
+			if (!player.heroid)
+				player.heroid = match[2];
+		}
 		else if (this.matchinfo && (match = this.re_setuphero.exec(line)) && !this.pre_heroes_completed[match[2]])
 		{
 			for (let p = 0; p < 4; p++)
@@ -322,6 +323,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 				{
 					this.matchinfo.players[p].hero = match[1];
 					this.pre_heroes_completed[match[2]] = true;
+					break;
 				}
 		}
 		// found match ending line

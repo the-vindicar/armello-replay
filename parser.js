@@ -127,6 +127,14 @@ Parser._versionToArray = function(v)
 	return (v+'.0.0.0').split('.').slice(0,4)
 		.map(function(x){return parseInt(x,10);});
 };
+// Compares two version arrays
+Parser._versionComparer = function (v1, v2)
+{
+	for (let i = 0; i < v1.length; i++)
+		if (v1[i] < v2[i]) return -1;
+		else if (v1[i] > v2[i]) return 1;
+	return 0;
+}
 // Find a Parser version (from available versions) that is the closest to the provided version
 // version is a string in format "1.4"
 Parser._findClosest = function (version)
@@ -140,11 +148,11 @@ Parser._findClosest = function (version)
 	for (var n = 0; n < 4; n++) 
 	{
 		// find all Parsers with particular value in version number equal to the one we seek.
-		temp = vs.filter(function (v) { return v[n] == ver[n]; }).sort(); //array of arrays can be sorted!
+		temp = vs.filter(function (v) { return v[n] == ver[n]; }).sort(Parser._versionComparer); //array of arrays can be sorted!
 		if (temp.length == 0) // there are none - try and find the closest one and be done
 		{
 			// try to find the next version
-			let greater = vs.filter(function (v) { return v[n] > ver[n]; }).sort();
+			let greater = vs.filter(function (v) { return v[n] > ver[n]; }).sort(Parser._versionComparer);
 			if (greater.length > 0) // there are Parsers with greater version number - use the first one since it's the closest
 				return greater[0].join('.');
 			else // All Parsers in vs have smaller version number - use the last one and hope for the best
@@ -172,13 +180,13 @@ Parser.provideParserForFile = function (file)
 {	
 	return new Promise(function (resolve, reject) 
 	{
-		const slicesize = 8*1024; //reading first 8Kb of the file - should be enough to find version number.
+		const slicesize = 1*1024; //reading first 1Kb of the file - should be enough to find version number.
 		var reader = new FileReader();
 		// FileReader does it's job anycronously...
 		reader.onloadend = function (event) //once data is accessible
 		{ 
 			//the only version line that seems to be present for all versions of the game
-			var re = /Build\s*ID:.+\/((?:\d+\.)+\d+)-/ig;
+			var re = /Build\s*ID:[^0-9]+((?:\d+\.)+\d+)-/ig;
 			var version;
 			//trying to find a match
 			var match = re.exec(event.target.result);

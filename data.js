@@ -1,4 +1,3 @@
-'use strict';
 //==================================================================================================
 // Basic class implementing Observer pattern
 function Observable()
@@ -810,9 +809,19 @@ MatchState.prototype.processEvent = function (evt)
 			{
 				let tile = this.map.getItemById('coords', evt.coords);
 				// TRK33 == Emissary
-				let entity = ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'HeroClaim')) 
-					? this.entities.getLivingEntity('coords', evt.coords, false)
-					: evt.entity;
+				let entityid;
+				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'HeroClaim')) 
+				{
+					let entity = this.entities.getLivingEntity('coords', evt.coords, false);
+					entityid = entity ? entity.id : undefined;
+				}
+				else if (evt.entity)
+					entityid = evt.entity;
+				else if (evt.player)
+				{
+					let player = this.players.getItemById('id',evt.player);
+					entityid = player.heroid;
+				}
 				// TRK16 == Incite Revolt
 				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsDec' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'TRK16'))
 				{
@@ -826,7 +835,7 @@ MatchState.prototype.processEvent = function (evt)
 				}
 				else
 				{
-					tile.captureSettlement(entity ? entity.id : undefined);
+					tile.captureSettlement(entityid);
 				}
 			}; break;
 			// Markers
