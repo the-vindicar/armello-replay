@@ -20,7 +20,7 @@ except ImportError: #leave them alone if not
 #
 
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
+    if (len(sys.argv) == 2) and (sys.argv[1] in ('/?', '-h', '--help')):
         print('Usage: '+path.basename(sys.argv[0])+' source.html destination.html')
         print('Takes source file and replaces all references to external JS and CSS files with the contents of those files.')
         print('Results are written to the destination file.')
@@ -33,8 +33,14 @@ if __name__ == '__main__':
         else:
             print('CSS files will not be minified, since cssmin module is not found.')
         sys.exit(0);
-    srcpath = sys.argv[1]
-    dstpath = sys.argv[2]
+    try:
+        srcpath = sys.argv[1]
+    except IndexError:
+        srcpath = "design.html"
+    try:
+        dstpath = sys.argv[2]
+    except IndexError:
+        dstpath = r"dist\replay.html"
     basepath = path.dirname(path.abspath(srcpath))
     dom = ET.parse(srcpath)
     root = dom.getroot()
