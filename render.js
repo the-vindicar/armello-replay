@@ -195,7 +195,27 @@ function renderTileEffects(tile, ctx, entities)
 			ctx.fill();
 		}
 	}
-	if (tile.hasEffect('TRK13')) //patronage and industry
+	if (tile.hasEffect('TRK38') || tile.hasEffect('TRK39') || tile.hasEffect('TRK44') || tile.hasEffect('TRK45'))
+	{
+		const cnv = gridToCanvas(tile.u, tile.v);
+		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.trader.radius);
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = renderTileEffects.effects.trader.text;
+		ctx.font = r.toString()+'px Armello Icons';
+		ctx.fillText('G', cnv.x, cnv.y);
+	}
+	else if (tile.hasEffect('TRK38PRE') || tile.hasEffect('TRK39PRE') || tile.hasEffect('TRK44PRE') || tile.hasEffect('TRK45PRE'))
+	{
+		const cnv = gridToCanvas(tile.u, tile.v);
+		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.incomingtrader.radius);
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = renderTileEffects.effects.incomingtrader.text;
+		ctx.font = r.toString()+'px Armello Icons';
+		ctx.fillText('G', cnv.x, cnv.y);
+	}
+	else if (tile.hasEffect('TRK13')) //patronage and industry
 	{
 		const cnv = gridToCanvas(tile.u, tile.v);
 		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.industry.radius);
@@ -203,7 +223,7 @@ function renderTileEffects(tile, ctx, entities)
 		ctx.textBaseline = 'middle';
 		ctx.fillStyle = renderTileEffects.effects.industry.text;
 		ctx.font = r.toString()+'px Armello Icons';
-		ctx.fillText('G', cnv.x, cnv.y);
+		ctx.fillText('P', cnv.x, cnv.y);
 	}
 	if (tile.hasEffect('MAG30')) // Wall of Thorns
 	{
@@ -242,6 +262,8 @@ renderTileEffects.effects = {
 	walls: {stroke: 'white', lineWidth: 3},
 	spiritwalls: {colora: 'blue', colorb: 'cyan', radius: 6},
 	industry: {text: 'white', radius: 0.5},
+	incomingtrader: {text: 'black', radius: 0.5},
+	trader: {text: 'white', radius: 0.5},
 	thorns: {stroke: 'rgba(0,64,0,1.0)', lineWidth: 5},
 	fog: {fill: 'rgba(64,64,0,0.7)', radius: 1.0},
 };

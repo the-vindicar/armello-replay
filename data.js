@@ -692,6 +692,8 @@ MatchState.prototype.getSnapshot = function ()
 // Main event processing routine
 MatchState.prototype.processEvent = function (evt)
 {
+	const traders = ['TRK38','TRK39','TRK44','TRK45'];
+	const traders_pre = ['TRK38PRE','TRK39PRE','TRK44PRE','TRK45PRE'];
 	try
 	{
 		switch (evt.name)
@@ -788,9 +790,17 @@ MatchState.prototype.processEvent = function (evt)
 				{
 					case 'MAG36>Swamp': tile.changeType('Forest'); break; //Spirit Seeds
 					case 'TRK43>Forest': tile.changeType('Swamp'); break; //Arson
-					case 'TRK44>Settlement': tile.addEffect('TRK44PRE'); break; //Roxy's Recruiting
-					case 'TRK45>Settlement': tile.addEffect('TRK45PRE'); break; //Biff's Black Market
 					case 'TRK46>Settlement': tile.addEffect('TRK46'); break; //Palisade Walls
+					default:
+					{
+						let trdid = traders.indexOf(evt.card);
+						if ((trdid >= 0) && (tile.type == 'Settlement'))
+						{
+							tile.removeEffect.apply(tile, traders);
+							tile.removeEffect.apply(tile, traders_pre);
+							tile.addEffect(traders_pre[trdid]);
+						}
+					}
 				}
 	
 			}; break;
@@ -830,8 +840,12 @@ MatchState.prototype.processEvent = function (evt)
 					// -Palisade Walls
 					// -Roxy's Recruiting
 					// -Biff's Black Market
+					// -Simeon's Arms
+					// -Betty's Bargain Brews
 					// -Stone Wards
-					tile.removeEffects('TRK13', 'TRK37', 'TRK44PRE', 'TRK45PRE', 'TRK44', 'TRK45', 'TRK46');
+					tile.removeEffects('TRK13', 'TRK37', 'TRK44', 'TRK45', 'TRK46');
+					tile.removeEffect.apply(tile, traders);
+					tile.removeEffect.apply(tile, traders_pre);
 				}
 				else
 				{
@@ -909,15 +923,15 @@ MatchState.prototype.processEvent = function (evt)
 				for (let i = 0; i < this.map.items.length; i++)
 				{
 					let item = this.map.items[i];
-					if (item.hasEffect('TRK44PRE'))
+					if (item.type == 'Settlement')
 					{
-						item.removeEffects('TRK44PRE');
-						item.addEffect('TRK44');
-					}
-					if (item.hasEffect('TRK45PRE'))
-					{
-						item.removeEffects('TRK45PRE');
-						item.addEffect('TRK45');
+						item.removeEffects.apply(item, traders);
+						for (let j = 0; j < traders_pre.length; j++)
+							if (item.hasEffect(traders_pre[j]))
+							{
+								item.removeEffect(traders_pre[j]);
+								item.addEffect(traders[j]);
+							}
 					}
 				}
 			}; break;
