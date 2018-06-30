@@ -26,16 +26,13 @@
 //			endpos - saved position of match ending in the log file
 //			players - array of four objects describing individual players. 
 //				Each object should contain player's in-game name(name), Steam ID(steam) and chosen hero(hero).
-Parser.Parsers['1.10.0.0'] = new Parser(
+Parser.Parsers['1.12.0.0'] = new Parser(
 	// additional data
 	{
-		pre_heroes_completed : {},
-		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: InGameState/i,
+		re_start : /(\d+:\d+:\d+)\W+Matchmaking: Entering matchmaking state: BeginMatchState/i,
 		re_end : /(\d+:\d+:\d+)\W+(?:Matchmaking: Exiting matchmaking state: InGameState|Analytics: (?:AnalyticsController: )?OnAppQuit:)/i,
-		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: \w+, Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
-		re_spawnhero : /NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d\s+\(Processing\) \(Player(\d), (\d+),/i,
-		re_setuphero : /\[Hero (\w+) \((\d+)\):/i,
-
+		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: Player(\d), Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
+		re_setuphero : /Player: Player\+Message\+PlayerGameStateChanged: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
 		heroes_completed : {},
 		player_quit_events : [false, false, false, false],
 		chat_prepared : undefined,
@@ -48,7 +45,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \S+ Spawn(\w+?)(?:AsAuthority)?\s* \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
-		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d  \(Processing\) \(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
+		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] \w+#Sync#SetupPlayerHero#\d\s+\(Processing\)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		{name:"setupHero", re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"], action: function(evt)
 			{
 				// we only generate "setupHero" event the first time we learn about relationship between hero type and hero's entity ID
@@ -125,6 +122,7 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 		{name:"killEntity", re:/Gameplay: Creature\+Message\+DeathEnd: Dispatch\(\[(?:[^(]+) \((\d+)\):/i, map:["entity"]},
 		{name:"applyKingsDecToGuard", re:/KingsDec: KingsEffects\+Message\+ApplyEffectInSequence: Dispatch\(\[King's Guard.+?\((\d+)\):/i, map:["entity"]},
 		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\).+\], (\w+)\)/i, map:["coords", "active"]},
+		{name:"predictSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\).+\], (\w+)\)/i, map:["coords", "active"]},
 		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\(.+?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+)/i, map:["entity", "card"]},
@@ -296,38 +294,30 @@ Parser.Parsers['1.10.0.0'] = new Parser(
 	// }
 	function (line, pos)
 	{
-		var match;
-		var player;
+		let match;
+		let player;
 		// found beginning of the match
 		if (match = this.re_start.exec(line)) 
 		{
 			// all info on previous match (if any) is lost
-			this.matchinfo = {starttime:match[1], startpos: pos, endtime:"", endpos: 0, players: []};
-			this.pre_heroes_completed = {};
+			this.matchinfo = {starttime:match[1], startpos: pos, endtime:"", endpos: 0, players: [{},{},{},{}]};
 		}
 		// found information about a player
-		else if ((match = this.re_player.exec(line)) && (typeof this.matchinfo !== 'undefined') && (this.matchinfo.players.length < 4))
+		else if (this.matchinfo && (match = this.re_player.exec(line)))
+		{
 			// add player info
-			this.matchinfo.players.push({name:match[1], steam:match[2]});
-		// found information about player's hero id and it's not set yet
-		else if (this.matchinfo && (match = this.re_spawnhero.exec(line)))
+			player = this.matchinfo.players[parseInt(match[1])-1];
+			player.name = match[2];
+			player.steam = match[3];
+		}
+		else if (this.matchinfo && (match = this.re_setuphero.exec(line)))
 		{
 			player = this.matchinfo.players[parseInt(match[1])-1];
-			if (!player.heroid)
-				player.heroid = match[2];
-		}
-		else if (this.matchinfo && (match = this.re_setuphero.exec(line)) && !this.pre_heroes_completed[match[2]])
-		{
-			for (let p = 0; p < 4; p++)
-				if (this.matchinfo.players[p].heroid == match[2])
-				{
-					this.matchinfo.players[p].hero = match[1];
-					this.pre_heroes_completed[match[2]] = true;
-					break;
-				}
+			player.heroid = match[3];
+			player.hero = match[2];
 		}
 		// found match ending line
-		else if ((match = this.re_end.exec(line)) && (typeof this.matchinfo !== 'undefined'))
+		else if (this.matchinfo && (match = this.re_end.exec(line)))
 		{
 			// saving collected info
 			var info = this.matchinfo;

@@ -68,7 +68,7 @@ SerializableObservableCollection.prototype.clearItems = function ()
 {
 	for (var i = 0; i < this.items.length; i++) 
 		if (item instanceof Observable)
-			this.items[i].unsubscribe(handler);
+			this.items[i].unsubscribe(this._itemchanged);
 	this.items.splice(0, this.items.length);
 	this.notify('items', 'change');
 };
@@ -129,7 +129,7 @@ SerializableObservableCollection.prototype.deserializeItems = function(data, rev
 		{
 			var newitem = reviver(objectlist[i]);
 			if (newitem instanceof Observable)
-				newitem.subscribe(this._itemchanged);			
+				newitem.subscribe(this._itemchanged);
 			this.items.push(newitem);
 		}
 		else
@@ -711,7 +711,7 @@ MatchState.prototype.processEvent = function (evt)
 					case '0,0':  corner = 'Northeast';break;
 					case '7,0':  corner = 'Northwest';break;
 					case '3,8':  corner = 'Southwest';break;
-					case '-4,0': corner = 'Southeast';break;
+					case '-4,8': corner = 'Southeast';break;
 					default: if (evt.corner) corner = evt.corner; break;
 				}
 				player.setHero(hero, corner);
@@ -855,10 +855,17 @@ MatchState.prototype.processEvent = function (evt)
 			// Markers
 			case "predictBane": 
 			{
-				let old;
-				while (old = this.markers.getItemById('type', 'banespawn', false))
-					this.markers.removeItem(old);
-				this.markers.addNewItem(MapMarker, 'banespawn', evt.coords, 'Incoming Bane'); 
+				if (evt.active == 'True')
+					this.markers.addNewItem(MapMarker, 'banespawn', evt.coords, 'Incoming Bane');
+				else
+					this.markers.removeItemById('coords', evt.coords);
+			}; break;
+			case "predictSpiritStone":
+			{
+				if (evt.active == 'True')
+					this.markers.addNewItem(MapMarker, 'stonespawn', evt.coords, 'Incoming Spirit Stone');
+				else
+					this.markers.removeItemById('coords', evt.coords);
 			}; break;
 			case "spawnSpiritStone":
 			{
@@ -899,7 +906,11 @@ MatchState.prototype.processEvent = function (evt)
 			// Other
 			case "prestigeLeader": this.context.setPrestigeLeader(evt.player); break;
 			case "declaration": this.context.setDeclaration(evt.type); break;
-			case "playerStart": this.players.addNewItem(Player, evt.player, evt.alias, evt.loc, evt.steam); break;
+			case "playerStart": 
+			{
+				if (typeof this.players.getItemById('id', evt.player, false) === 'undefined')
+					this.players.addNewItem(Player, evt.player, evt.alias, evt.loc, evt.steam); 
+			}; break;
 			case "playerQuit": this.players.getItemById('id', evt.player).quit(); break;
 			case "startTurn": 
 			{

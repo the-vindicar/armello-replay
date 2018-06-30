@@ -256,6 +256,10 @@ html, body {
 	font-weight: bold;
 }
 
+#turns li.event-combatEnd {
+	position: relative;
+}
+
 #turns li.event-attack::before, li.event-combatEnd::before {
   font:smaller "Armello Icons";
   content: "x ";
@@ -276,6 +280,7 @@ html, body {
 	display:table; 
 	position: absolute;
 }
+
 #turns li.event-combatEnd[selected] {
 	padding-bottom: 4pt;
 }

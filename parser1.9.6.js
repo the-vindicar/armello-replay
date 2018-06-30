@@ -121,7 +121,7 @@ Parser.Parsers['1.9.6.0'] = new Parser(
 		},
 		{name:"killEntity", re:/Gameplay: Creature\+Message\+DeathEnd: Dispatch\(\[(?:[^(]+) \((\d+)\):/i, map:["entity"]},
 		{name:"applyKingsDecToGuard", re:/KingsDec: KingsEffects\+Message\+ApplyEffectInSequence: Dispatch\(\[King's Guard.+?\((\d+)\):/i, map:["entity"]},
-		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
+		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\).+\], (\w+)\)/i, map:["coords", "active"]},
 		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"removeSpiritStone", re:/GameplayVisualization: HeroController\+Message\+SpiritStoneCollectCompleted: Dispatch\((?:\[.+?\])?, \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
 		{name:"addEffect", re:/Gameplay: CreatureStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[[^(]+ \((\d+)\):.+?\], StatusEffect\s*\[Source:(\w+),\s*Type:\w+\s*\]\)/i, map:["entity", "card"]},

@@ -317,11 +317,12 @@ function renderMarker(marker, context, ctx)
 	{
 		case 'quest': renderQuestMarker(marker, context, ctx); break;
 		case 'stone': renderStoneMarker(marker, ctx); break;
-		case 'banespawn': renderBaneMarker(marker, ctx); break;
+		case 'banespawn': renderBaneSpawnMarker(marker, ctx); break;
+		case 'stonespawn': renderStoneSpawnMarker(marker, ctx); break;
 	}
 }
 
-function renderBaneMarker(marker, ctx)
+function renderBaneSpawnMarker(marker, ctx)
 {
 	let cnv = gridToCanvas(marker.u, marker.v);
 	let r = gridToCanvas.tileSize * 0.25;
@@ -334,6 +335,38 @@ function renderBaneMarker(marker, ctx)
 	ctx.lineWidth = 8;
 	ctx.lineCap = 'round';
 	ctx.stroke();
+}
+
+function renderStoneSpawnMarker(marker, ctx)
+{
+	let cnv = gridToCanvas(marker.u, marker.v);
+	let r = gridToCanvas.tileSize * 0.25;
+	let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, r);
+	pattern.addColorStop(0, 'cyan');
+	pattern.addColorStop(1, 'blue');
+
+	ctx.beginPath();
+	ctx.moveTo(cnv.x - r, cnv.y - r);
+	ctx.lineTo(cnv.x + r, cnv.y + r);
+	ctx.moveTo(cnv.x - r, cnv.y + r);
+	ctx.lineTo(cnv.x + r, cnv.y - r);
+	ctx.strokeStyle = pattern;
+	ctx.lineWidth = 8;
+	ctx.lineCap = 'round';
+	ctx.stroke();
+}
+
+function renderStoneMarker(marker, ctx)
+{
+	let cnv = gridToCanvas(marker.u, marker.v);
+	let r = gridToCanvas.tileSize * 0.4;
+	let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, r);
+	pattern.addColorStop(0, 'cyan');
+	pattern.addColorStop(1, 'blue');
+	ctx.fillStyle = pattern;
+	ctx.beginPath();
+	ctx.arc(cnv.x, cnv.y, r, 0, 2*Math.PI);
+	ctx.fill();
 }
 
 function renderQuestMarker(marker, context, ctx)
@@ -366,19 +399,6 @@ renderQuestMarker.styles = {
 	Rat:		{ size: 0.7, fill: '#9A2D36', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 	Wolf:		{ size: 0.7, fill: '#3674A3', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 };
-
-function renderStoneMarker(marker, ctx)
-{
-	let cnv = gridToCanvas(marker.u, marker.v);
-	let r = gridToCanvas.tileSize * 0.4;
-	let pattern = ctx.createRadialGradient(cnv.x, cnv.y, 0, cnv.x, cnv.y, r);
-	pattern.addColorStop(0, 'cyan');
-	pattern.addColorStop(1, 'blue');
-	ctx.fillStyle = pattern;
-	ctx.beginPath();
-	ctx.arc(cnv.x, cnv.y, r, 0, 2*Math.PI);
-	ctx.fill();
-}
 //==================================================================================================
 function getItemAt(collection, x, y, rate, filterfunc)
 {

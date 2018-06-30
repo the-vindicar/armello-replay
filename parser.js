@@ -180,7 +180,7 @@ Parser.provideParserForFile = function (file)
 {	
 	return new Promise(function (resolve, reject) 
 	{
-		const slicesize = 1*1024; //reading first 1Kb of the file - should be enough to find version number.
+		const slicesize = 4*1024; //reading first 4Kb of the file - should be enough to find version number.
 		var reader = new FileReader();
 		// FileReader does it's job anycronously...
 		reader.onloadend = function (event) //once data is accessible
