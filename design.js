@@ -502,6 +502,12 @@ function MapHover(evt)
 	{
 		if (entity.item instanceof Hero)
 			tooltip.innerHTML = Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name);
+		else if (entity.item.type === 'King')
+			tooltip.innerHTML = Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">R</span>'+entity.item.Rot.toString();
+		else if (entity.item.type === 'KingsGuard')
+			tooltip.innerHTML = Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString();
+		else if (entity.item.type === 'Bane')
+			tooltip.innerHTML = Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString()+'<span class="stat">R</span>'+entity.item.Rot.toString();
 		else
 			tooltip.innerHTML = Name(entity.item.type);
 		tooltip.style = 'visibility:visible; right:'+rx.toString()+'px; bottom:'+by.toString()+'px';

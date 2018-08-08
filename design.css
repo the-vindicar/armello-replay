@@ -359,6 +359,11 @@ html, body {
 	-webkit-user-select: none;
 }
 
+#maptooltip .stat { 
+	font: smaller "Armello Icons"; 
+	margin: 0 2pt 0 4pt;
+}
+
 #map {
 	display: block;
 	margin: auto;
