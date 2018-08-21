@@ -523,7 +523,10 @@ function MapHover(evt)
 		switch (tile.item.type)
 		{
 			case 'ClanCastle': 
-				text += '<br />' + sanitize(window.ArmelloMatchState.players.getItemById('corner', tile.item.corner).name); break;
+			{
+				let plr = window.ArmelloMatchState.players.getItemById('corner', tile.item.corner, false);
+				if (plr) text += '<br />' + sanitize(plr.name); break;
+			}
 			case 'Settlement':
 			{
 				if (tile.item.state.terrorized)

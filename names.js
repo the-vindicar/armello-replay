@@ -292,7 +292,7 @@ Name.db = {
 	TRK38PRE : "Awaiting Betty's Bargain Brews",
 	TRK39 : "Simeon's Arms",
 	TRK39PRE : "Awaiting Simeon's Arms",
-	TRL40 : "Devious Ruse",
+	TRK40 : "Devious Ruse",
 	TRK42 : "Sharpshooter",
 	TRK43 : "Arson",
 	TRK44 : "Roxy's Recruiting",

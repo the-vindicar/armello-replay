@@ -777,7 +777,11 @@ MatchState.prototype.processEvent = function (evt)
 			// RIP as of 1.10
 			//case "toggleCorrupted": this.entities.getItemById('id', evt.entity).toggleCorrupted(); break;
 			// Map tiles
-			case "addTile": this.map.addNewItem(MapTile, evt.type, evt.coords, evt.corner); break;
+			case "addTile": 
+			{
+				if (!this.map.getItemById('coords', evt.coords, false))
+					this.map.addNewItem(MapTile, evt.type, evt.coords, evt.corner); 
+			}; break;
 			case "addTileEffect": if (evt.card != 'None')
 			{
 				let tile = this.map.getItemById('coords', evt.coords);

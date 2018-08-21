@@ -178,6 +178,9 @@ function MatchSelected(file, parser, update)
 	})
 		.then(function (events) // events have been extracted
 		{
+			for (let i = 0; i < events.length; i++)
+				if (events[i].name == "addTile")
+					window.ArmelloMatchState.processEvent(events[i]);
 			var snapshots = [];
 			var list = document.getElementById('turns'); // event log
 			var gamebegan = false;

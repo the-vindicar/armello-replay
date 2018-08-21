@@ -12,13 +12,14 @@
 //		If action is not a function, event object is returned as is.
 //		If action function returns undefined, then event is ignored.
 //		Action function is called in the context of data object of owner Parser object. This allows multiple ParserItems to share data.
-function ParserItem(owner, name, re, map, action)
+function ParserItem(owner, name, re, map, action, log)
 {
 	this.name = name;
 	this.owner = owner;
 	this.action = action;
 	this.regexp = re;
 	this.map = map;
+	this.log = log;
 	this.action = (typeof this.action === 'function') ? action : ParserItem.prototype._noop;
 }
 ParserItem.prototype = Object.create({});
@@ -41,7 +42,13 @@ ParserItem.prototype.run = function (line)
 		evt.name = this.name;
 		// finalize the event object using action provided.
 		// finalizer is called in the context of data object of owner Parser object, thus allowing multiple ParserItems to share data
-		return this.action.call(this.owner.data, evt);
+		evt = this.action.call(this.owner.data, evt);
+		if (this.log)
+		{
+			console.log(line);
+			console.log(evt);
+		}
+		return evt;
 	}
 	else // return undefined if there were no match
 		return;
@@ -72,7 +79,7 @@ function Parser(fields, items, detectfunc)
 	this.data = Object.create(fields);
 	this.items = [];
 	for (var i = 0; i < items.length; i++)
-		this.items.push(new ParserItem(this, items[i].name, items[i].re, items[i].map, items[i].action));
+		this.items.push(new ParserItem(this, items[i].name, items[i].re, items[i].map, items[i].action, items[i].log));
 	this.matchFinderFunc = detectfunc.bind(this.data);
 }
 Parser.prototype = Object.create({});
