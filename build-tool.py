@@ -5,11 +5,10 @@ import xml.etree.ElementTree as ET
 try: #minify JS files if possible
     from jsmin import jsmin
     jsmin_available = True
-except ImportError: #leave them alone if not    
+except ImportError: #leave them alone if not
     def jsmin(s):
         return s
     jsmin_available = False
-#
 try: #minify CSS files if possible
     from cssmin import cssmin
     cssmin_available = True
@@ -27,11 +26,11 @@ if __name__ == '__main__':
         if jsmin_available:
             print('JavaScript files will be minified.')
         else:
-            print('JavaScript files will not be minified, since jsmin module is not found.')
+            print('JavaScript files will NOT be minified. Consider installing jsmin package.')
         if cssmin_available:
             print('CSS files will be minified.')
         else:
-            print('CSS files will not be minified, since cssmin module is not found.')
+            print('CSS files will NOT be minified. Consider installing cssmin package.')
         sys.exit(0);
     try:
         srcpath = sys.argv[1]
