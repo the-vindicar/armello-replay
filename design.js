@@ -224,7 +224,7 @@ function describeEvent(evt)
 			{
 				case 'PeerLeftRoom': s += ' has quit the game.'; break;
 				case 'PeerKickedAFK': s += ' has been kicked for being AFK.'; break;
-				default: s += ' disconnected ('+evt.reason+').';
+				default: s += ' disconnected.';
 			}
 			return s;
 		}; break;

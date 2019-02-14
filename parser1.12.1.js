@@ -255,7 +255,7 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
-		{name:"playerQuit", re:/Matchmaking: NetworkRoomSteam: OnPlayerLeft: .+? \(Player(\d)\), (\w+)/i, map:["player", "reason"], 
+		{name:"playerQuit", re:/NetworkGame: DisconnectPlayer: Player(\d)/i, map:["player"], 
 			action:function(evt)
 			{
 				let p = parseInt(evt.player, 10);
