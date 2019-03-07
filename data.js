@@ -844,12 +844,8 @@ MatchState.prototype.processEvent = function (evt)
 					// -Palisade Walls
 					// -Roxy's Recruiting
 					// -Biff's Black Market
-					// -Simeon's Arms
-					// -Betty's Bargain Brews
 					// -Stone Wards
-					tile.removeEffects('TRK13', 'TRK37', 'TRK44', 'TRK45', 'TRK46');
-					tile.removeEffect.apply(tile, traders);
-					tile.removeEffect.apply(tile, traders_pre);
+					tile.removeEffects('TRK13', 'TRK37', 'TRK44', 'TRK45', 'TRK44PRE', 'TRK45PRE', 'TRK46');
 				}
 				else
 				{
