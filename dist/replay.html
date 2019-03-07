@@ -210,7 +210,7 @@ else if(evt.entity)
 entityid=evt.entity;else if(evt.player)
 {let player=this.players.getItemById('id',evt.player);entityid=player.heroid;}
 if((evt.reason=='BaneTerrorise')||(evt.reason=='KingsDec')||(evt.reason=='KingsGuardTerrorise')||(evt.reason=='TRK16'))
-{tile.terrorizeSettlement();tile.removeEffects('TRK13','TRK37','TRK44','TRK45','TRK46');tile.removeEffect.apply(tile,traders);tile.removeEffect.apply(tile,traders_pre);}
+{tile.terrorizeSettlement();tile.removeEffects('TRK13','TRK37','TRK44','TRK45','TRK44PRE','TRK45PRE','TRK46');}
 else
 {tile.captureSettlement(entityid);}};break;case"predictBane":{if(evt.active=='True')
 this.markers.addNewItem(MapMarker,'banespawn',evt.coords,'Incoming Bane');else
