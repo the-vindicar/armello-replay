@@ -250,6 +250,12 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 				return evt;
 			}
 		},
+		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementTerrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, \[.+ \((\d+)\):.+?\]/i, map:["type", "coords", "entity"], action:function(evt)
+			{
+				evt.reason = "Entity";
+				return evt;
+			}
+		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},

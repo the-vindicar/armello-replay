@@ -831,7 +831,7 @@ MatchState.prototype.processEvent = function (evt)
 				let tile = this.map.getItemById('coords', evt.coords);
 				// TRK33 == Emissary
 				let entityid;
-				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'HeroClaim')) 
+				if ((evt.reason == 'Entity') || (evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'HeroClaim')) 
 				{
 					let entity = this.entities.getLivingEntity('coords', evt.coords, false);
 					entityid = entity ? entity.id : undefined;
@@ -844,7 +844,7 @@ MatchState.prototype.processEvent = function (evt)
 					entityid = player.heroid;
 				}
 				// TRK16 == Incite Revolt
-				if ((evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsDec' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'TRK16'))
+				if ((evt.type == 'SettlementTerrorised') || (evt.reason == 'TerroriseSettlement' ) || (evt.reason == 'BaneTerrorise' ) || (evt.reason == 'KingsDec' ) || (evt.reason == 'KingsGuardTerrorise') || (evt.reason == 'TRK16'))
 				{
 					tile.terrorizeSettlement();
 					// -Patronage & Industry
