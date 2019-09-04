@@ -30,7 +30,11 @@ Observable.prototype = {
 			try
 			{ this._observers[i].apply(null, args); }
 			catch (e)
-			{ console.error(e); }
+			{ 
+				console.error(this.constructor.name+": handler "+this._observers[i].name+" produced an error:");
+				console.error(e); 
+				console.error("Errorneous handler is: "+this._observers[i].toString());
+			}
 	},
 };
 //==================================================================================================
@@ -222,9 +226,12 @@ Entity.prototype.unequipCard = function (slot, card)
 	else
 		console.warn('Entity '+this.type+'('+this.id+') lost equipped card '+card+' in slot '+slot+' despite having '+this.equipment[slot]+' there.');
 };
-Entity.prototype.addEffect = function (effect)
+Entity.prototype.addEffect = function (effect, no_dupe)
 {
-	this.effects.push(effect);
+	if (typeof no_dupe === "undefined")
+		no_dupe = ["AMU", "SIG"];
+	if (!this.effects.includes(effect) || !no_dupe.some(function(i){return effect.indexOf(i) == 0;}))
+		this.effects.push(effect);
 	this.notify('effects', 'add', effect);
 };
 Entity.prototype.removeEffect = function (effect)
@@ -340,7 +347,7 @@ Player.prototype.setHero = function (hero, corner)
 	this.notify('hero', 'set', hero);
 	if (corner)
 	{
-		this.corner = corner;		
+		this.corner = corner;
 		this.notify('corner', 'set', corner);
 	}
 };

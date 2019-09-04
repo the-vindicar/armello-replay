@@ -294,7 +294,7 @@ function renderEntity(entity, ctx)
 	else if (entity.type === 'KingsGuard') text = 'G';
 	else if (entity.type === 'Bane') text = 'B';
 	ctx.textAlign = 'center';
-	ctx.textBaseline = 'middle';	
+	ctx.textBaseline = 'middle';
 	ctx.fillStyle = style.text;
 	ctx.font = r.toString()+'px Arial';
 	ctx.fillText(text, cnv.x, cnv.y);
@@ -309,6 +309,7 @@ renderEntity.styles = {
 	Rabbit:		{ size: 0.5, fill: '#9F7714', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Rat:		{ size: 0.5, fill: '#9A2D36', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Wolf:		{ size: 0.5, fill: '#3674A3', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
+	Dragon:		{ size: 0.5, fill: '#824098', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 };
 //==================================================================================================
 function renderMarker(marker, context, ctx)
@@ -398,6 +399,7 @@ renderQuestMarker.styles = {
 	Rabbit:		{ size: 0.7, fill: '#9F7714', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 	Rat:		{ size: 0.7, fill: '#9A2D36', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 	Wolf:		{ size: 0.7, fill: '#3674A3', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
+	Dragon:		{ size: 0.7, fill: '#824098', stroke: 'gold', lineWidth: 2, 'text': 'gold' },
 };
 //==================================================================================================
 function getItemAt(collection, x, y, rate, filterfunc)

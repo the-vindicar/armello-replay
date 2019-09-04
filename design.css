@@ -140,6 +140,7 @@ html, body {
 #players *[data-clan="Bear"] { background-color: #006006; }
 #players *[data-clan="Rat"] { background-color: #9A2D36; }
 #players *[data-clan="Bandit"] { background-color: #333333; }
+#players *[data-clan="Dragon"] { background-color: #824098; }
 
 #players .equipped {
 	width: 100%;
@@ -225,6 +226,7 @@ html, body {
 #turns li.Rabbit { background-color: #9F7714; }
 #turns li.Bear { background-color: #006006; }
 #turns li.Rat { background-color: #9A2D36; }
+#turns li.Dragon { background-color: #824098; }
 #turns li.Bandit { background-color: #333333; }
 #turns li.King { background-color: #4169E1; }
 #turns li.Bane { background-color: #622078; }

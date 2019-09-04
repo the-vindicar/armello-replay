@@ -225,6 +225,8 @@ function MatchSelected(file, parser, update)
 									li.setAttribute('class', li.className+' Wolf')
 								else if (turntaker.type.slice(0,6) === 'Bandit')
 									li.setAttribute('class', li.className+' Bandit')
+								else if (turntaker.type.slice(0,6) === 'Dragon')
+									li.setAttribute('class', li.className+' Dragon')
 								else if (turntaker.type.slice(0,4) === 'King') //both King and KingsGuard
 									li.setAttribute('class', li.className+' King')
 								else if (turntaker.type.slice(0,4) === 'Bane')

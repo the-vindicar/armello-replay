@@ -30,6 +30,10 @@ Name.db = {
 	Wolf02 : "River",
 	Wolf03 : "Magna",
 	Wolf04 : "Fang",
+	Dragon01: "Volodar",
+	Dragon02: "Agniya",
+	Dragon03: "Oxana",
+	Dragon04: "Nazar",
 	King : "The King",
 	KingsGuard : "King's Guard",
 	Bane : "Bane",
@@ -63,6 +67,12 @@ Name.db = {
 	SIG27 : "Pink Topaz", //bandit version
 	SIG28 : "Amethyst", //bandit version
 	SIG29 : "Celestite", //bandit version
+	SIG35 : "Sulfur",
+	SIG36: "Basalt",
+	SIG37: "Axinite",
+	SIG38: "Cinnabar",
+	SIG39: "Tremolite",
+	SIG40: "Serpentine",
 	// ================ Amulets ================
 	AMU01 : "Scratch Amulet",
 	AMU02 : "Soak Amulet",
@@ -80,6 +90,7 @@ Name.db = {
 	AMU14 : "Intimidate Amulet",
 	AMU15 : "Harmonize Amulet",
 	AMU16 : "Decay Amulet",
+	AMU21 : "Ruin Amulet",
 	// ================ King's Declarations ================
 	DECL_0001 : "Tax Time",
 	DECL_00016 : "Rot Inspection",
