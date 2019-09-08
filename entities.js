@@ -95,6 +95,15 @@ Entity.prototype.toggleCorrupted = function ()
 	this.notify('corrupted', 'change', this.corrupted);
 };
 //==================================================================================================
+function Illusion(id, coords, player, original)
+{
+	Entity.call(this, id, "Illusion", coords);
+	this.playerid = player;
+	this.original = original;
+}
+Illusion.prototype = Object.create(Entity.prototype);
+Illusion.prototype.constructor = Illusion;
+//==================================================================================================
 function Hero(id, corner)
 {
 	Entity.call(this, id);
@@ -172,10 +181,16 @@ EntityCollection.prototype.getLivingEntity = function (key, value, strict)
 EntityCollection.prototype.deserializeItems = function(data)
 {
 	var entitycopier = SerializableObservableCollection.getSimpleReviver(Entity);
+	var illusioncopier = SerializableObservableCollection.getSimpleReviver(Illusion);
 	var herocopier = SerializableObservableCollection.getSimpleReviver(Hero);
 	var reviver = function (obj)
 	{ 
-		return obj.hasOwnProperty('Prestige') ? herocopier(obj) : entitycopier(obj);
+		if (obj.hasOwnProperty('Prestige'))
+			return herocopier(obj);
+		else if (obj.hasOwnProperty('original'))
+			return illusioncopier(obj);
+		else
+			return entitycopier(obj);
 	};
 	SerializableObservableCollection.prototype.deserializeItems.call(this, data, reviver);
 };

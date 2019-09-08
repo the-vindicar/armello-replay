@@ -91,7 +91,9 @@ this.effects.push(effect);this.notify('effects','add',effect);};Entity.prototype
 {this.effects.splice(index,1);this.notify('effects','remove',effect);}
 else
 console.warn('Entity ',this.type,'(',this.id,') lost effect ',effect,' despite never having gained it.');};Entity.prototype.toggleCorrupted=function()
-{this.corrupted=!this.corrupted;this.notify('corrupted','change',this.corrupted);};function Hero(id,corner)
+{this.corrupted=!this.corrupted;this.notify('corrupted','change',this.corrupted);};function Illusion(id,coords,player,original)
+{Entity.call(this,id,"Illusion",coords);this.playerid=player;this.original=original;}
+Illusion.prototype=Object.create(Entity.prototype);Illusion.prototype.constructor=Illusion;function Hero(id,corner)
 {Entity.call(this,id);this.Wits=0;this.Gold=0;this.Spirit=0;this.Magic=0;this.Prestige=0;this.SpiritStones=0;this.followers=new Array();this.bounty=0;this.playerid=undefined;}
 Hero.prototype=Object.create(Entity.prototype);Hero.prototype.constructor=Hero;Hero.prototype.equipCard=function(slot,card)
 {if(card.slice(0,3)=='FOL')
@@ -116,8 +118,11 @@ EntityCollection.prototype=Object.create(SerializableObservableCollection.protot
 if(!this.items[i].dead&&this.items[i].hasOwnProperty(key)&&(this.items[i][key]==value))
 return this.items[i];if((typeof strict==='undefined')||strict)
 throw new Error(this.constructor.name+": There is no item with "+key.toString()+" = "+value);};EntityCollection.prototype.deserializeItems=function(data)
-{var entitycopier=SerializableObservableCollection.getSimpleReviver(Entity);var herocopier=SerializableObservableCollection.getSimpleReviver(Hero);var reviver=function(obj)
-{return obj.hasOwnProperty('Prestige')?herocopier(obj):entitycopier(obj);};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};</script>
+{var entitycopier=SerializableObservableCollection.getSimpleReviver(Entity);var illusioncopier=SerializableObservableCollection.getSimpleReviver(Illusion);var herocopier=SerializableObservableCollection.getSimpleReviver(Hero);var reviver=function(obj)
+{if(obj.hasOwnProperty('Prestige'))
+return herocopier(obj);else if(obj.hasOwnProperty('original'))
+return illusioncopier(obj);else
+return entitycopier(obj);};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};</script>
 	<script>function MapTile(type,coords,corner)
 {Observable.call(this);if(typeof coords!=='undefined')
 this.coords=coords;else
@@ -195,11 +200,10 @@ MatchState.prototype=Object.create(Observable.prototype);MatchState.prototype.co
 {return{context:this.context.serialize(),map:this.map.serializeItems(),entities:this.entities.serializeItems(),markers:this.markers.serializeItems(),players:this.players.serializeItems(),};};MatchState.prototype.processEvent=function(evt)
 {const traders=['TRK38','TRK39','TRK44','TRK45'];const traders_pre=['TRK38PRE','TRK39PRE','TRK44PRE','TRK45PRE'];try
 {switch(evt.name)
-{case"spawnNPC":this.entities.addNewItem(Entity,evt.entity,evt.type,evt.coords);break;case"spawnHero":{let hero=new Hero(evt.entity);this.entities.addItem(hero);let player=this.players.getItemById('id',evt.player);let corner;switch(evt.coords)
+{case"spawnNPC":this.entities.addNewItem(Entity,evt.entity,evt.type,evt.coords);break;case"spawnIllusion":{let player=this.players.getItemById('id',evt.player);this.entities.addNewItem(Illusion,evt.entity,evt.coords,evt.player,player.hero.type);};break;case"spawnHero":{let hero=new Hero(evt.entity);this.entities.addItem(hero);let player=this.players.getItemById('id',evt.player);let corner;switch(evt.coords)
 {case'0,0':corner='Northeast';break;case'7,0':corner='Northwest';break;case'3,8':corner='Southwest';break;case'-4,8':corner='Southeast';break;default:if(evt.corner)corner=evt.corner;break;}
 player.setHero(hero,corner);};break;case"setupHero":{let hero=this.entities.getItemById('id',evt.entity);hero.setType(evt.type);hero.moveTo(evt.coords);};break;case"moveEntity":this.entities.getItemById('id',evt.entity).moveTo(evt.coords);break;case"attack":{let attacker=this.entities.getItemById('id',evt.attacker);let defender=this.entities.getItemById('id',evt.defender);if((attacker instanceof Hero)&&(defender.type=='King'))
-attacker.setBounty(3);};break
-case"killEntity":{let ent=this.entities.getItemById('id',evt.entity);if(ent instanceof Hero)
+attacker.setBounty(3);};break;case"killEntity":{let ent=this.entities.getItemById('id',evt.entity);if(ent instanceof Hero)
 {if(ent.bounty>0)
 ent.toggleBounty();this.context.clearPactsFor(ent.playerid);}
 else
@@ -686,7 +690,7 @@ else if(this.matchinfo&&(match=this.re_end.exec(line)))
 {evt.type="KingsPalace";return evt;}},{name:"addTile",re:/MapMaking:\s*Creating King Tile on position: \((-?\d+,-?\d+)\),/i,map:["coords"],action:function(evt)
 {evt.type="KingTile";return evt;}},{name:"addTile",re:/MapMaking:\s*- Created (?:Feature )?Tile of Type: (\w+) at position: \((-?\d+,-?\d+)\),/i,map:["type","coords"]},{name:"addTile",re:/\[Tile: Pos=\((-?\d+,-?\d+)\), Type=(\w+)/i,map:["coords","type"],action:function(evt)
 {if(evt.type in this.tile_alias)
-evt.type=this.tile_alias[evt.type];return evt;}},{name:"spawnNPC",re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i,map:["type","entity","coords"]},{name:"spawnNPC",re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i,map:["type","entity","coords"]},{name:"spawnNPC",re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(Illusion)(?:AsAuthority)?\s+\((Player\d), (\d+), \((-?\d+,-?\d+)\)/i,map:["type","player","entity","coords"]},{name:"spawnHero",re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|Server#\d+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i,map:["player","entity","coords"]},{name:"setupHero",re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i,map:["type","entity","coords"],action:function(evt)
+evt.type=this.tile_alias[evt.type];return evt;}},{name:"spawnNPC",re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i,map:["type","entity","coords"]},{name:"spawnNPC",re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i,map:["type","entity","coords"]},{name:"spawnIllusion",re:/NetworkGame: \w+ \[Process\] Server#\d+ SpawnIllusion(?:AsAuthority)?\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i,map:["player","entity","coords"]},{name:"spawnHero",re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|Server#\d+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i,map:["player","entity","coords"]},{name:"setupHero",re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i,map:["type","entity","coords"],action:function(evt)
 {if(!this.heroes_completed[evt.entity])
 {this.heroes_completed[evt.entity]=true;return evt;}}},{name:"moveEntity",re:/Gameplay: Creature\+Message\+SnapPosition: Dispatch\(\[.+? \((\d+)\):.+?Pos=\((-?\d+,-?\d+)\)/,map:["entity","coords"]},{name:"moveEntity",re:/Gameplay: Creature\+Message\+MoveEnd: Dispatch\(\[.+? \((\d+)\):.+?Pos=\((-?\d+,-?\d+)\)/,map:["entity","coords"]},{name:"attack",re:/Combat:\s+(Attacker|Defender): \[.+?\((\d+)\):/i,map:["role","entity"],action:function(evt)
 {if(evt.role==="Attacker")
@@ -876,8 +880,11 @@ ctx.lineTo(hex[i].x,hex[i].y);ctx.closePath();ctx.fill();}}
 renderTileEffects.effects={owner:{radius:0.6},terrorized:{stroke:'black',lineWidth:5},walls:{stroke:'white',lineWidth:3},spiritwalls:{colora:'blue',colorb:'cyan',radius:6},industry:{text:'white',radius:0.5},incomingtrader:{text:'black',radius:0.5},trader:{text:'white',radius:0.5},thorns:{stroke:'rgba(0,64,0,1.0)',lineWidth:5},fog:{fill:'rgba(64,64,0,0.7)',radius:1.0},};function renderEntity(entity,ctx)
 {let type=(entity instanceof Hero)?entity.type.slice(0,-2):entity.type;let style=renderEntity.styles[type];if(!style)
 {console.warn('No render style for entity',entity);return;}
-let cnv=gridToCanvas(entity.u,entity.v);let r=gridToCanvas.tileSize*style.size;ctx.beginPath();ctx.arc(cnv.x,cnv.y,r,0,2*Math.PI);ctx.fillStyle=style.fill;ctx.strokeStyle=style.stroke;ctx.setLineDash((typeof style.dash==='undefined')?[]:style.dash);ctx.lineWidth=style.lineWidth;ctx.fill();ctx.stroke();let text;if(entity instanceof Hero)text=entity.playerid;else if(entity.type==='Illusion')text='';else if(entity.type==='King')text='K';else if(entity.type==='KingsGuard')text='G';else if(entity.type==='Bane')text='B';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=style.text;ctx.font=r.toString()+'px Arial';ctx.fillText(text,cnv.x,cnv.y);}
-renderEntity.styles={King:{size:0.5,fill:'blue',stroke:'darkgoldenrod',lineWidth:4,'text':'yellow'},KingsGuard:{size:0.5,fill:'blue',stroke:'darkgoldenrod',lineWidth:4,'text':'yellow'},Bane:{size:0.5,fill:'darkviolet',stroke:'indigo',lineWidth:4,'text':'fuchsia'},Bandit:{size:0.5,fill:'#333333',stroke:'gold',lineWidth:4,'text':'gold'},Bear:{size:0.5,fill:'#006006',stroke:'gold',lineWidth:4,'text':'gold'},Rabbit:{size:0.5,fill:'#9F7714',stroke:'gold',lineWidth:4,'text':'gold'},Rat:{size:0.5,fill:'#9A2D36',stroke:'gold',lineWidth:4,'text':'gold'},Wolf:{size:0.5,fill:'#3674A3',stroke:'gold',lineWidth:4,'text':'gold'},Dragon:{size:0.5,fill:'#824098',stroke:'gold',lineWidth:4,'text':'gold'},Illusion:{size:0.5,fill:'#824098',stroke:'gold',lineWidth:4,'text':'gold','dash':[10,10]},};function renderMarker(marker,context,ctx)
+let cnv=gridToCanvas(entity.u,entity.v);let r=gridToCanvas.tileSize*style.size;ctx.beginPath();ctx.arc(cnv.x,cnv.y,r,0,2*Math.PI);if(entity instanceof Illusion)
+{let original=renderEntity.styles[entity.original.slice(0,-2)];ctx.fillStyle=original.fill;}
+else
+ctx.fillStyle=style.fill;ctx.strokeStyle=style.stroke;ctx.setLineDash((typeof style.dash==='undefined')?[]:style.dash);ctx.lineWidth=style.lineWidth;ctx.fill();ctx.stroke();let text;if(entity instanceof Hero)text=entity.playerid;else if(entity instanceof Illusion)text=entity.playerid;else if(entity.type==='King')text='K';else if(entity.type==='KingsGuard')text='G';else if(entity.type==='Bane')text='B';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=style.text;ctx.font=r.toString()+'px Arial';ctx.fillText(text,cnv.x,cnv.y);}
+renderEntity.styles={King:{size:0.5,fill:'blue',stroke:'darkgoldenrod',lineWidth:4,'text':'yellow'},KingsGuard:{size:0.5,fill:'blue',stroke:'darkgoldenrod',lineWidth:4,'text':'yellow'},Bane:{size:0.5,fill:'darkviolet',stroke:'indigo',lineWidth:4,'text':'fuchsia'},Bandit:{size:0.5,fill:'#333333',stroke:'gold',lineWidth:4,'text':'gold'},Bear:{size:0.5,fill:'#006006',stroke:'gold',lineWidth:4,'text':'gold'},Rabbit:{size:0.5,fill:'#9F7714',stroke:'gold',lineWidth:4,'text':'gold'},Rat:{size:0.5,fill:'#9A2D36',stroke:'gold',lineWidth:4,'text':'gold'},Wolf:{size:0.5,fill:'#3674A3',stroke:'gold',lineWidth:4,'text':'gold'},Dragon:{size:0.5,fill:'#824098',stroke:'gold',lineWidth:4,'text':'gold'},Illusion:{size:0.5,stroke:'gold',lineWidth:4,'text':'gold','dash':[10,10]},};function renderMarker(marker,context,ctx)
 {switch(marker.type)
 {case'quest':renderQuestMarker(marker,context,ctx);break;case'stone':renderStoneMarker(marker,ctx);break;case'banespawn':renderBaneSpawnMarker(marker,ctx);break;case'stonespawn':renderStoneSpawnMarker(marker,ctx);break;}}
 function renderBaneSpawnMarker(marker,ctx)
@@ -1023,7 +1030,8 @@ else if(typeof EventHover.target!=='undefined')
 EventHover.target=undefined;function MapHover(evt)
 {let rect=evt.target.getBoundingClientRect();let x=(evt.clientX-rect.left)*parseInt(evt.target.getAttribute('width'),10)/rect.width;let y=(evt.clientY-rect.top)*parseInt(evt.target.getAttribute('height'),10)/rect.height;let rx=window.innerWidth-evt.clientX+5;let by=window.innerHeight-evt.clientY+5;let tooltip=document.getElementById('maptooltip');let entity,marker,tile;if(entity=getItemAt(window.ArmelloMatchState.entities,x,y,0.5,function(ent){return!ent.dead;}))
 {if(entity.item instanceof Hero)
-tooltip.innerHTML=Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString();else if(entity.item.type==='King')
+tooltip.innerHTML=Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString();else if(entity.item instanceof Illusion)
+tooltip.innerHTML=Name(entity.item.type)+' of '+Name(entity.item.original)+'<br />';else if(entity.item.type==='King')
 tooltip.innerHTML=Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">R</span>'+entity.item.Rot.toString();else if(entity.item.type==='KingsGuard')
 tooltip.innerHTML=Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString();else if(entity.item.type==='Bane')
 tooltip.innerHTML=Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString()+'<span class="stat">R</span>'+entity.item.Rot.toString();else

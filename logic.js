@@ -45,6 +45,11 @@ MatchState.prototype.processEvent = function (evt)
 		{
 			// Entities
 			case "spawnNPC": this.entities.addNewItem(Entity, evt.entity, evt.type, evt.coords); break;
+			case "spawnIllusion": 
+			{
+				let player = this.players.getItemById('id', evt.player);
+				this.entities.addNewItem(Illusion, evt.entity, evt.coords, evt.player, player.hero.type); 
+			}; break;
 			case "spawnHero": 
 			{
 				let hero = new Hero(evt.entity);
@@ -74,7 +79,7 @@ MatchState.prototype.processEvent = function (evt)
 				let defender = this.entities.getItemById('id', evt.defender);
 				if ((attacker instanceof Hero) && (defender.type == 'King'))
 					attacker.setBounty(3);
-			}; break
+			}; break;
 			case "killEntity": 
 			{
 				let ent = this.entities.getItemById('id', evt.entity); 

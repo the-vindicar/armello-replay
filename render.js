@@ -288,7 +288,13 @@ function renderEntity(entity, ctx)
 	let r = gridToCanvas.tileSize * style.size;
 	ctx.beginPath();
 	ctx.arc(cnv.x, cnv.y, r, 0, 2*Math.PI);
-	ctx.fillStyle = style.fill;
+	if (entity instanceof Illusion)
+	{
+		let original = renderEntity.styles[entity.original.slice(0, -2)];
+		ctx.fillStyle = original.fill;
+	}
+	else
+		ctx.fillStyle = style.fill;
 	ctx.strokeStyle = style.stroke;
 	ctx.setLineDash((typeof style.dash === 'undefined') ? [] : style.dash);
 	ctx.lineWidth = style.lineWidth;
@@ -296,7 +302,7 @@ function renderEntity(entity, ctx)
 	ctx.stroke();
 	let text;
 	if (entity instanceof Hero) text = entity.playerid;
-	else if (entity.type === 'Illusion') text = '';
+	else if (entity instanceof Illusion) text = entity.playerid;
 	else if (entity.type === 'King') text = 'K';
 	else if (entity.type === 'KingsGuard') text = 'G';
 	else if (entity.type === 'Bane') text = 'B';
@@ -317,7 +323,7 @@ renderEntity.styles = {
 	Rat:		{ size: 0.5, fill: '#9A2D36', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Wolf:		{ size: 0.5, fill: '#3674A3', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Dragon:		{ size: 0.5, fill: '#824098', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
-	Illusion:	{ size: 0.5, fill: '#824098', stroke: 'gold', lineWidth: 4, 'text': 'gold', 'dash' : [10,10] },
+	Illusion:	{ size: 0.5, stroke: 'gold', lineWidth: 4, 'text': 'gold', 'dash' : [10,10] },
 };
 //==================================================================================================
 function renderMarker(marker, context, ctx)
