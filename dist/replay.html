@@ -68,8 +68,8 @@ this.items.push(objectlist[i]);this.notify('items','change');};SerializableObser
 {return function(obj)
 {var newitem=new(Function.prototype.bind.apply(Class,arguments));var keys=Object.keys(newitem);for(var k=0;k<keys.length;k++)
 if(newitem.hasOwnProperty(keys[k]))
-newitem[keys[k]]=obj[keys[k]];return newitem;};}
-function Entity(id,type,coords)
+newitem[keys[k]]=obj[keys[k]];return newitem;};}</script>
+	<script>function Entity(id,type,coords)
 {Observable.call(this);this.id=id;this.type=type;this.dead=false;this.corrupted=false;if(typeof coords!=='undefined')
 this.coords=coords;else
 this.coords="-1,-1";Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.Fight=0;this.Body=0;this.Rot=0;this.Health=0;this.ActionPoints=0;this.effects=new Array();this.equipment=new Array();}
@@ -109,18 +109,16 @@ Entity.prototype.unequipCard.apply(this,arguments);};Hero.prototype.updateBounty
 {this.bounty++;this.notify('bounty','change',this.bounty);}};Hero.prototype.toggleBounty=function()
 {this.bounty=(this.bounty==0)?1:0;this.notify('bounty','change',this.bounty);};Hero.prototype.setBounty=function(level)
 {this.bounty=level;this.notify('bounty','change',this.bounty);}
-function Player(id,name,location,steam)
-{Observable.call(this);this.id=id;this.location=location;this.hasquit=false;this.name=name;this.steam=steam;this.hand=new Array();this.heroid=undefined;Object.defineProperty(this,'hero',{value:undefined,enumerable:false,writable:true,configurable:false,});this.corner=undefined;this.quests=0;Object.defineProperty(this,'_herochanged',{value:Observable.prototype.notify.bind(this,'hero','change'),enumerable:false,writable:false,configurable:false,});}
-Player.prototype=Object.create(Observable.prototype);Player.prototype.constructor=Player;Player.prototype.setHero=function(hero,corner)
-{this.heroid=hero.id;this.hero=hero;this.hero.playerid=this.id;this.hero.subscribe(this._herochanged);this.notify('hero','set',hero);if(corner)
-{this.corner=corner;this.notify('corner','set',corner);}};Player.prototype.gainCard=function(card)
-{this.hand.push(card);this.notify('hand','add',card);};Player.prototype.loseCard=function(card)
-{var index=this.hand.indexOf(card);if(index>=0)
-{this.hand.splice(index,1);this.notify('hand','remove',card);}
-else
-console.warn('Player ',this.name,' lost a card ',card,' from their hand they never had.');};Player.prototype.nextQuest=function()
-{this.quests++;this.notify('quests','change',this.quests);};Player.prototype.quit=function()
-{this.hasquit=true;this.notify('hasquit','change',this.hasquit);};function MapTile(type,coords,corner)
+function EntityCollection()
+{SerializableObservableCollection.call(this);}
+EntityCollection.prototype=Object.create(SerializableObservableCollection.prototype);EntityCollection.prototype.constructor=EntityCollection;EntityCollection.prototype.getLivingEntity=function(key,value,strict)
+{for(var i=0;i<this.items.length;i++)
+if(!this.items[i].dead&&this.items[i].hasOwnProperty(key)&&(this.items[i][key]==value))
+return this.items[i];if((typeof strict==='undefined')||strict)
+throw new Error(this.constructor.name+": There is no item with "+key.toString()+" = "+value);};EntityCollection.prototype.deserializeItems=function(data)
+{var entitycopier=SerializableObservableCollection.getSimpleReviver(Entity);var herocopier=SerializableObservableCollection.getSimpleReviver(Hero);var reviver=function(obj)
+{return obj.hasOwnProperty('Prestige')?herocopier(obj):entitycopier(obj);};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};</script>
+	<script>function MapTile(type,coords,corner)
 {Observable.call(this);if(typeof coords!=='undefined')
 this.coords=coords;else
 this.coords="-1,-1";Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.type=type;this.effects=[];if(type=='Settlement')
@@ -152,7 +150,25 @@ this.notify('effects','change',this.effects);};MapTile.prototype.terrorizeSettle
 {this.state.terrorized=false;this.state.owner=owner;this.notify('state','change',this.state);};function MapMarker(type,coords,title,player)
 {Observable.call(this);this.type=type;this.coords=(typeof coords!=='undefined')?coords:'-1,-1';Object.defineProperty(this,'u',{get:function(){return Number.parseInt(this.coords.split(',')[0]);},enumerable:false,configurable:false,});Object.defineProperty(this,'v',{get:function(){return Number.parseInt(this.coords.split(',')[1]);},enumerable:false,configurable:false,});this.title=(typeof title!=='undefined')?title:'';this.player=player;}
 MapMarker.prototype=Object.create(Observable.prototype);MapMarker.prototype.constructor=MapMarker;MapMarker.prototype.moveTo=function(coords)
-{this.coords=coords;this.notify('coords','change',this.coords);};function MatchContext()
+{this.coords=coords;this.notify('coords','change',this.coords);};function LevelMap()
+{SerializableObservableCollection.call(this);}
+LevelMap.prototype=Object.create(SerializableObservableCollection.prototype);LevelMap.prototype.constructor=LevelMap;LevelMap.prototype.deserializeItems=function(data)
+{var tilecopier=SerializableObservableCollection.getSimpleReviver(MapTile);SerializableObservableCollection.prototype.deserializeItems.call(this,data,tilecopier);};function MarkerCollection()
+{SerializableObservableCollection.call(this);}
+MarkerCollection.prototype=Object.create(SerializableObservableCollection.prototype);MarkerCollection.prototype.constructor=MarkerCollection;MarkerCollection.prototype.deserializeItems=function(data)
+{var markercopier=SerializableObservableCollection.getSimpleReviver(MapMarker);SerializableObservableCollection.prototype.deserializeItems.call(this,data,markercopier);};</script>
+	<script>function Player(id,name,location,steam)
+{Observable.call(this);this.id=id;this.location=location;this.hasquit=false;this.name=name;this.steam=steam;this.hand=new Array();this.heroid=undefined;Object.defineProperty(this,'hero',{value:undefined,enumerable:false,writable:true,configurable:false,});this.corner=undefined;this.quests=0;Object.defineProperty(this,'_herochanged',{value:Observable.prototype.notify.bind(this,'hero','change'),enumerable:false,writable:false,configurable:false,});}
+Player.prototype=Object.create(Observable.prototype);Player.prototype.constructor=Player;Player.prototype.setHero=function(hero,corner)
+{this.heroid=hero.id;this.hero=hero;this.hero.playerid=this.id;this.hero.subscribe(this._herochanged);this.notify('hero','set',hero);if(corner)
+{this.corner=corner;this.notify('corner','set',corner);}};Player.prototype.gainCard=function(card)
+{this.hand.push(card);this.notify('hand','add',card);};Player.prototype.loseCard=function(card)
+{var index=this.hand.indexOf(card);if(index>=0)
+{this.hand.splice(index,1);this.notify('hand','remove',card);}
+else
+console.warn('Player ',this.name,' lost a card ',card,' from their hand they never had.');};Player.prototype.nextQuest=function()
+{this.quests++;this.notify('quests','change',this.quests);};Player.prototype.quit=function()
+{this.hasquit=true;this.notify('hasquit','change',this.hasquit);};function MatchContext()
 {Observable.call(this);this.active=undefined;this.prestige_leader=0;this.round=-1;this.proclamation='';this.pacts=new Array();}
 MatchContext.prototype=Object.create(Observable.prototype);MatchContext.prototype.constructor=MatchContext;MatchContext.prototype.setPrestigeLeader=function(player)
 {this.prestige_leader=player;this.notify('prestige_leader','change',player);};MatchContext.prototype.setDeclaration=function(proclamation)
@@ -167,25 +183,12 @@ this.pacts.splice(i,1);this.notify('pacts','change');};MatchContext.prototype.cl
 if((this.pacts[i].initiator==player)||(this.pacts[i].recipient==player))
 this.pacts.splice(i,1);this.notify('pacts','change');};MatchContext.prototype.serialize=function()
 {return JSON.stringify(this);};MatchContext.prototype.deserialize=function(data)
-{var obj=JSON.parse(data);this.round=obj.round;this.notify('round','change',this.round);this.active=obj.active;this.notify('active','change',this.active);this.prestige_leader=obj.prestige_leader;this.notify('prestige_leader','change',this.prestige_leader);this.proclamation=obj.proclamation;this.notify('proclamation','change',this.proclamation);this.pacts=obj.pacts;this.notify('pacts','change',this.pacts);};function EntityCollection()
-{SerializableObservableCollection.call(this);}
-EntityCollection.prototype=Object.create(SerializableObservableCollection.prototype);EntityCollection.prototype.constructor=EntityCollection;EntityCollection.prototype.getLivingEntity=function(key,value,strict)
-{for(var i=0;i<this.items.length;i++)
-if(!this.items[i].dead&&this.items[i].hasOwnProperty(key)&&(this.items[i][key]==value))
-return this.items[i];if((typeof strict==='undefined')||strict)
-throw new Error(this.constructor.name+": There is no item with "+key.toString()+" = "+value);};EntityCollection.prototype.deserializeItems=function(data)
-{var entitycopier=SerializableObservableCollection.getSimpleReviver(Entity);var herocopier=SerializableObservableCollection.getSimpleReviver(Hero);var reviver=function(obj)
-{return obj.hasOwnProperty('Prestige')?herocopier(obj):entitycopier(obj);};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};function PlayerCollection()
+{var obj=JSON.parse(data);this.round=obj.round;this.notify('round','change',this.round);this.active=obj.active;this.notify('active','change',this.active);this.prestige_leader=obj.prestige_leader;this.notify('prestige_leader','change',this.prestige_leader);this.proclamation=obj.proclamation;this.notify('proclamation','change',this.proclamation);this.pacts=obj.pacts;this.notify('pacts','change',this.pacts);};function PlayerCollection()
 {SerializableObservableCollection.call(this);}
 PlayerCollection.prototype=Object.create(SerializableObservableCollection.prototype);PlayerCollection.prototype.constructor=PlayerCollection;PlayerCollection.prototype.deserializeItems=function(data,entities)
 {var basereviver=SerializableObservableCollection.getSimpleReviver(Player);var reviver=function(obj)
-{var plr=basereviver(obj);plr.setHero(entities.getItemById('id',obj.heroid),obj.corner);return plr;};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};function LevelMap()
-{SerializableObservableCollection.call(this);}
-LevelMap.prototype=Object.create(SerializableObservableCollection.prototype);LevelMap.prototype.constructor=LevelMap;LevelMap.prototype.deserializeItems=function(data)
-{var tilecopier=SerializableObservableCollection.getSimpleReviver(MapTile);SerializableObservableCollection.prototype.deserializeItems.call(this,data,tilecopier);};function MarkerCollection()
-{SerializableObservableCollection.call(this);}
-MarkerCollection.prototype=Object.create(SerializableObservableCollection.prototype);MarkerCollection.prototype.constructor=MarkerCollection;MarkerCollection.prototype.deserializeItems=function(data)
-{var markercopier=SerializableObservableCollection.getSimpleReviver(MapMarker);SerializableObservableCollection.prototype.deserializeItems.call(this,data,markercopier);};function MatchState()
+{var plr=basereviver(obj);plr.setHero(entities.getItemById('id',obj.heroid),obj.corner);return plr;};SerializableObservableCollection.prototype.deserializeItems.call(this,data,reviver);};</script>
+	<script>function MatchState()
 {Observable.call(this);this.context=new MatchContext();this.context.subscribe(Observable.prototype.notify.bind(this,'context','change'));this.map=new LevelMap();this.map.subscribe(Observable.prototype.notify.bind(this,'map','change'));this.entities=new EntityCollection();this.entities.subscribe(Observable.prototype.notify.bind(this,'entities','change'));this.markers=new MarkerCollection();this.markers.subscribe(Observable.prototype.notify.bind(this,'markers','change'));this.players=new PlayerCollection();this.players.subscribe(Observable.prototype.notify.bind(this,'players','change'));}
 MatchState.prototype=Object.create(Observable.prototype);MatchState.prototype.constructor=MatchState;MatchState.prototype.loadSnapshot=function(data)
 {this.context.deserialize(data.context);this.map.deserializeItems(data.map);this.entities.deserializeItems(data.entities);this.markers.deserializeItems(data.markers);this.players.deserializeItems(data.players,this.entities);};MatchState.prototype.getSnapshot=function()
