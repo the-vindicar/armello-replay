@@ -161,6 +161,7 @@ Name.db = {
 	CON10 : "Poisoned Gift",
 	CON11 : "Blackberry Dust",
 	CON12 : "Snake Venom",
+	CON13 : "Illusion", //Nazar's hero power is tied to this card.
 	FOL01 : "Alchemist",
 	FOL02 : "Apothecary",
 	FOL03 : "Warlock",

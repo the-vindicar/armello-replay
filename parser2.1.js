@@ -26,7 +26,7 @@
 //			endpos - saved position of match ending in the log file
 //			players - array of four objects describing individual players. 
 //				Each object should contain player's in-game name(name), Steam ID(steam) and chosen hero(hero).
-Parser.Parsers['2.0.0.0'] = new Parser(
+Parser.Parsers['2.1.0.0'] = new Parser(
 	// additional data
 	{
 		tile_alias: {
@@ -87,6 +87,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(Illusion)(?:AsAuthority)?\s+\((Player\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["type", "player", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
 		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|Server#\d+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		{name:"setupHero", re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"], action: function(evt)
@@ -99,8 +100,8 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 				}
 			}
 		},
-		{name:"moveEntity", re:/Gameplay: Creature\+Message\+SnapPosition: Dispatch\(\[.+? \((\w+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
-		{name:"moveEntity", re:/Gameplay: Creature\+Message\+MoveEnd: Dispatch\(\[.+? \((\w+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
+		{name:"moveEntity", re:/Gameplay: Creature\+Message\+SnapPosition: Dispatch\(\[.+? \((\d+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
+		{name:"moveEntity", re:/Gameplay: Creature\+Message\+MoveEnd: Dispatch\(\[.+? \((\d+)\):.+?Pos=\((-?\d+,-?\d+)\)/, map:["entity", "coords"]},
 		{name:"attack", re:/Combat:\s+(Attacker|Defender): \[.+?\((\d+)\):/i, map:["role", "entity"], action : function(evt)
 			{
 				if (evt.role === "Attacker")
@@ -247,6 +248,12 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 					evt.reason = this.card_on_tile_cache.card;
 					this.card_on_tile_cache = undefined;
 				}
+				return evt;
+			}
+		},
+		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementTerrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, \[.+ \((\d+)\):.+?\]/i, map:["type", "coords", "entity"], action:function(evt)
+			{
+				evt.reason = "Entity";
 				return evt;
 			}
 		},

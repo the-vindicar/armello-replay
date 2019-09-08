@@ -23,6 +23,7 @@ function renderMap(canvas, context, highlight)
 		cnv = gridToCanvas(highlight.u, highlight.v);
 		ctx.beginPath();
 		ctx.strokeStyle = 'white';
+		ctx.setLineDash([]);
 		ctx.lineWidth = 4;
 		ctx.arc(cnv.x, cnv.y, ctx.lineWidth+gridToCanvas.tileSize, 0, 2*Math.PI);
 		ctx.stroke();
@@ -72,6 +73,7 @@ function strokeTile(ctx, style, hex, verts)
 	ctx.lineCap = 'round';
 	ctx.lineJoin = 'round';
 	ctx.strokeStyle = style.stroke;
+	ctx.setLineDash((typeof style.dash === 'undefined') ? [] : style.dash);
 	ctx.lineWidth = ('lineWidth' in style) ? style.lineWidth : 1;
 	ctx.moveTo(hex[verts[0]].x, hex[verts[0]].y);
 	for (let i = 1; i < verts.length; i++)
@@ -91,6 +93,7 @@ function renderTile(tile, ctx)
 	const sz = gridToCanvas.tileSize + 1;
 	ctx.beginPath()
 	ctx.strokeStyle = 'transparent';
+	ctx.setLineDash([]);
 	ctx.fillStyle = style.fill;
 	let hex = getHex(tile);
 	ctx.moveTo(hex[0].x, hex[0].y);
@@ -143,6 +146,7 @@ function renderTileEffects(tile, ctx, entities)
 	if (tile.state.terrorized)
 	{
 		ctx.strokeStyle = renderTileEffects.effects.terrorized.stroke;
+		ctx.setLineDash([]);
 		ctx.lineCap = 'round';
 		ctx.lineJoin = 'round';
 		ctx.lineWidth = renderTileEffects.effects.terrorized.lineWidth;
@@ -233,6 +237,7 @@ function renderTileEffects(tile, ctx, entities)
 		ctx.lineJoin = 'round';
 		ctx.lineWidth = renderTileEffects.effects.thorns.lineWidth;
 		ctx.strokeStyle = renderTileEffects.effects.thorns.stroke;
+		ctx.setLineDash([]);
 		ctx.beginPath();
 		ctx.moveTo(minihex[5].x, minihex[5].y);
 		for (let i=0; i<6; i++)
@@ -285,11 +290,13 @@ function renderEntity(entity, ctx)
 	ctx.arc(cnv.x, cnv.y, r, 0, 2*Math.PI);
 	ctx.fillStyle = style.fill;
 	ctx.strokeStyle = style.stroke;
+	ctx.setLineDash((typeof style.dash === 'undefined') ? [] : style.dash);
 	ctx.lineWidth = style.lineWidth;
 	ctx.fill();
 	ctx.stroke();
 	let text;
 	if (entity instanceof Hero) text = entity.playerid;
+	else if (entity.type === 'Illusion') text = '';
 	else if (entity.type === 'King') text = 'K';
 	else if (entity.type === 'KingsGuard') text = 'G';
 	else if (entity.type === 'Bane') text = 'B';
@@ -310,6 +317,7 @@ renderEntity.styles = {
 	Rat:		{ size: 0.5, fill: '#9A2D36', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Wolf:		{ size: 0.5, fill: '#3674A3', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
 	Dragon:		{ size: 0.5, fill: '#824098', stroke: 'gold', lineWidth: 4, 'text': 'gold' },
+	Illusion:	{ size: 0.5, fill: '#824098', stroke: 'gold', lineWidth: 4, 'text': 'gold', 'dash' : [10,10] },
 };
 //==================================================================================================
 function renderMarker(marker, context, ctx)
@@ -333,6 +341,7 @@ function renderBaneSpawnMarker(marker, ctx)
 	ctx.moveTo(cnv.x - r, cnv.y + r);
 	ctx.lineTo(cnv.x + r, cnv.y - r);
 	ctx.strokeStyle = 'fuchsia';
+	ctx.setLineDash([]);
 	ctx.lineWidth = 8;
 	ctx.lineCap = 'round';
 	ctx.stroke();
@@ -352,6 +361,7 @@ function renderStoneSpawnMarker(marker, ctx)
 	ctx.moveTo(cnv.x - r, cnv.y + r);
 	ctx.lineTo(cnv.x + r, cnv.y - r);
 	ctx.strokeStyle = pattern;
+	ctx.setLineDash([]);
 	ctx.lineWidth = 8;
 	ctx.lineCap = 'round';
 	ctx.stroke();
@@ -384,6 +394,7 @@ function renderQuestMarker(marker, context, ctx)
 	ctx.closePath();
 	ctx.fillStyle = style.fill;
 	ctx.strokeStyle = style.stroke;
+	ctx.setLineDash([]);
 	ctx.lineWidth = style.lineWidth;
 	ctx.fill();
 	ctx.stroke();

@@ -501,7 +501,7 @@ function MapHover(evt)
 	if (entity = getItemAt(window.ArmelloMatchState.entities, x, y, 0.5, function(ent){return !ent.dead;}))
 	{
 		if (entity.item instanceof Hero)
-			tooltip.innerHTML = Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name);
+			tooltip.innerHTML = Name(entity.item.type)+'<br />'+sanitize(window.ArmelloMatchState.players.getItemById('id',entity.item.playerid).name)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">F</span>'+entity.item.Fight.toString();
 		else if (entity.item.type === 'King')
 			tooltip.innerHTML = Name(entity.item.type)+'<br /><span class="stat">H</span>'+entity.item.Health.toString()+'<span class="stat">R</span>'+entity.item.Rot.toString();
 		else if (entity.item.type === 'KingsGuard')
