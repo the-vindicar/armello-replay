@@ -237,14 +237,21 @@ function describeEvent(evt)
 		case 'victory': return sanitize(context.players.getItemById('id', evt.player).name)+' wins the game!'; break;
 		case 'chat': 
 		{
-			let s = evt.message.replace(/\[url="herotooltip:\/\/(\w+?)"\].+?\[\/url\]|\[.+?\]/ig, function (a,b) 
+			if (evt.message)
 			{
-				if (b)
-					return describeEntity(context.entities.getItemById('type', b));
-				else
-					return '';
-			});
-			return describeEntity(context.players.getItemById('id', evt.player).hero)+' ['+evt.type+']: '+s; 
+				let s = evt.message.replace(/\[url="herotooltip:\/\/(\w+?)"\].+?\[\/url\]|\[.+?\]/ig, function (a,b) 
+				{
+					if (b)
+						return describeEntity(context.entities.getItemById('type', b));
+					else
+						return '';
+				});
+				return describeEntity(context.players.getItemById('id', evt.player).hero)+' ['+evt.type+']: '+s; 
+			}
+			else if (evt.target)
+				return describeEntity(context.players.getItemById('id', evt.player).hero)+': '+evt.type+' '+describeEntity(context.players.getItemById('id', evt.target).hero);
+			else
+				return describeEntity(context.players.getItemById('id', evt.player).hero)+': '+evt.type;
 		}; break;
 		default: return undefined; break;
 	}

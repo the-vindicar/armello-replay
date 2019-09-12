@@ -352,6 +352,10 @@ Hint.db = {
 	Wolf02 : "Huntress: When attacking, River shoots her bow for 1 damage before initiating battle. If her target is killed by this ability, River won't move, but still consumes an Action Point.",
 	Wolf03 : "Shield Maiden: Shield cards Burned in Battle Reflect damage back at her opponent.",
 	Wolf04 : "Berzerker: When attacking, if Fang Slaughters his opponent, Battle ends before they strike back.",
+	Dragon01: "Enthrall: End your turn near a Bane to enthrall it. Enthralled Bane won't attack you, but will immediately attack any other Hero or Guard entering an adjacent tile.",
+	Dragon02: "Concecrate: After Agniya kills a Creature in Battle, she gains the Worm's Blessing, +1 Health at the start of your turn for next 2 turns.",
+	Dragon03: "Flagellant: When attacking another hero, Oxana destroys a random spell card in their hand, locking that symbol into her combat shelf and adding the card's Magic cost to her explode pool.",
+	Dragon04: "Deceiver: At the start of his Turn after drawing Cards, Nazar gains an Illusion consumable card, allowing him to send an illusion of himself to an adjacent tile, this card is discarded at the end of his Turn.",
 	King : "The King",
 	KingsGuard : "King's Guard",
 	Bane : "Bane",
@@ -385,6 +389,12 @@ Hint.db = {
 	SIG27 : "Doubles Income gained from Settlements.", //bandit version
 	SIG28 : "Gain +1 Magic for every Spell Card Burned (+2 if it's a Rot Card).", //bandit version
 	SIG29 : "Ignore Mountain movement penalty.", //bandit version
+	SIG35 : "Negates Swamp Damage.",
+	SIG36 : "On Dungeons, gain Stealth and first rolled Sword in Battles is Poisoned.",
+	SIG37 : "On Creature Kill in combat, gain +1 Die in Battles and Perils until the end of your next Turn.",
+	SIG38 : "On the loss of any Prestige, add a random 1 Magic Cost Spell Card to your Hand.",
+	SIG39 : " +1 Rot. Ending your turn next to a creature makes them gain +1 Rot until the end of their next turn.",
+	SIG40 : "On Quest completion, -1 Rot. Gain +3 Magic if Rot is deducted this way.",
 	// ================ Amulets ================
 	AMU01 : "+1 Fight.",
 	AMU02 : "+1 Body.",
@@ -402,6 +412,7 @@ Hint.db = {
 	AMU14 : "End your turn next to a Creature, they suffer -2 Dice in Battle until end of next turn.",
 	AMU15 : "While not Corrupted, in Battles, all Rot Cards in your hand change to Sun symbols.",
 	AMU16 : "Heal 2 Health for each Rot gained, and lose 1 Health for each Rot lost.",
+	AMU21 : "Upon entering a Settlement, Terrorize it and gain +1 Rot.",
 	// ================ King's Declarations ================
 	DECL_0001 : "Lose 2 gold. If not enough gold, lose 1 prestige.",
 	DECL_00016 : "Any hero with 1 or more Rot loses 1 prestige.",
