@@ -67,6 +67,7 @@ Name.db = {
 	SIG27 : "Pink Topaz", //bandit version
 	SIG28 : "Amethyst", //bandit version
 	SIG29 : "Celestite", //bandit version
+	SIG30 : "Cinnabar", //bandit version
 	SIG35 : "Sulfur",
 	SIG36: "Basalt",
 	SIG37: "Axinite",
@@ -389,6 +390,7 @@ Hint.db = {
 	SIG27 : "Doubles Income gained from Settlements.", //bandit version
 	SIG28 : "Gain +1 Magic for every Spell Card Burned (+2 if it's a Rot Card).", //bandit version
 	SIG29 : "Ignore Mountain movement penalty.", //bandit version
+	SIG30 : "On the loss of any Prestige, add a random 1 Magic Cost Spell Card to your Hand.", //bandit version
 	SIG35 : "Negates Swamp Damage.",
 	SIG36 : "On Dungeons, gain Stealth and first rolled Sword in Battles is Poisoned.",
 	SIG37 : "On Creature Kill in combat, gain +1 Die in Battles and Perils until the end of your next Turn.",
