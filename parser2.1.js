@@ -142,15 +142,19 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		},
 		{name:"resolveDice", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\] PushResolution \[SymbolResData: (\w+),(\w+),(-?\d+),(\w+)\]/i, map:["entity", "symbol", "type", "mod", "source"], action:function(evt)
 			{
-				if (!this.combat_cache) return undefined;
-				let target;
-				if (this.combat_cache.attacker == evt.entity)
-					target = this.combat_cache.attacker_dice;
-				else if (this.combat_cache.defender == evt.entity)
-					target = this.combat_cache.defender_dice;
+				if (this.combat_cache) 
+				{
+					let target;
+					if (this.combat_cache.attacker == evt.entity)
+						target = this.combat_cache.attacker_dice;
+					else if (this.combat_cache.defender == evt.entity)
+						target = this.combat_cache.defender_dice;
+					else
+						return undefined;
+					target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
+				}
 				else
 					return undefined;
-				target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
 			}
 		},
 		{name:"combatEnd", re:/Combat: CombatManager\.DoApplyCombat combatResult\.(Attacking|Defending)PlayerResult == CombatResult\.Result\.(\w+)/i, map:["source", "result"], action:function(evt)
@@ -255,6 +259,17 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 			{
 				evt.reason = "Entity";
 				return evt;
+			}
+		},
+		{name:"settlementFortified", re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i, map:["coords", "entity"], action:function(evt)
+			{
+				if (!this.card_on_tile_cache || (this.card_on_tile_cache.coords != evt.coords))
+					return evt;
+				else
+				{
+					this.card_on_tile_cache = undefined;
+					return undefined;
+				}
 			}
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},

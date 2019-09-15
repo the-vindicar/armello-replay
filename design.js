@@ -212,6 +212,17 @@ function describeEvent(evt)
 					}; break;
 			}
 		}; break;
+		case "settlementFortified":
+		{
+			let tile = context.map.getItemById('coords', evt.coords);
+			if (evt.entity)
+			{
+				let entity = context.entities.getItemById('id', evt.entity);
+				return describeEntity(entity)+' has fortified '+describeTile(tile);
+			}
+			else
+				return describeTile(tile)+' has been fortified.';
+		}; break;
 		// Other
 		case 'completeQuest': return describeEntity(context.context.active)+' has completed a quest.'; break;
 		case 'prestigeLeader': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
@@ -538,6 +549,8 @@ function MapHover(evt)
 			}
 			case 'Settlement':
 			{
+				if (tile.item.state.fortified)
+					text += '<br />Fortified';
 				if (tile.item.state.terrorized)
 					text += '<br />Terrorized';
 				else if (tile.item.state.owner)

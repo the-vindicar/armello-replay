@@ -250,6 +250,17 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 				return evt;
 			}
 		},
+		{name:"settlementFortified", re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i, map:["coords", "entity"], action:function(evt)
+			{
+				if (!this.card_on_tile_cache || (this.card_on_tile_cache.coords != evt.coords))
+					return evt;
+				else
+				{
+					this.card_on_tile_cache = undefined;
+					return undefined;
+				}
+			}
+		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},

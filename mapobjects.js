@@ -19,7 +19,7 @@ function MapTile(type, coords, corner)
 	this.type = type;
 	this.effects = [];
 	if (type == 'Settlement')
-		this.state = {terrorized:false, owner:undefined};
+		this.state = {terrorized:false, fortified:false, owner:undefined};
 	else
 		this.state = {};
 	this.peril = undefined;
@@ -110,6 +110,11 @@ MapTile.prototype.captureSettlement = function (owner)
 {
 	this.state.terrorized = false;
 	this.state.owner = owner;
+	this.notify('state', 'change', this.state);
+};
+MapTile.prototype.fortifySettlement = function ()
+{
+	this.state.fortified = true;
 	this.notify('state', 'change', this.state);
 };
 //==================================================================================================

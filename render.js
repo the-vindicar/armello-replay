@@ -180,6 +180,11 @@ function renderTileEffects(tile, ctx, entities)
 			ctx.fill();
 		}
 	}
+	if (tile.state.fortified) //Elyssia's walls
+	{
+		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.fortified.lineWidth / 2);
+		strokeTile(ctx, renderTileEffects.effects.fortified, smallhex, [0,1,2,3,4,5,0]);
+	}
 	if (tile.hasEffect('TRK46')) //palisade walls
 	{
 		let smallhex = getHex(tile, gridToCanvas.tileSize - renderTileEffects.effects.walls.lineWidth / 2);
@@ -264,6 +269,7 @@ function renderTileEffects(tile, ctx, entities)
 renderTileEffects.effects = {
 	owner: {radius: 0.6},
 	terrorized: {stroke: 'black', lineWidth: 5},
+	fortified: {stroke: 'white', lineWidth: 5},
 	walls: {stroke: 'white', lineWidth: 3},
 	spiritwalls: {colora: 'blue', colorb: 'cyan', radius: 6},
 	industry: {text: 'white', radius: 0.5},

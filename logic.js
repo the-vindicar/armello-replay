@@ -202,6 +202,11 @@ MatchState.prototype.processEvent = function (evt)
 					tile.captureSettlement(entityid);
 				}
 			}; break;
+			case "settlementFortified":
+			{
+				let tile = this.map.getItemById('coords', evt.coords);
+				tile.fortifySettlement();
+			}; break;
 			// Markers
 			case "predictBane": 
 			{
