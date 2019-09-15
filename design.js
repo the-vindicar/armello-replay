@@ -180,10 +180,29 @@ function describeEvent(evt)
 			let hero = context.entities.getItemById('id', evt.entity);
 			return describeEntity(hero)+' encounters '+PCard(tile.perilcard)+' at '+describeTile(evt.coords)+'.';
 		}; break;
-		case 'takePeril':
+		case 'completePeril':
 		{
-			let hero = context.entities.getItemById('playerid', evt.player);
-			return describeEntity(hero)+' fails '+describeEntity(evt.entity)+"'s peril.";
+			let tile = context.map.getItemById('coords', evt.coords);
+			let hero = context.entities.getItemById('id', evt.entity);
+			let heroname = describeEntity(hero);
+			let owner = context.entities.getItemById('id', tile.perilowner);
+			let outcome = (evt.result == 'Win') ? ' has passed ' : ' has failed ';
+			let dice = evt.dice.parts.map(function(p){return (p.value>0 ? '+' : '')+p.value.toString()}).join('').slice(1);
+			let rolls = evt.dice.rolls;
+			let text = heroname + outcome + describeEntity(owner) + "'s " + PCard(tile.perilcard)+' at '+describeTile(evt.coords)+'.';
+			// generate tooltip describing the battle
+			text += '<table class="roll-tooltip"><tr>';
+			// combatant names
+			text += '<td class="attacker-name">'+heroname+'</td>';
+			text += '</tr><tr>'
+			// dice counts
+			text += '<td class="attacker">'+dice+'='+evt.dice.parts.reduce(function(a,b){return a+b.value;},0)+' dice</td>';
+			text += '</tr><tr>'
+			// dice hits
+			text += '<td class="defender-dice">'+rolls.map(describeRoll).join('')+'</td>';
+			text += '</tr></table>';
+			return text;
+
 		}; break;
 		case "settlementChangeOwner":
 		{

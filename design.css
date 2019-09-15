@@ -258,16 +258,16 @@ html, body {
 	font-weight: bold;
 }
 
-#turns li.event-combatEnd {
-	position: relative;
-}
-
 #turns li.event-attack::before, li.event-combatEnd::before {
   font:smaller "Armello Icons";
   content: "x ";
 }
 
-#turns li.event-combatEnd .roll-tooltip {
+#turns li.event-combatEnd, #turns li.event-completePeril {
+	position: relative;
+}
+
+#turns li.event .roll-tooltip {
 	display: none;
 	background-color: #222222;
 	color: #DDDDDD;
@@ -278,18 +278,19 @@ html, body {
 	cursor: default;
 }
 
-#turns li.event-combatEnd:hover .roll-tooltip { 
+#turns li.event:hover .roll-tooltip { 
 	display:table; 
 	position: absolute;
 }
 
-#turns li.event-combatEnd[selected] {
+#turns li.event[selected]{
 	padding-bottom: 4pt;
 }
-#turns li.event-combatEnd[selected] .roll-tooltip, #turns li.event-combatEnd[selected]:hover .roll-tooltip { 
+
+#turns li.event[selected] .roll-tooltip, #turns li.event[selected]:hover .roll-tooltip { 
 	display:table; 
 	position: relative;
-	width:90%;	
+	width:90%;
 }
 
 #turns .roll-tooltip .attacker-name {
@@ -327,7 +328,7 @@ html, body {
 	padding-right: 4pt;
 }
 
-#turns li.event-combatEnd .roll-tooltip .defender-dice {
+#turns .roll-tooltip .defender-dice {
 	font: smaller "Armello Icons";
 	width: 50%;
 	text-align: left;
@@ -338,6 +339,7 @@ html, body {
 #turns .roll-tooltip .roll-Locked { color: white; }
 #turns .roll-tooltip .roll-Burned { color: gold; }
 #turns .roll-tooltip .roll-Rolled { color: silver; }
+#turns .roll-tooltip .roll-Match { background-color: blue; }
 #turns .roll-tooltip .roll-Pierce { background-color: blue; }
 #turns .roll-tooltip .roll-Reflect { background-color: blue; }
 #turns .roll-tooltip .roll-Poison { background-color: green; }

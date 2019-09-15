@@ -127,29 +127,42 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		},
 		{name:"modifyDiceCounts", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\]: (AddDice|RemoveDice)\((\d+)\) from source (.+?) for a total of (\d+)/, map:["entity", "type", "mod", "source", "value"], action:function(evt)
 			{
-				if (!this.combat_cache) return undefined;
-				let target;
-				if (this.combat_cache.attacker == evt.entity)
-					target = this.combat_cache.attacker_dice;
-				else if (this.combat_cache.defender == evt.entity)
-					target = this.combat_cache.defender_dice;
-				else
-					return undefined;
-				target.total = parseInt(evt.value, 10);
-				target.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				if (this.combat_cache) 
+				{
+					let target;
+					if (this.combat_cache.attacker == evt.entity)
+						target = this.combat_cache.attacker_dice;
+					else if (this.combat_cache.defender == evt.entity)
+						target = this.combat_cache.defender_dice;
+					else
+						return undefined;
+					target.total = parseInt(evt.value, 10);
+					target.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				}
+				else if (this.peril_cache)
+					this.peril_cache.dice.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				return undefined;
 			}
 		},
 		{name:"resolveDice", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\] PushResolution \[SymbolResData: (\w+),(\w+),(-?\d+),(\w+)\]/i, map:["entity", "symbol", "type", "mod", "source"], action:function(evt)
 			{
-				if (!this.combat_cache) return undefined;
-				let target;
-				if (this.combat_cache.attacker == evt.entity)
-					target = this.combat_cache.attacker_dice;
-				else if (this.combat_cache.defender == evt.entity)
-					target = this.combat_cache.defender_dice;
-				else
-					return undefined;
-				target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
+				if (this.combat_cache) 
+				{
+					let target;
+					if (this.combat_cache.attacker == evt.entity)
+						target = this.combat_cache.attacker_dice;
+					else if (this.combat_cache.defender == evt.entity)
+						target = this.combat_cache.defender_dice;
+					else
+						return undefined;
+					target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
+				}
+				else if (this.peril_cache)
+				{
+					let type = (evt.type == "Perils") ? "Match" : evt.type;
+					this.peril_cache.dice.rolls.push({symbol:evt.symbol, type:type, source:evt.source});
+				}
+				return undefined;
 			}
 		},
 		{name:"combatEnd", re:/Combat: CombatManager\.DoApplyCombat combatResult\.(Attacking|Defending)PlayerResult == CombatResult\.Result\.(\w+)/i, map:["source", "result"], action:function(evt)
@@ -202,8 +215,29 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		{name:"updateBounty", re:/Gameplay: SpecialStatusManager\+Message\+StatusUpdated: Dispatch\(\[Hero \w+ \((\d+)\):.+?\], LeagueOfGeeks.ArmelloEngine.Bounty,/i, map:["entity"]},
 		{name:"toggleCorrupted", re:/Gameplay: Corrupted\+Message\+CorruptedChanged: Dispatch\(\[[^(]+ \((\d+)\):.+?\]/i, map:["entity"]},
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
-		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "coords"]},
-		{name:"takePeril", re:/Player: Player\+Message\+TakePerilEffect: Dispatch\(\[.+?\((\d+)\):.+?\], \[Card \w+: Asset:(\w+).+?\], \[Player .+? \(Player(\d)\):/i, map:["entity", "card", "player"]},
+		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "coords"], action:function(evt)
+			{
+				this.peril_cache = { 
+					coords: evt.coords, 
+					entity: evt.entity, 
+					dice: {total:0, parts:[], rolls:[]}
+					};
+			}
+		},
+		{name:"completePeril", re:/Peril: PerilChallenge\+Message\+Resolve: Dispatch\(LeagueOfGeeks\.ArmelloEngine\.PerilChallenge, (\w+)\)/i, map:["result"], action:function(evt)
+			{
+				if (!this.peril_cache) 
+					return undefined;
+				else 
+				{
+					evt.coords = this.peril_cache.coords;
+					evt.entity = this.peril_cache.entity;
+					evt.dice = this.peril_cache.dice;
+					this.peril_cache = undefined;
+					return evt;
+				}
+			}
+		},
 		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[Player.+?\(Player(\d)\):.+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["player", "card","coords"], 
 			action:function (evt)
 			{
