@@ -183,7 +183,9 @@ function MatchSelected(file, parser, update)
 					window.ArmelloMatchState.processEvent(events[i]);
 			var snapshots = [];
 			var list = document.getElementById('turns'); // event log
+			var container = undefined;
 			var gamebegan = false;
+			var turntakers = ['Bear', 'Rabbit', 'Wolf', 'Rat', 'Bandit', 'Dragon', 'King', 'Bane'];
 			var i=0; // index of current event
 			update(75, "Analyzing events...");
 			// in order to NOT hang up the browser for the duration of the processing, we process one event at a time 
@@ -202,6 +204,17 @@ function MatchSelected(file, parser, update)
 						let desc = describeEvent(events[i]); // trying to get a description
 						if (gamebegan && (typeof desc !== 'undefined')) // event has a description - add it
 						{
+							let turntakerid = window.ArmelloMatchState.context.active;
+							let turntaker = (turntakerid)
+								? window.ArmelloMatchState.entities.getItemById('id', turntakerid)
+								: undefined;
+							if (!container && (events[i].name in describeEvent.eventpairs))
+							{
+								container = document.createElement('ul');
+								container.setAttribute('class', 'event-container event-'+events[i].name);
+								container.starting_event = events[i].name;
+								list.appendChild(container);
+							}
 							let li = document.createElement('li');
 							li.innerHTML = desc;
 							// save index in the event array - that lets us find it later
@@ -209,29 +222,18 @@ function MatchSelected(file, parser, update)
 							// mark the element with event type for styling purposes
 							li.setAttribute('class', 'event event-'+events[i].name);
 							// mark the element with turntaker clan for styling purposes
-							let turntakerid = window.ArmelloMatchState.context.active;
-							let turntaker = (turntakerid)
-								? window.ArmelloMatchState.entities.getItemById('id', turntakerid)
-								: undefined;
 							if (turntaker)
-							{
-								if (turntaker.type.slice(0,4) === 'Bear')
-									li.setAttribute('class', li.className+' Bear')
-								else if (turntaker.type.slice(0,6) === 'Rabbit')
-									li.setAttribute('class', li.className+' Rabbit')
-								else if (turntaker.type.slice(0,3) === 'Rat')
-									li.setAttribute('class', li.className+' Rat')
-								else if (turntaker.type.slice(0,4) === 'Wolf')
-									li.setAttribute('class', li.className+' Wolf')
-								else if (turntaker.type.slice(0,6) === 'Bandit')
-									li.setAttribute('class', li.className+' Bandit')
-								else if (turntaker.type.slice(0,6) === 'Dragon')
-									li.setAttribute('class', li.className+' Dragon')
-								else if (turntaker.type.slice(0,4) === 'King') //both King and KingsGuard
-									li.setAttribute('class', li.className+' King')
-								else if (turntaker.type.slice(0,4) === 'Bane')
-									li.setAttribute('class', li.className+' Bane')
-							}
+								for (let tidx = 0; tidx < turntakers.length; tidx++)
+									if (turntaker.type.slice(0,turntakers[tidx].length)===turntakers[tidx])
+									{
+										li.setAttribute('class', li.className+' '+turntakers[tidx]);
+										if (container && !container.turntaker)
+										{
+											container.turntaker = turntakers[tidx];
+											container.setAttribute('class', container.className+' '+turntakers[tidx]);
+										}
+										break;
+									}
 							// we make a snapshot and save its index in the snapshot array at:
 							// a) the beginning of a day or night
 							// b) the beginning of someone's (player/king/guard/bane) turn
@@ -241,9 +243,17 @@ function MatchSelected(file, parser, update)
 							{
 								let index = snapshots.push(window.ArmelloMatchState.getSnapshot()) - 1;
 								li.setAttribute('data-snapshot-index', index);
+								container = undefined; //we also forcibly destroy container pairings
 							}
-							list.appendChild(li);
+							if (container)
+								container.appendChild(li);
+							else
+								list.appendChild(li);
+							//if we got a paired event, close the event container
+							if (container && (events[i].name === describeEvent.eventpairs[container.starting_event]))
+								container = undefined;
 						}
+						events[i].snapshot_index = snapshots.length - 1;
 						i++;
 					}
 					update(75 + (25.0 * i) / events.length); // update the progress bar

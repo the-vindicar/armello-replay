@@ -222,6 +222,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 					entity: evt.entity, 
 					dice: {total:0, parts:[], rolls:[]}
 					};
+				return evt;
 			}
 		},
 		{name:"completePeril", re:/Peril: PerilChallenge\+Message\+Resolve: Dispatch\(LeagueOfGeeks\.ArmelloEngine\.PerilChallenge, (\w+)\)/i, map:["result"], action:function(evt)

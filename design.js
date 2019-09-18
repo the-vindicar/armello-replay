@@ -286,6 +286,13 @@ function describeEvent(evt)
 		default: return undefined; break;
 	}
 }
+
+//these events will be paired, wrapping events that happen between them.
+describeEvent.eventpairs = {
+	attack : "combatEnd",
+	encounterPeril : "completePeril",
+};
+
 //================================================================================================
 function updateHeroFor(player)
 {
@@ -400,26 +407,25 @@ function jumpToEvent(eventid, scrollto)
 		// determine current selected event node and event index
 		let current = document.querySelector('#turns *[selected]');
 		// event index of the currently selected event
-		let currentidx = current ? parseInt(current.getAttribute('data-event-index'), 10) : -1;
+		let currenteventidx = current ? parseInt(current.getAttribute('data-event-index'), 10) : -1;
 		// event index of the newly selected event
-		let eventidx = parseInt(eventid, 10);
+		let selectedeventidx = parseInt(eventid, 10);
 		// look for the snapshot immediately preceding the newly selected event
-		let statenode = target; // finding the event node
-		while (statenode && !statenode.hasAttribute('data-snapshot-index'))
-			statenode = statenode.previousElementSibling;
-		// determine snapshot index
-		let snapshotidx = statenode ? parseInt(statenode.getAttribute('data-snapshot-index'), 10) : 0;
+		// determine snapshot index for the target event
+		let snapshotidx = window.ArmelloMatchEvents[selectedeventidx].snapshot_index;
 		// determine index of the event, after which the snapshot was done
-		let starteventidx = statenode ? parseInt(statenode.getAttribute('data-event-index'), 10) : 0;
+		let starteventidx = selectedeventidx;
+		while (window.ArmelloMatchEvents[starteventidx].snapshot_index == snapshotidx)
+			starteventidx--;
 		// if snapshot is ahead of the currently selected event, or 
 		// if the newly selected event is behind the currently selected event
-		if ((starteventidx > currentidx) || (eventidx < currentidx))
+		if ((starteventidx > currenteventidx) || (selectedeventidx < currenteventidx))
 			// then we should restore the snapshot first and go from there
 			window.ArmelloMatchState.loadSnapshot(window.ArmelloMatchSnapshots[snapshotidx]);
 		else // otherwise, both events are within the same snapshot chunk, and we can simply go forward.
-			starteventidx = currentidx; // starting with the currently selected event
+			starteventidx = currenteventidx; // starting with the currently selected event
 		// apply all events until we reach the one we are interested in.
-		for (let i = starteventidx+1; i <= eventidx; i++)
+		for (let i = starteventidx+1; i <= selectedeventidx; i++)
 			window.ArmelloMatchState.processEvent(window.ArmelloMatchEvents[i]);
 		// adjust the selected attribute
 		if (current) current.removeAttribute('selected');
@@ -587,7 +593,7 @@ function MapHover(evt)
 			let ent = (tile.item.perilowner < 5) 
 				? window.ArmelloMatchState.players.getItemById('id', tile.item.perilowner).hero 
 				: window.ArmelloMatchState.entities.getItemById('id', tile.item.perilowner);
-			text += '<br />Peril: ' + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';			
+			text += '<br /><span class="stat">#</span> ' + Name(tile.item.perilcard) + '(' + Name(ent.type) + ')';
 			if (tile.item.perilbuffs.length > 0)
 				text += '<br />' + tile.item.perilbuffs.map(Name).join(', ');
 		}
