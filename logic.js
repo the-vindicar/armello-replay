@@ -238,7 +238,11 @@ MatchState.prototype.processEvent = function (evt)
 			case "setQuest": 
 			{
 				let player = this.players.getItemById('id', evt.player);
-				player.nextQuest();
+				let quest = this.markers.getItemById('player', evt.player, false);
+				if (quest)
+					this.markers.removeItem(quest);
+				else
+					player.nextQuest();
 				this.markers.addNewItem(MapMarker, 'quest', evt.coords, Name(player.hero.type)+" quest #"+player.quests, evt.player);
 			}; break;
 			case "completeQuest":

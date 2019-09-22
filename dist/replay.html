@@ -228,7 +228,9 @@ this.markers.removeItemById('coords',evt.coords);};break;case"predictSpiritStone
 this.markers.addNewItem(MapMarker,'stonespawn',evt.coords,'Incoming Spirit Stone');else
 this.markers.removeItemById('coords',evt.coords);};break;case"spawnSpiritStone":{this.markers.addNewItem(MapMarker,'stone',evt.coords,'Spirit Stone');};break;case"removeSpiritStone":{for(let i=0;i<this.markers.items.length;i++)
 if((this.markers.items[i].type=='stone')&&(this.markers.items[i].coords==evt.coords))
-{this.markers.removeItem(this.markers.items[i]);break;}};break;case"setQuest":{let player=this.players.getItemById('id',evt.player);player.nextQuest();this.markers.addNewItem(MapMarker,'quest',evt.coords,Name(player.hero.type)+" quest #"+player.quests,evt.player);};break;case"completeQuest":{let hero=this.entities.getItemById('id',this.context.active);if(!(hero instanceof Hero))return;let quest=this.markers.getItemById('player',hero.playerid,false);if(quest&&(hero.coords==quest.coords))
+{this.markers.removeItem(this.markers.items[i]);break;}};break;case"setQuest":{let player=this.players.getItemById('id',evt.player);let quest=this.markers.getItemById('player',evt.player,false);if(quest)
+this.markers.removeItem(quest);else
+player.nextQuest();this.markers.addNewItem(MapMarker,'quest',evt.coords,Name(player.hero.type)+" quest #"+player.quests,evt.player);};break;case"completeQuest":{let hero=this.entities.getItemById('id',this.context.active);if(!(hero instanceof Hero))return;let quest=this.markers.getItemById('player',hero.playerid,false);if(quest&&(hero.coords==quest.coords))
 {this.markers.removeItem(quest);}
 else
 {let tile=this.map.getItemById('coords',hero.coords);if(tile.hasEffect('TRK44')||tile.hasEffect('TRK45'))
