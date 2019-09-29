@@ -72,7 +72,7 @@ function MatchContext()
 	this.active = undefined;
 	this.prestige_leader = 0;
 	this.round = -1;
-	this.proclamation = '';	
+	this.declaration = '';
 	this.pacts = new Array();
 }
 MatchContext.prototype = Object.create(Observable.prototype);
@@ -82,10 +82,10 @@ MatchContext.prototype.setPrestigeLeader = function (player)
 	this.prestige_leader = player;
 	this.notify('prestige_leader', 'change', player);
 };
-MatchContext.prototype.setDeclaration = function (proclamation)
+MatchContext.prototype.setDeclaration = function (declaration)
 {
-	this.proclamation = proclamation;
-	this.notify('proclamation', 'change', proclamation);
+	this.declaration = declaration;
+	this.notify('declaration', 'change', declaration);
 };
 MatchContext.prototype.setTurn = function(entity)
 {
@@ -97,6 +97,8 @@ MatchContext.prototype.nextRound = function()
 	this.round++;
 	this.notify('round', 'change', this.round);
 };
+MatchContext.prototype.isDay = function() { return this.round % 2 == 0; };
+MatchContext.prototype.isNight = function() { return this.round % 2 == 1; };
 MatchContext.prototype.addPact = function (type, initiator, recipient)
 {
 	this.pacts.push({
@@ -135,8 +137,8 @@ MatchContext.prototype.deserialize = function(data)
 	this.notify('active', 'change', this.active);
 	this.prestige_leader = obj.prestige_leader;
 	this.notify('prestige_leader', 'change', this.prestige_leader);
-	this.proclamation = obj.proclamation;
-	this.notify('proclamation', 'change', this.proclamation);
+	this.declaration = obj.declaration;
+	this.notify('declaration', 'change', this.declaration);
 	this.pacts = obj.pacts;
 	this.notify('pacts', 'change', this.pacts);
 	

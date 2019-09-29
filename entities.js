@@ -115,8 +115,9 @@ function Hero(id, corner)
 	this.SpiritStones = 0;
 	
 	this.followers = new Array();
-	this.bounty = 0;
 	this.playerid = undefined;
+	
+	this.special = new Object();
 }
 Hero.prototype = Object.create(Entity.prototype);
 Hero.prototype.constructor = Hero;
@@ -145,23 +146,30 @@ Hero.prototype.unequipCard = function (slot, card)
 	else
 		Entity.prototype.unequipCard.apply(this, arguments);
 };
+Hero.prototype.hasBounty = function()
+{
+	return this.special.Bounty > 0;
+};
+Hero.prototype.getBounty = function()
+{
+	return this.special.Bounty;
+};
 Hero.prototype.updateBounty = function()
 {
-	if ((this.bounty > 0) && (this.bounty < 3))
-	{
-		this.bounty++;
-		this.notify('bounty', 'change', this.bounty);
-	}
-};
-Hero.prototype.toggleBounty = function()
-{
-	this.bounty = (this.bounty == 0) ? 1 : 0;
-	this.notify('bounty', 'change', this.bounty);
+	let bounty = this.getBounty();
+	if ((bounty > 0) && (bounty < 3))
+		return this.setBounty(bounty + 1);
 };
 Hero.prototype.setBounty = function(level)
 {
-	this.bounty = level;
-	this.notify('bounty', 'change', this.bounty);
+	if (this.equipment.indexOf('ITM08') >= 0) //we have Royal Pardon
+		level = 0;
+	if (level != this.special.Bounty)
+	{
+		this.special.Bounty = level;
+		this.notify('special', 'change');
+		return {name:"bountyChanged", entity:this.id, value:level};
+	}
 }
 //==================================================================================================
 function EntityCollection()

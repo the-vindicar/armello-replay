@@ -213,8 +213,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 					return undefined;
 			}
 		},
-		{name:"updateBounty", re:/Gameplay: SpecialStatusManager\+Message\+StatusUpdated: Dispatch\(\[Hero \w+ \((\d+)\):.+?\], LeagueOfGeeks.ArmelloEngine.Bounty,/i, map:["entity"]},
-		{name:"toggleCorrupted", re:/Gameplay: Corrupted\+Message\+CorruptedChanged: Dispatch\(\[[^(]+ \((\d+)\):.+?\]/i, map:["entity"]},
+		{name:"updateSpecialStatus", re:/Gameplay: SpecialStatusManager\+Message\+StatusUpdated: Dispatch\(\[Hero \w+ \((\d+)\):.+?\], LeagueOfGeeks\.ArmelloEngine\.(\w+), (.*)\)/i, map:["entity", "status", "data"]},
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
 		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "coords"], action:function(evt)
 			{

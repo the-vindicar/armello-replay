@@ -103,7 +103,7 @@ html, body {
 	text-decoration: white line-through;
 }
 
-#players .mark-prestige, #players .mark-rot, #players .mark-stones, #players .mark-bounty {
+#players .mark-prestige, #players .mark-rot, #players .mark-stones, #players .mark-bounty1, #players .mark-bounty2, #players .mark-bounty3 {
 	display: none;
 	font: larger "Armello Icons";
 	text-decoration: none;
@@ -122,7 +122,15 @@ html, body {
 	display: inline;
 }
 
-#players .info[data-bounty] .mark-bounty {
+#players .info[data-bounty="1"] .mark-bounty1{
+	display: inline;
+}
+
+#players .info[data-bounty="2"] .mark-bounty2{
+	display: inline;
+}
+
+#players .info[data-bounty="3"] .mark-bounty3{
 	display: inline;
 }
 
@@ -258,9 +266,19 @@ html, body {
 	font-weight: bold;
 }
 
+#turns li.event-prestigeLeader::before {
+	font:smaller "Armello Icons";
+	content: "P ";
+}
+
+#turns li.event-bountyChanged::before {
+	font:smaller "Armello Icons";
+	content: "P ";
+}
+
 #turns li.event-attack::before, li.event-combatEnd::before {
-  font:smaller "Armello Icons";
-  content: "x ";
+	font:smaller "Armello Icons";
+	content: "x ";
 }
 
 #turns li.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
