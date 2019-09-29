@@ -80,6 +80,8 @@ MatchState.prototype.event_handlers = {
 			default: if (evt.corner) corner = evt.corner; break;
 		}
 		player.setHero(hero, corner);
+		let tile = this.map.getItemById('coords', evt.coords);
+		tile.state.player = evt.player;
 	},
 	setupHero: function (evt)
 	{
