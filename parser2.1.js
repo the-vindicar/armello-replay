@@ -29,6 +29,7 @@
 Parser.Parsers['2.1.0.0'] = new Parser(
 	// additional data
 	{
+		found_tiles : {},
 		tile_alias: {
 			"King": "KingTile",
 			"KingsPalaceNorth": "KingsPalace",
@@ -52,6 +53,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*Creating clan castle tile for quadrant (\w+) on position: \((-?\d+,-?\d+)\),/i, map:["corner", "coords"], 
 			action: function (evt) 
 			{
+				this.found_tiles[evt.coords] = true;
 				evt.type = "ClanCastle";
 				return evt;
 			}
@@ -59,6 +61,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*Creating clan castle-adjacent plains tile on position: \((-?\d+,-?\d+)\),/i, map:["coords"], 
 			action: function (evt) 
 			{
+				this.found_tiles[evt.coords] = true;
 				evt.type = "Plains";
 				return evt;
 			}
@@ -66,6 +69,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*Creating King's Palace Tile on position: \((-?\d+,-?\d+)\),/i, map:["coords"], 
 			action: function (evt) 
 			{
+				this.found_tiles[evt.coords] = true;
 				evt.type = "KingsPalace";
 				return evt;
 			}
@@ -73,16 +77,28 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		{name:"addTile", re:/MapMaking:\s*Creating King Tile on position: \((-?\d+,-?\d+)\),/i, map:["coords"], 
 			action: function (evt) 
 			{
+				this.found_tiles[evt.coords] = true;
 				evt.type = "KingTile";
 				return evt;
 			}
 		},
-		{name:"addTile", re:/MapMaking:\s*- Created (?:Feature )?Tile of Type: (\w+) at position: \((-?\d+,-?\d+)\),/i, map:["type", "coords"]},	
-		{name:"addTile", re:/\[Tile: Pos=\((-?\d+,-?\d+)\), Type=(\w+)/i, map:["coords", "type"], 	action: function (evt) 
+		{name:"addTile", re:/MapMaking:\s*- Created (?:Feature )?Tile of Type: (\w+) at position: \((-?\d+,-?\d+)\),/i, map:["type", "coords"], 
+			action: function (evt)
 			{
-				if (evt.type in this.tile_alias)
-					evt.type = this.tile_alias[evt.type];
+				this.found_tiles[evt.coords] = true;
 				return evt;
+			}
+		},
+		{name:"addTile", re:/\[Tile: Pos=\((-?\d+,-?\d+)\), Type=(\w+)/i, map:["coords", "type"], 
+			action: function (evt) 
+			{
+				if (!(evt.coords in this.found_tiles))
+				{
+					this.found_tiles[evt.coords] = true;
+					if (evt.type in this.tile_alias)
+						evt.type = this.tile_alias[evt.type];
+					return evt;
+				}
 			}
 		},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
