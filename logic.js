@@ -49,7 +49,7 @@ MatchState.prototype.startBounty = function (hero)
 {
 	if (!hero.hasBounty())
 	{
-		if (this.context.declaration === 'DECL_0039') //King's bounties
+		if (this.context.declaration === '0xC121AADB') //King's bounties
 			return hero.setBounty(2);
 		else
 			return hero.setBounty(1);
@@ -98,7 +98,7 @@ MatchState.prototype.event_handlers = {
 			let tile = this.map.getItemById('coords', evt.coords);
 			if (tile.type === 'KingsPalace')
 				return this.startBounty(entity);
-			else if (this.context.declaration == 'DECL_0005' && (tile.type === 'Dungeon' || tile.type === 'StoneCircle'))
+			else if (this.context.declaration == '0xC121AA7A' && (tile.type === 'Dungeon' || tile.type === 'StoneCircle'))
 				return this.startBounty(entity);
 		}
 	},
@@ -143,7 +143,7 @@ MatchState.prototype.event_handlers = {
 	},
 	applyKingsDecToGuard: function (evt)
 	{
-		if (this.context.declaration == 'DECL_0028')
+		if (this.context.declaration == '0xC121AABB') //Desertion
 			this.entities.getItemById('id', evt.entity).kill();
 	},
 	addEffect: function (evt) { this.entities.getItemById('id', evt.entity).addEffect(evt.card); }, 
@@ -309,14 +309,43 @@ MatchState.prototype.event_handlers = {
 	declaration: function (evt) 
 	{ 
 		this.context.setDeclaration(evt.type); 
-		if (this.context.declaration == 'DECL_0005') // For Royal Eyes Only
-			for (let p = 0; p < 4; p++)
+		switch (this.context.declaration) 
+		{
+			case '0xC121AA7A': // For Royal Eyes Only
 			{
-				let hero = this.players.items[p].hero;
-				let tile = this.map.getItemById('coords', hero.coords)
-				if (tile.type == 'Dungeon' || tile.type == 'StoneCircle')
-					return this.startBounty(hero);
-			}
+				let bounties = [];
+				for (let p = 0; p < 4; p++)
+				{
+					let bounty;
+					let hero = this.players.items[p].hero;
+					let tile = this.map.getItemById('coords', hero.coords)
+					if (tile.type == 'Dungeon' || tile.type == 'StoneCircle')
+						bounty = this.startBounty(hero);
+					if (bounty)
+						bounties.push(bounty);
+				};
+				return bounties;
+			}; break;
+			case '0xC121AAD7': //Royal Challenge
+			case '0xC121AAB4': //Palace Lockdown
+			{
+				let hero = this.entities.getItemById('playerid', this.context.prestige_leader);
+				return this.startBounty(hero);
+			}; break;
+			case "0xC121AAB5" : //War March
+			case "War Drums" : //War Drums
+			{
+				let bounties = [];
+				for (let p = 0; p < 4; p++)
+				{
+					let hero = this.players.items[p].hero;
+					let bounty = this.startBounty(hero);
+					if (bounty)
+						bounties.push(bounty);
+				}
+				return bounties;
+			}; break;
+		}
 	}, 
 	playerStart: function (evt)
 	{
