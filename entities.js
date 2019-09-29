@@ -117,7 +117,7 @@ function Hero(id, corner)
 	this.followers = new Array();
 	this.playerid = undefined;
 	
-	this.special = new Object();
+	this.special = {Bounty:0};
 }
 Hero.prototype = Object.create(Entity.prototype);
 Hero.prototype.constructor = Hero;
@@ -164,7 +164,7 @@ Hero.prototype.setBounty = function(level)
 {
 	if (this.equipment.indexOf('ITM08') >= 0) //we have Royal Pardon
 		level = 0;
-	if (level != this.special.Bounty)
+	if (level !== this.special.Bounty)
 	{
 		this.special.Bounty = level;
 		this.notify('special', 'change');
