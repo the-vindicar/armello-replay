@@ -70,7 +70,7 @@ MapTile.prototype.clearPeril = function ()
 		this.notify('peril', 'remove', peril);
 	}
 	else
-		console.warn('Tried to clear a peril from a tile without peril.');	
+		console.warn('Tried to clear a peril from a tile without peril.');
 };
 MapTile.prototype.hasEffect = function (effect)
 {

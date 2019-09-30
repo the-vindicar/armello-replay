@@ -176,7 +176,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 			}
 		},
 		{name:"killEntity", re:/Gameplay: Creature\+Message\+DeathEnd: Dispatch\(\[(?:[^(]+) \((\d+)\):/i, map:["entity"]},
-		{name:"applyKingsDecToGuard", re:/KingsDec: KingsEffects\+Message\+ApplyEffectInSequence: Dispatch\(\[King's Guard.+?\((\d+)\):/i, map:["entity"]},
+		{name:"applyKingsDecToGuard", re:/KingsDec: KingsEffects\+Message\+(?:PrepareTo)?ApplyEffectInSequence: Dispatch\(.*?\[King's Guard.+?\((\d+)\):/i, map:["entity"]},
 		{name:"predictBane", re:/Gameplay: Tile\+Message\+BaneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\).+\], (\w+)\)/i, map:["coords", "active"]},
 		{name:"predictSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawnSet: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\).+\], (\w+)\)/i, map:["coords", "active"]},
 		{name:"spawnSpiritStone", re:/Gameplay: Tile\+Message\+SpiritStoneSpawned: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["coords"]},
@@ -299,7 +299,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
-		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},
+		{name:"declaration", re:/NetworkGame: Player\d+ \[Process\] (?:Player\d|Server)#[^ ]+ ChooseKingsDeclarationRequest\s+\((\w+)\)/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
 		{name:"playerQuit", re:/NetworkGame: DisconnectPlayer: Player(\d)/i, map:["player"], 
 			action:function(evt)

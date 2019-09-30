@@ -148,24 +148,18 @@ function describeEvent(evt)
 			else
 				return undefined;
 		}; break;
-		case 'toggleBounty': 
+		case 'bountyChanged': 
 		{
 			let ent = context.entities.getItemById('id', evt.entity);
-			if (ent.bounty > 0)
-				return 'There is a bounty on '+describeEntity(ent)+"'s head!";
-			else
-				return 'There is no longer a bounty on '+describeEntity(ent)+"'s head.";
+			let desc = describeEntity(ent);
+			switch (evt.value)
+			{
+				case 1: return 'There is a bounty on '+desc+"'s head!"; break;
+				case 2: return desc+" has been declared a Fugitive!"; break;
+				case 3: return desc+" has been declared a Traitor!"; break;
+				default: return 'There is no longer a bounty on '+desc+"'s head."; break;
+			}
 		}; break;
-		case 'toggleCorrupted': 
-		{
-			let ent = context.entities.getItemById('id', evt.entity);
-			if (ent instanceof Hero)
-				if (ent.corrupted)
-					return describeEntity(ent)+' has been corrupted by Rot!';
-				else
-					return describeEntity(ent)+' is no longer corrupted.';
-			
-		};break;
 		// Map tiles
 		case 'putPeril': 
 		{
@@ -351,8 +345,9 @@ function updateHeroFor(player)
 	else
 		caption.removeAttribute('data-rotten');
 	
-	if (hero.bounty > 0)
-		caption.setAttribute('data-bounty', hero.bounty.toString());
+	let bounty = hero.getBounty();
+	if (bounty > 0)
+		caption.setAttribute('data-bounty', bounty.toString());
 	else
 		caption.removeAttribute('data-bounty');
 }

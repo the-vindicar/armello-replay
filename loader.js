@@ -198,7 +198,16 @@ function MatchSelected(file, parser, update)
 					let target = Math.min(events.length, i+50);
 					while (i < target)
 					{
-						window.ArmelloMatchState.processEvent(events[i]); // processing the event
+						let injected = window.ArmelloMatchState.processEvent(events[i]); // processing the event
+						//we can inject "fake" events if necessary
+						if (typeof injected !== 'undefined')
+						{	//if event handler returned undefined, nothing was injected
+							if (!Array.isArray(injected)) //otherwise it's either an event
+								events.splice(i+1, 0, injected);
+							else //or an array of events
+								for (let j = 0; j < injected.length; j++)
+									events.splice(i+j+1, 0, injected[j]);
+						}
 						if (!gamebegan && (events[i].name === 'nextRound'))
 							gamebegan = true;
 						let desc = describeEvent(events[i]); // trying to get a description

@@ -143,7 +143,17 @@ renderTile.styles = {
 function renderTileEffects(tile, ctx, entities)
 {
 	const hex = getHex(tile);
-	if (tile.state.terrorized)
+	if (tile.type==='ClanCastle')
+	{
+		const cnv = gridToCanvas(tile.u, tile.v);
+		let r = Math.trunc(gridToCanvas.tileSize * renderTileEffects.effects.clancastle.radius);
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = renderTileEffects.effects.clancastle.text;
+		ctx.font = r.toString()+'px Arial';
+		ctx.fillText(tile.state.player.toString(), cnv.x, cnv.y);
+	}
+	else if (tile.state.terrorized)
 	{
 		ctx.strokeStyle = renderTileEffects.effects.terrorized.stroke;
 		ctx.setLineDash([]);
@@ -267,6 +277,7 @@ function renderTileEffects(tile, ctx, entities)
 	}
 }
 renderTileEffects.effects = {
+	clancastle: {text: 'rgba(128,128,64,0.5)', radius: 1.0},
 	owner: {radius: 0.6},
 	terrorized: {stroke: 'black', lineWidth: 5},
 	fortified: {stroke: 'white', lineWidth: 5},
