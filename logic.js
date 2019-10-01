@@ -102,6 +102,22 @@ MatchState.prototype.event_handlers = {
 				return this.startBounty(entity);
 		}
 	},
+	attack : function (evt)
+	{
+		let attacker = this.entities.getItemById('id', evt.attacker);
+		let defender = this.entities.getItemById('id', evt.defender);
+		if ( (attacker instanceof Hero) //it's a hero
+			 && (defender instanceof Hero) //attacking another Hero
+			 && (attacker.equipment.indexOf('ITM08') < 0) //without Royal Pardon
+			 && this.context.pacts.some(function(p){ //and they had Armistice going
+				return (p.type === 'TRK34') && //Armistice
+					( (p.initiator==attacker.playerid && p.recipient==defender.playerid) || 
+					  (p.initiator==defender.playerid && p.recipient==attacker.playerid) );
+				}) )
+		{
+			return attacker.setBounty(3);
+		}
+	},
 	combatEnd : function (evt)
 	{
 		let attacker = this.entities.getItemById('id', evt.attacker);
@@ -118,13 +134,6 @@ MatchState.prototype.event_handlers = {
 				return this.startBounty(attacker);
 			//failed attack on the King, but hero survived
 			else if (defender.type === "King" && (evt.outcome == 'Attacking-Lose'))
-				return attacker.setBounty(3);
-			//hero attacked another hero they had Armistice with
-			else if ( (defender instanceof Hero) && this.context.pacts.some(function(p){
-				return (p.type === 'TRK34') && //Armistice
-					( (p.initiator==attacker.playerid && p.recipient==defender.playerid) || 
-					  (p.initiator==defender.playerid && p.recipient==attacker.playerid) );
-				}) )
 				return attacker.setBounty(3);
 		}
 	},
