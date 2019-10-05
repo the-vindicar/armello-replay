@@ -89,10 +89,12 @@ Name.db = {
 	AMU12 : "Discipline Amulet",
 	AMU13 : "Resist Amulet",
 	AMU14 : "Intimidate Amulet",
-	None : "Intimidated", // >_< LoG couldn't make it less obtuse.
 	AMU15 : "Harmonize Amulet",
 	AMU16 : "Decay Amulet",
 	AMU21 : "Ruin Amulet",
+	// ================ Other things ================
+	PERMASCOUT: "Scout",
+	None : "Intimidated", // >_< LoG couldn't make it less obtuse.
 	// ================ King's Declarations (new) ================
 	"0xC121AA76" : "Tax Time",
 	"0xC121AA77" : "Tribute of Spirit",
@@ -413,10 +415,12 @@ Hint.db = {
 	AMU12 : "+2 Clan Affinity Dice Bonus.",
 	AMU13 : "Gain +1 Shield in Battles and Perils.",
 	AMU14 : "End your turn next to a creature, they suffer -2 Dice in Battle until end of next turn.",
-	None : "Suffer -2 Dice in Battle until end of next turn.",
 	AMU15 : "While not Corrupted, in Battles, all Rot Cards in your hand change to Sun symbols.",
 	AMU16 : "Heal 2 Health for each Rot gained, and lose 1 Health for each Rot lost.",
 	AMU21 : "Upon entering a Settlement, Terrorize it and gain +1 Rot.",
+	// ================ Other things ================
+	PERMASCOUT: "This hero has played the goblins' game.",
+	None : "Suffer -2 Dice in Battle until end of next turn.",
 	// ================ King's Declarations (new) ================
 	"0xC121AA76" : "Lose 2 gold. If not enough gold, lose 1 prestige.",
 	"0xC121AA77" : "Lose 2 magic. If not enough magic, lose 1 prestige.",
