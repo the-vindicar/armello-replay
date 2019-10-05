@@ -42,7 +42,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		re_setuphero : /Player: Player\+Message\+PlayerGameStateChanged: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
 		heroes_completed : {},
 		player_quit_events : [false, false, false, false],
-		chat_prepared : undefined,
+		first_prestige_event : false,
 		disconnect_cache : undefined,
 		card_on_hero_cache: undefined,
 		card_on_tile_cache: undefined,
@@ -298,6 +298,16 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
+		{name:"prestigeLeader", re:/NetworkGame: Player\d \[Process\] \S+ ConfirmPlayerPrestigePosition\s+\(Player(\d), 0\)/i, map:["player"],
+			action:function(evt)
+			{
+				if (!this.first_prestige_event)
+				{
+					this.first_prestige_event = true;
+					return evt;
+				}
+			},
+		},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/NetworkGame: Player\d+ \[Process\] (?:Player\d|Server)#[^ ]+ ChooseKingsDeclarationRequest\s+\((\w+)\)/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
@@ -319,23 +329,7 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 		{name:"startTurn", re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i, map:["entity"]},
 		{name:"endTurn", re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\)/i, map:["player"]},
 		{name:"victory", re:/Winner:\s*\[Player .+ \(Player(\d)\):/i, map:["player"]},
-		{name:"chat", re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+),/i, map:["player", "type"], 
-			action: function(evt)
-			{
-				this.chat_prepared = evt;
-				return undefined;
-			}
-		},
-		{name:"chat", re:/Game: \[.+\]: (.+)/i, map:["message"], 
-			action: function(evt)
-			{
-				if (!this.chat_prepared) return undefined;
-				this.chat_prepared.message = evt.message;
-				let e = this.chat_prepared;
-				this.chat_prepared = undefined;
-				return e;
-			}
-		},
+		{name:"chat", re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+), (?:Invalid|Player(\d))\)/i, map:["player", "type", "target"], },
 	],
 	//match detector function returns either match description object or undefined.
 	// Example of resulting object:
