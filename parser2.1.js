@@ -37,10 +37,10 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 			"KingsPalaceSouth": "KingsPalace",
 			"KingsPalaceWest": "KingsPalace",
 		},
-		re_start : /(\d+:\d+:\d+)\W+Matchmaking: MatchmakingControllerPrimary\.BeginMatchState: OnEnter/i,
+		re_start : /(\d+:\d+:\d+)\W+Matchmaking: (?:MatchmakingControllerPrimary\.BeginMatchState: OnEnter|GameOptionSetupSP: GameOptionSetupSP: GameOptionsBeginMatch)/i,
 		re_end : /(\d+:\d+:\d+)\W+(?:Matchmaking: MatchmakingControllerPrimary\.InGameState: OnExit|Analytics: OnAppQuit:)/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: Player(\d), Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
-		re_setuphero : /Player: Player\+Message\+PlayerGameStateChanged: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
+		re_setuphero : /\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
 		heroes_completed : {},
 		player_quit_events : [false, false, false, false],
 		first_prestige_event : false,
@@ -102,10 +102,10 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 			}
 		},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
-		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \S+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		{name:"spawnIllusion", re:/NetworkGame: \w+ \[Process\] Server#\d+ SpawnIllusion(?:AsAuthority)?\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
-		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|Server#\d+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
+		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|\S+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		{name:"setupHero", re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"], action: function(evt)
 			{
 				// we only generate "setupHero" event the first time we learn about relationship between hero type and hero's entity ID
