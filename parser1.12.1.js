@@ -42,6 +42,7 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		re_setuphero : /Player: Player\+Message\+PlayerGameStateChanged: Dispatch\(\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
 		heroes_completed : {},
 		player_quit_events : [false, false, false, false],
+		first_prestige_event : false,
 		chat_prepared : undefined,
 		disconnect_cache : undefined,
 		card_on_hero_cache: undefined,
@@ -86,9 +87,9 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 			}
 		},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
-		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] Server#\d+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \S+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
-		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|Server#\d+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
+		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|\S+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		{name:"setupHero", re:/\[Hero (\w+) \((\d+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"], action: function(evt)
 			{
 				// we only generate "setupHero" event the first time we learn about relationship between hero type and hero's entity ID
@@ -141,15 +142,23 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		},
 		{name:"resolveDice", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\] PushResolution \[SymbolResData: (\w+),(\w+),(-?\d+),(\w+)\]/i, map:["entity", "symbol", "type", "mod", "source"], action:function(evt)
 			{
-				if (!this.combat_cache) return undefined;
-				let target;
-				if (this.combat_cache.attacker == evt.entity)
-					target = this.combat_cache.attacker_dice;
-				else if (this.combat_cache.defender == evt.entity)
-					target = this.combat_cache.defender_dice;
-				else
-					return undefined;
-				target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
+				if (this.combat_cache) 
+				{
+					let target;
+					if (this.combat_cache.attacker == evt.entity)
+						target = this.combat_cache.attacker_dice;
+					else if (this.combat_cache.defender == evt.entity)
+						target = this.combat_cache.defender_dice;
+					else
+						return undefined;
+					target.rolls.push({symbol:evt.symbol, type:evt.type, source:evt.source});
+				}
+				else if (this.peril_cache)
+				{
+					let type = (evt.type == "Perils") ? "Match" : evt.type;
+					this.peril_cache.dice.rolls.push({symbol:evt.symbol, type:type, source:evt.source});
+				}
+				return undefined;
 			}
 		},
 		{name:"combatEnd", re:/Combat: CombatManager\.DoApplyCombat combatResult\.(Attacking|Defending)PlayerResult == CombatResult\.Result\.(\w+)/i, map:["source", "result"], action:function(evt)
@@ -202,8 +211,31 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		{name:"toggleBounty", re:/Gameplay: SpecialStatusManager\+Message\+StatusUpdated: Dispatch\(\[Hero \w+ \((\d+)\):.+?\], LeagueOfGeeks.ArmelloEngine.Bounty,/i, map:["entity"]},
 		{name:"toggleCorrupted", re:/Gameplay: Corrupted\+Message\+CorruptedChanged: Dispatch\(\[[^(]+ \((\d+)\):.+?\]/i, map:["entity"]},
 		{name:"putPeril", re:/Peril: Tile\+Message\+AddPeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:(\w+) type:\w+ isTemp:\w+\], OwnerId=(\w+)\]\)/i, map:["coords", "peril", "card", "owner"]},
-		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "coords"]},
+		{name:"encounterPeril", re:/Gameplay: Creature\+Message\+PerilChallengeBegin: Dispatch\(\[Hero \w+ \((\w+)\):.*?Pos=\((-?\d+,-?\d+)\)/i, map:["entity", "coords"], action:function(evt)
+			{
+				this.peril_cache = { 
+					coords: evt.coords, 
+					entity: evt.entity, 
+					dice: {total:0, parts:[], rolls:[]}
+					};
+				return evt;
+			}
+		},
 		{name:"takePeril", re:/Player: Player\+Message\+TakePerilEffect: Dispatch\(\[.+?\((\d+)\):.+?\], \[Card \w+: Asset:(\w+).+?\], \[Player .+? \(Player(\d)\):/i, map:["entity", "card", "player"]},
+		{name:"completePeril", re:/Peril: PerilChallenge\+Message\+Resolve: Dispatch\(LeagueOfGeeks\.ArmelloEngine\.PerilChallenge, (\w+)\)/i, map:["result"], action:function(evt)
+			{
+				if (!this.peril_cache) 
+					return undefined;
+				else 
+				{
+					evt.coords = this.peril_cache.coords;
+					evt.entity = this.peril_cache.entity;
+					evt.dice = this.peril_cache.dice;
+					this.peril_cache = undefined;
+					return evt;
+				}
+			}
+		},
 		{name:"playCardOnTile", re:/Player: Player\+Message\+PlayCardOnTile: Dispatch\(\[Player.+?\(Player(\d)\):.+?\], \[Card \w+: Asset:(\w+) type:\w+ isTemp:\w+\], \[Tile: Pos=\((-?\d+,-?\d+)\),/i, map:["player", "card","coords"], 
 			action:function (evt)
 			{
@@ -252,8 +284,18 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
+		{name:"prestigeLeader", re:/NetworkGame: Player\d \[Process\] \S+ ConfirmPlayerPrestigePosition\s+\(Player(\d), 0\)/i, map:["player"],
+			action:function(evt)
+			{
+				if (!this.first_prestige_event)
+				{
+					this.first_prestige_event = true;
+					return evt;
+				}
+			},
+		},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
-		{name:"declaration", re:/\[url=\"kingsdec:\/\/(\w+)\"\]/i, map:["type"]},
+		{name:"declaration", re:/NetworkGame: Player\d+ \[Process\] (?:Player\d|Server)#[^ ]+ ChooseKingsDeclarationRequest\s+\((\w+)\)/i, map:["type"]},
 		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
 		{name:"playerQuit", re:/NetworkGame: DisconnectPlayer: Player(\d)/i, map:["player"], 
 			action:function(evt)
