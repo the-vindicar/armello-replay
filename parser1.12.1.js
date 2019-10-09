@@ -128,16 +128,21 @@ Parser.Parsers['1.12.1.0'] = new Parser(
 		},
 		{name:"modifyDiceCounts", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\]: (AddDice|RemoveDice)\((\d+)\) from source (.+?) for a total of (\d+)/, map:["entity", "type", "mod", "source", "value"], action:function(evt)
 			{
-				if (!this.combat_cache) return undefined;
-				let target;
-				if (this.combat_cache.attacker == evt.entity)
-					target = this.combat_cache.attacker_dice;
-				else if (this.combat_cache.defender == evt.entity)
-					target = this.combat_cache.defender_dice;
-				else
-					return undefined;
-				target.total = parseInt(evt.value, 10);
-				target.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				if (this.combat_cache) 
+				{
+					let target;
+					if (this.combat_cache.attacker == evt.entity)
+						target = this.combat_cache.attacker_dice;
+					else if (this.combat_cache.defender == evt.entity)
+						target = this.combat_cache.defender_dice;
+					else
+						return undefined;
+					target.total = parseInt(evt.value, 10);
+					target.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				}
+				else if (this.peril_cache)
+					this.peril_cache.dice.parts.push({value:((evt.type == "AddDice")?+1:-1)*parseInt(evt.mod, 10), source:evt.source});
+				return undefined;
 			}
 		},
 		{name:"resolveDice", re:/Dice: DiceRollConfig\[\[.+? \((\w+)\):.+\]\] PushResolution \[SymbolResData: (\w+),(\w+),(-?\d+),(\w+)\]/i, map:["entity", "symbol", "type", "mod", "source"], action:function(evt)
