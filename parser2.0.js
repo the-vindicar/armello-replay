@@ -36,9 +36,11 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 			"KingsPalaceSouth": "KingsPalace",
 			"KingsPalaceWest": "KingsPalace",
 		},
+		platformtosteam : {},
 		re_start : /(\d+:\d+:\d+)\W+Matchmaking: (?:MatchmakingControllerPrimary\.BeginMatchState: OnEnter|GameOptionSetupSP: GameOptionSetupSP: GameOptionsBeginMatch)/i,
 		re_end : /(\d+:\d+:\d+)\W+(?:Matchmaking: MatchmakingControllerPrimary\.InGameState: OnExit|Analytics: OnAppQuit:)/i,
 		re_player : /Gameplay:\s*\[\s*\w+\s*\] Id: Player(\d), Name:\s*([^,]+), Network Id:\s*(\w+)\s*, Hero:\s*\w+/i,
+		re_steamid : /Matchmaking:\s*.+? \(id:(\w+)\): OnServerSetPlayerProperty: PlatformId = (\d+)/i,
 		re_setuphero : /\[Player .+ \(Player(\d)\): Hero=\[Creature=\[Hero (\w+) \((\d+)\):/i,
 		heroes_completed : {},
 		player_quit_events : [false, false, false, false],
@@ -362,8 +364,11 @@ Parser.Parsers['2.0.0.0'] = new Parser(
 			// add player info
 			player = this.matchinfo.players[parseInt(match[1])-1];
 			player.name = match[2];
-			player.steam = match[3];
+			player.networkid = match[3];
+			player.steam = this.platformtosteam[match[3]];
 		}
+		else if (match = this.re_steamid.exec(line))
+			this.platformtosteam[match[1]] = match[2];
 		else if (this.matchinfo && (match = this.re_setuphero.exec(line)))
 		{
 			player = this.matchinfo.players[parseInt(match[1])-1];
