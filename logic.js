@@ -22,7 +22,7 @@ MatchState.prototype.traders = ['TRK38','TRK39','TRK44','TRK45'];
 MatchState.prototype.traders_pre = ['TRK38PRE','TRK39PRE','TRK44PRE','TRK45PRE'];
 MatchState.prototype.assaultcards = [
 	'MAG04', 'MAG05', 'MAG07', 'MAG11', 'MAG12', 'MAG25', 'MAG34',
-	'TRK01', 'TRK08',
+	'TRK08',
 	'CON04', 'CON07', 'CON10', 'CON11', 
 	];
 
