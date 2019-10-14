@@ -260,7 +260,9 @@ this.markers.addNewItem(MapMarker,'banespawn',evt.coords,'Incoming Bane');else
 this.markers.removeItemById('coords',evt.coords);},predictSpiritStone:function(evt)
 {if(evt.active=='True')
 this.markers.addNewItem(MapMarker,'stonespawn',evt.coords,'Incoming Spirit Stone');else
-this.markers.removeItemById('coords',evt.coords);},spawnSpiritStone:function(evt){this.markers.addNewItem(MapMarker,'stone',evt.coords,'Spirit Stone');},removeSpiritStone:function(evt)
+this.markers.removeItemById('coords',evt.coords);},spawnSpiritStone:function(evt)
+{let entity=this.entities.getItemById('coords',evt.coords,false);if(!entity)
+this.markers.addNewItem(MapMarker,'stone',evt.coords,'Spirit Stone');},removeSpiritStone:function(evt)
 {for(let i=0;i<this.markers.items.length;i++)
 if((this.markers.items[i].type=='stone')&&(this.markers.items[i].coords==evt.coords))
 {this.markers.removeItem(this.markers.items[i]);break;}},setQuest:function(evt)

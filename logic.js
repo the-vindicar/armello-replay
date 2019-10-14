@@ -285,7 +285,12 @@ MatchState.prototype.event_handlers = {
 		else
 			this.markers.removeItemById('coords', evt.coords);
 	},
-	spawnSpiritStone: function (evt) { this.markers.addNewItem(MapMarker, 'stone', evt.coords, 'Spirit Stone'); },
+	spawnSpiritStone: function (evt) 
+	{
+		let entity = this.entities.getItemById('coords', evt.coords, false);
+		if (!entity)
+			this.markers.addNewItem(MapMarker, 'stone', evt.coords, 'Spirit Stone'); 
+	},
 	removeSpiritStone: function (evt)
 	{
 		for (let i = 0; i < this.markers.items.length; i++)
