@@ -341,7 +341,12 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		},
 		{name:"prestigeLeader", re:/Gameplay:\s+Game\+Message\+NewPrestigeLeader:\s+Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"declaration", re:/NetworkGame: Player\d+ \[Process\] (?:Player\d|Server)#[^ ]+ ChooseKingsDeclarationRequest\s+\((\w+)\)/i, map:["type"]},
-		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "steam"]},
+		{name:"playerStart", re:/Gameplay:\s+\[\s*(\w+)\s*\]\s+Id:\s+Player(\d),\s+Name:\s+([^,]+), Network Id:\s*(\w+),/i, map:["loc", "player", "alias", "platformid"], action:function(evt)
+			{
+				evt.steam = this.platformtosteam[evt.platformid];
+				return evt;
+			}
+		},
 		{name:"playerQuit", re:/NetworkGame: DisconnectPlayer: Player(\d)/i, map:["player"], 
 			action:function(evt)
 			{
