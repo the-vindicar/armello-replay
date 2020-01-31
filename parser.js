@@ -80,7 +80,7 @@ function Parser(fields, items, detectfunc)
 	this.items = [];
 	for (var i = 0; i < items.length; i++)
 		this.items.push(new ParserItem(this, items[i].name, items[i].re, items[i].map, items[i].action, items[i].log));
-	this.matchFinderFunc = detectfunc.bind(this.data);
+	this.matchFinderFunc = detectfunc;
 }
 Parser.prototype = Object.create({});
 Parser.prototype.constructor = Parser;
@@ -101,7 +101,7 @@ Parser.prototype._parseLine = function (line, pos)
 Parser.prototype.findMatches = function (file, linecb)
 {
 	this.data = Object.create(this.data_init);
-	let matchfinderfunc = this.matchFinderFunc;
+	let matchfinderfunc = this.matchFinderFunc.bind(this.data);
 	if (typeof linecb !== 'function')
 		return Parser._scanFile(file, matchfinderfunc);
 	else
@@ -283,7 +283,10 @@ Parser._scanFile = function (file, linefunc)
 					{
 						let value = linefunc(buffer, startpos, sz);
 						if (typeof value !== 'undefined') //linefunc has returned something - add it to the list
-							values.push(value);
+							if (Array.isArray(value))
+								Array.prototype.push.apply(values, value);
+							else
+								values.push(value);
 					}
 					catch (err) //something went wrong during processing
 					{ 
