@@ -311,13 +311,13 @@ return evt;}
 else
 return;};function Parser(fields,items,detectfunc)
 {this.data_init=fields;this.data=Object.create(fields);this.items=[];for(var i=0;i<items.length;i++)
-this.items.push(new ParserItem(this,items[i].name,items[i].re,items[i].map,items[i].action,items[i].log));this.matchFinderFunc=detectfunc.bind(this.data);}
+this.items.push(new ParserItem(this,items[i].name,items[i].re,items[i].map,items[i].action,items[i].log));this.matchFinderFunc=detectfunc;}
 Parser.prototype=Object.create({});Parser.prototype.constructor=Parser;Parser.prototype._parseLine=function(line,pos)
 {var events=[];var evt;for(var i=0;i<this.items.length;i++)
 {evt=this.items[i].run(line);if(typeof evt!=='undefined')
 events.push(evt);}
 return events;};Parser.prototype.findMatches=function(file,linecb)
-{this.data=Object.create(this.data_init);let matchfinderfunc=this.matchFinderFunc;if(typeof linecb!=='function')
+{this.data=Object.create(this.data_init);let matchfinderfunc=this.matchFinderFunc.bind(this.data);if(typeof linecb!=='function')
 return Parser._scanFile(file,matchfinderfunc);else
 return Parser._scanFile(file,function(line,pos)
 {linecb(line,pos);return matchfinderfunc(line,pos);});};Parser.prototype.parseFile=function(file,linecb)
@@ -368,6 +368,8 @@ reader.readAsText(file.slice(position,position+slicesize));else
 {if(buffer.length>0)
 try
 {let value=linefunc(buffer,startpos,sz);if(typeof value!=='undefined')
+if(Array.isArray(value))
+Array.prototype.push.apply(values,value);else
 values.push(value);}
 catch(err)
 {reject(err);return;}
@@ -814,11 +816,12 @@ return undefined;else
 {if(this.card_on_tile_cache)
 {evt.player=this.card_on_tile_cache.player;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"buffPeril",re:/Gameplay: Peril\+Message\+StatusEffectAdded: Dispatch\(\[Peril \((\w+)\):/i,map:["peril"],action:function(evt)
 {if(this.card_on_tile_cache)
-{evt.player=this.card_on_tile_cache.player;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"addTileEffect",re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+)[^,]*,\s*Type:(\w+)\]\)/i,map:["coords","card","type"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
+{evt.player=this.card_on_tile_cache.player;evt.card=this.card_on_tile_cache.card;evt.coords=this.card_on_tile_cache.coords;this.card_on_tile_cache=undefined;return evt;}}},{name:"clearPeril",re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i,map:["coords","peril"]},{name:"addTileEffect",re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+)[^,]*,\s*Type:(\w+)\]\)/i,map:["coords","card","type"]},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured|SettlementTerrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i,map:["type","coords","reason"],action:function(evt)
 {if((evt.reason=='Card')&&this.card_on_tile_cache)
 {evt.player=this.card_on_tile_cache.player;evt.reason=this.card_on_tile_cache.card;this.card_on_tile_cache=undefined;}
 return evt;}},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementTerrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, \[.+ \((\d+)\):.+?\]/i,map:["type","coords","entity"],action:function(evt)
-{evt.reason="Entity";return evt;}},{name:"settlementFortified",re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i,map:["coords","entity"],action:function(evt)
+{evt.reason="Entity";return evt;},},{name:"settlementChangeOwner",re:/Gameplay: Tile\+Message\+(SettlementUnterrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[.+ \((\d+)\):.+?\]/i,map:["type","coords","entity"],action:function(evt)
+{evt.reason="Entity";return evt;},},{name:"settlementFortified",re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i,map:["coords","entity"],action:function(evt)
 {if(!this.card_on_tile_cache||(this.card_on_tile_cache.coords!=evt.coords))
 return evt;else
 {this.card_on_tile_cache=undefined;return undefined;}}},{name:"setQuest",re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i,map:["player","coords"]},{name:"completeQuest",re:/Gameplay: QuestManager\+Message\+CompleteQuest/i,map:[]},{name:"prestigeLeader",re:/NetworkGame: Player\d \[Process\] \S+ ConfirmPlayerPrestigePosition\s+\(Player(\d), 0\)/i,map:["player"],action:function(evt)
@@ -1192,8 +1195,8 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 </head>
 <body>
 	<div id="load">
-		<label for="log" id="dropzone">Drop Armello log file here or click to browse</label>
-		<input accept=".txt" id="log" name="log" type="file">
+		<label id="dropzone" for="log">Drop Armello log file here or click to browse</label>
+		<input type="file" id="log" name="log" accept=".txt">
 		<ul id="matches"></ul>
 		<div id="help">
 			<h1>Armello Match Replay Tool</h1>
@@ -1208,8 +1211,8 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 	<div id="main" style="display:none;">
 		<table id="players">
 			<tr>
-				<td class="info" data-clan="wolf" data-player-id="1">
-					<a href="" target="_blank">Player name goes here</a>
+				<td data-player-id="1" data-clan="wolf" class="info">
+					<a target="_blank" href="">Player name goes here</a>
 					<span class="hero"></span>
 					<span class="mark-prestige" title="The hero is the Prestige Leader!">P</span>
 					<span class="mark-rot" title="The hero has enough Rot to overcome the King!">R</span>
@@ -1218,8 +1221,8 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 					<span class="mark-bounty2" title="The hero has been declared Fugitive!">2</span>
 					<span class="mark-bounty3" title="The hero has been declared Traitor!">3</span>
 				</td>
-				<td class="info" data-clan="rabbit" data-player-id="2">
-					<a href="" target="_blank">Player name goes here</a>
+				<td data-player-id="2" data-clan="rabbit" class="info">
+					<a target="_blank" href="">Player name goes here</a>
 					<span class="hero"></span>
 					<span class="mark-prestige" title="The hero is the Prestige Leader!">P</span>
 					<span class="mark-rot" title="The hero has enough Rot to overcome the King!">R</span>
@@ -1228,8 +1231,8 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 					<span class="mark-bounty2" title="The hero has been declared Fugitive!">2</span>
 					<span class="mark-bounty3" title="The hero has been declared Traitor!">3</span>
 				</td>
-				<td class="info" data-clan="bear" data-player-id="3">
-					<a href="" target="_blank">Player name goes here</a>
+				<td data-player-id="3" data-clan="bear" class="info">
+					<a target="_blank" href="">Player name goes here</a>
 					<span class="hero"></span>
 					<span class="mark-prestige" title="The hero is the Prestige Leader!">P</span>
 					<span class="mark-rot" title="The hero has enough Rot to overcome the King!">R</span>
@@ -1238,8 +1241,8 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 					<span class="mark-bounty2" title="The hero has been declared Fugitive!">2</span>
 					<span class="mark-bounty3" title="The hero has been declared Traitor!">3</span>
 				</td>
-				<td class="info" data-clan="rat" data-player-id="4">
-					<a href="" target="_blank">Player name goes here</a>
+				<td data-player-id="4" data-clan="rat" class="info">
+					<a target="_blank" href="">Player name goes here</a>
 					<span class="hero"></span>
 					<span class="mark-prestige" title="The hero is the Prestige Leader!">P</span>
 					<span class="mark-rot" title="The hero has enough Rot to overcome the King!">R</span>
@@ -1250,7 +1253,7 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 				</td>
 			</tr>
 			<tr>
-			<td class="player" data-clan="wolf" data-player-id="1">
+			<td data-player-id="1" data-clan="wolf" class="player">
 				<table class="equipped">
 					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
 					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
@@ -1263,7 +1266,7 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 				<div class="effects">Effect 1; Effect 2; Effect 3</div>
 				<div class="hand">Card 1; Card 2; Card 3</div>
 			</td>
-			<td class="player" data-clan="rabbit" data-player-id="2">
+			<td data-player-id="2" data-clan="rabbit" class="player">
 				<table class="equipped">
 					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
 					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
@@ -1276,7 +1279,7 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 				<div class="effects">Effect 1; Effect 2; Effect 3</div>
 				<div class="hand">Card 1; Card 2; Card 3</div>
 			</td>
-			<td class="player" data-clan="bear" data-player-id="3">
+			<td data-player-id="3" data-clan="bear" class="player">
 				<table class="equipped">
 					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
 					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>
@@ -1289,7 +1292,7 @@ buttons[i].setAttribute('disabled','true');MatchSelected(evt.target.dataslice,ev
 				<div class="effects">Effect 1; Effect 2; Effect 3</div>
 				<div class="hand">Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 1; Card 2; Card 3</div>
 			</td>
-			<td class="player" data-clan="rat" data-player-id="4">
+			<td data-player-id="4" data-clan="rat" class="player">
 				<table class="equipped">
 					<tr><td class="items" data-index="0">Lionheart Breastplate</td><td class="followers" data-index="0">Brilliant Fool</td></tr>
 					<tr><td class="items" data-index="1">Lionheart Breastplate</td><td class="followers" data-index="1">Brilliant Fool</td></tr>

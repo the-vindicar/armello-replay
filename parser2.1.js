@@ -299,7 +299,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		},
 		{name:"clearPeril", re:/Peril: Tile\+Message\+RemovePeril: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], \[Peril \((\w+)\): Card=\[Card \d+: Asset:\w+ type:\w+ isTemp:\w+\], OwnerId=\w+\]\)/i, map:["coords", "peril"]},
 		{name:"addTileEffect", re:/Gameplay: TileStatusEffectManager\+Message\+GainStatusEffect: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=\w+\], StatusEffect\[Source:(\w+)[^,]*,\s*Type:(\w+)\]\)/i, map:["coords", "card", "type"]},
-		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i, map:["type", "coords", "reason"], action:function(evt)
+		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementReleased|SettlementCaptured|SettlementTerrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], [^,]+, (\w+),/i, map:["type", "coords", "reason"], action:function(evt)
 			{
 				if ((evt.reason=='Card') && this.card_on_tile_cache)
 				{
@@ -314,7 +314,13 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 			{
 				evt.reason = "Entity";
 				return evt;
-			}
+			},
+		},
+		{name:"settlementChangeOwner", re:/Gameplay: Tile\+Message\+(SettlementUnterrorised): Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[.+ \((\d+)\):.+?\]/i, map:["type", "coords", "entity"], action:function(evt)
+			{
+				evt.reason = "Entity";
+				return evt;
+			},
 		},
 		{name:"settlementFortified", re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i, map:["coords", "entity"], action:function(evt)
 			{
