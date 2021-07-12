@@ -178,14 +178,25 @@ function MatchSelected(file, parser, update)
 	})
 		.then(function (events) // events have been extracted
 		{
+			var containers = [list];
+			makeContainer = function (evt)
+			{
+				let container = document.createElement('ul');
+				container.setAttribute('class', 'event-container event-'+evt.name);
+				container.starting_event = evt.name;
+				containers[0].appendChild(container);
+				containers.unshift(container);
+				return container;
+			};
+			
 			for (let i = 0; i < events.length; i++)
 				if (events[i].name == "addTile")
 					window.ArmelloMatchState.processEvent(events[i]);
 			var snapshots = [];
 			var list = document.getElementById('turns'); // event log
-			var container = undefined;
 			var gamebegan = false;
 			var turntakers = ['Bear', 'Rabbit', 'Wolf', 'Rat', 'Bandit', 'Dragon', 'King', 'Bane'];
+			var last_item = undefined;
 			var i=0; // index of current event
 			update(75, "Analyzing events...");
 			// in order to NOT hang up the browser for the duration of the processing, we process one event at a time 
@@ -210,6 +221,8 @@ function MatchSelected(file, parser, update)
 						}
 						if (!gamebegan && (events[i].name === 'nextRound'))
 							gamebegan = true;
+						if (events[i].name in describeEvent.eventpairs)
+							makeContainer(events[i]);
 						let desc = describeEvent(events[i]); // trying to get a description
 						if (gamebegan && (typeof desc !== 'undefined')) // event has a description - add it
 						{
@@ -217,25 +230,20 @@ function MatchSelected(file, parser, update)
 							let turntaker = (turntakerid)
 								? window.ArmelloMatchState.entities.getItemById('id', turntakerid)
 								: undefined;
-							if (!container && (events[i].name in describeEvent.eventpairs))
-							{
-								container = document.createElement('ul');
-								container.setAttribute('class', 'event-container event-'+events[i].name);
-								container.starting_event = events[i].name;
-								list.appendChild(container);
-							}
-							let li = document.createElement('li');
-							li.innerHTML = desc;
+							last_item = document.createElement('li');
+							last_item.innerHTML = desc;
 							// save index in the event array - that lets us find it later
-							li.setAttribute('data-event-index', i);
+							last_item.setAttribute('data-event-index', i);
 							// mark the element with event type for styling purposes
-							li.setAttribute('class', 'event event-'+events[i].name);
+							let klass = 'event event-'+events[i].name;
+							last_item.setAttribute('class', klass);
 							// mark the element with turntaker clan for styling purposes
 							if (turntaker)
 								for (let tidx = 0; tidx < turntakers.length; tidx++)
-									if (turntaker.type.slice(0,turntakers[tidx].length)===turntakers[tidx])
+									if (turntaker.type.slice(0,turntakers[tidx].length) === turntakers[tidx])
 									{
-										li.setAttribute('class', li.className+' '+turntakers[tidx]);
+										last_item.setAttribute('class', last_item.className+' '+turntakers[tidx]);
+										let container = containers[0];
 										if (container && !container.turntaker)
 										{
 											container.turntaker = turntakers[tidx];
@@ -251,17 +259,15 @@ function MatchSelected(file, parser, update)
 							if ((events[i].name === 'nextRound') || (events[i].name === 'startTurn'))
 							{
 								let index = snapshots.push(window.ArmelloMatchState.getSnapshot()) - 1;
-								li.setAttribute('data-snapshot-index', index);
-								container = undefined; //we also forcibly destroy container pairings
+								last_item.setAttribute('data-snapshot-index', index);
+								//we also forcibly exit all nested event containers, just in case
+								containers = [list];
 							}
-							if (container)
-								container.appendChild(li);
-							else
-								list.appendChild(li);
-							//if we got a paired event, close the event container
-							if (container && (events[i].name === describeEvent.eventpairs[container.starting_event]))
-								container = undefined;
+							containers[0].appendChild(last_item);
 						}
+						//if we got a paired event, close the event container
+						if ((containers.length > 1) && (events[i].name === describeEvent.eventpairs[containers[0].starting_event]))
+							containers.shift();
 						events[i].snapshot_index = snapshots.length - 1;
 						i++;
 					}
