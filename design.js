@@ -34,7 +34,7 @@ function describeRoll(roll)
 {
 	return '<span class="roll roll-'+roll.type+' roll-'+roll.source+'" title="'+roll.source+' '+roll.type+'">'+describeRoll.dicemap[roll.symbol]+'</span>';
 }
-describeRoll.dicemap = {Sword:'x',Shield:'u',Sun:'o',Moon:'c',WyldTree:'y',Rot:'q'};
+describeRoll.dicemap = {Sword:'X',Shield:'U',Sun:'O',Moon:'C',WyldTree:'Y',Rot:'Q'};
 
 function describeEvent(evt)
 {
