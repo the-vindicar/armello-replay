@@ -178,8 +178,9 @@ function MatchSelected(file, parser, update)
 	})
 		.then(function (events) // events have been extracted
 		{
+			var list = document.getElementById('turns'); // event log
 			var containers = [list];
-			makeContainer = function (evt)
+			var makeContainer = function (evt)
 			{
 				let container = document.createElement('ul');
 				container.setAttribute('class', 'event-container event-'+evt.name);
@@ -188,12 +189,16 @@ function MatchSelected(file, parser, update)
 				containers.unshift(container);
 				return container;
 			};
-			
+			var dropContainer = function ()
+			{
+				let container = containers.shift();
+				if (container.children.length == 0) //we drop empty containers completely
+					container.parentElement.removeChild(container);
+			};
 			for (let i = 0; i < events.length; i++)
 				if (events[i].name == "addTile")
 					window.ArmelloMatchState.processEvent(events[i]);
 			var snapshots = [];
-			var list = document.getElementById('turns'); // event log
 			var gamebegan = false;
 			var turntakers = ['Bear', 'Rabbit', 'Wolf', 'Rat', 'Bandit', 'Dragon', 'King', 'Bane'];
 			var last_item = undefined;
@@ -261,13 +266,14 @@ function MatchSelected(file, parser, update)
 								let index = snapshots.push(window.ArmelloMatchState.getSnapshot()) - 1;
 								last_item.setAttribute('data-snapshot-index', index);
 								//we also forcibly exit all nested event containers, just in case
-								containers = [list];
+								while (containers.length > 1)
+									dropContainer();
 							}
 							containers[0].appendChild(last_item);
 						}
 						//if we got a paired event, close the event container
 						if ((containers.length > 1) && (events[i].name === describeEvent.eventpairs[containers[0].starting_event]))
-							containers.shift();
+							dropContainer();
 						events[i].snapshot_index = snapshots.length - 1;
 						i++;
 					}
