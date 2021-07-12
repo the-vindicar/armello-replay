@@ -301,6 +301,16 @@ html, body {
 	content: "# ";
 }
 
+#turns .event-container.event-spawnBane .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "Q ";
+}
+
+#turns .event-container.event-spawnKingsGuard .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "F ";
+}
+
 #turns .event-container {
 	padding-top: 0.25em;
 	padding-bottom: 0.25em;

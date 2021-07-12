@@ -180,10 +180,13 @@ function MatchSelected(file, parser, update)
 		{
 			var list = document.getElementById('turns'); // event log
 			var containers = [list];
-			var makeContainer = function (evt)
+			var makeContainer = function (evt, klass)
 			{
 				let container = document.createElement('ul');
-				container.setAttribute('class', 'event-container event-'+evt.name);
+				let cls = 'event-container event-'+evt.name;
+				if (klass)
+					cls += ' ' + klass;
+				container.setAttribute('class', cls);
 				container.starting_event = evt.name;
 				containers[0].appendChild(container);
 				containers.unshift(container);
@@ -227,7 +230,7 @@ function MatchSelected(file, parser, update)
 						if (!gamebegan && (events[i].name === 'nextRound'))
 							gamebegan = true;
 						if (events[i].name in describeEvent.eventpairs)
-							makeContainer(events[i]);
+							makeContainer(events[i], (events[i].name === 'spawnNPC') ? 'event-spawn'+events[i].type : '');
 						let desc = describeEvent(events[i]); // trying to get a description
 						if (gamebegan && (typeof desc !== 'undefined')) // event has a description - add it
 						{
@@ -240,8 +243,7 @@ function MatchSelected(file, parser, update)
 							// save index in the event array - that lets us find it later
 							last_item.setAttribute('data-event-index', i);
 							// mark the element with event type for styling purposes
-							let klass = 'event event-'+events[i].name;
-							last_item.setAttribute('class', klass);
+							last_item.setAttribute('class', 'event event-'+events[i].name);
 							// mark the element with turntaker clan for styling purposes
 							if (turntaker)
 								for (let tidx = 0; tidx < turntakers.length; tidx++)

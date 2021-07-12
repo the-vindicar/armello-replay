@@ -41,7 +41,7 @@ function describeEvent(evt)
 	let context = window.ArmelloMatchState;
 	switch (evt.name)
 	{
-		case 'spawnNPC': if (evt.type == 'Bane') return Name(evt.type)+' spawns at '+describeTile(evt.coords); break;
+		case 'spawnNPC': return Name(evt.type)+' spawns at '+describeTile(evt.coords); break;
 		case 'spawnSpiritStone': return 'Spirit stone spawns at '+describeTile(evt.coords); break;
 		case 'moveEntity': return describeEntity(evt.entity)+' moves to '+describeTile(evt.coords)+'.'; break;
 		case 'attack': return describeEntity(evt.attacker)+' attacks '+describeEntity(evt.defender)+'!'; break;
@@ -288,6 +288,7 @@ describeEvent.eventpairs = {
 	equipStarted : "equipEnded",
 	playCardStarted : "playCardEnded",
 	placePerilStarted : "placePerilEnded",
+	spawnNPC : "spawnNPCComplete",
 };
 
 //================================================================================================

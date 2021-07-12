@@ -104,8 +104,9 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 				}
 			}
 		},
-		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#\d+\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \w+#Sync#Spawn(\w+?)(?:AsAuthority)?#(\d+)\s*\(Processing\) \((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "event_id", "entity", "coords"]},
 		{name:"spawnNPC", re:/NetworkGame: \w+ \[Process\] \S+ Spawn(\w+?)(?:AsAuthority)?\s+\((\d+), \((-?\d+,-?\d+)\)/i, map:["type", "entity", "coords"]},
+		{name:"spawnNPCComplete", re:/NetworkGame: Player\d+ \[Finish\s*\] \S+#(\d+) Spawn(\w+?)(?:AsAuthority)?/i, map:["event_id", "type"]},
 		{name:"spawnIllusion", re:/NetworkGame: \w+ \[Process\] Server#\d+ SpawnIllusion(?:AsAuthority)?\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
 		// we only learn hero's entity ID here, with no simple way to figure out actual hero type.
 		{name:"spawnHero", re:/NetworkGame: \w+ \[Process\] (?:\w+#Sync#SetupPlayerHero#\d+\s+\(Processing\)|\S+ SetupPlayerHero)\s+\(Player(\d), (\d+), \((-?\d+,-?\d+)\)/i, map:["player", "entity", "coords"]},
@@ -367,7 +368,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 					return undefined;
 			}
 		},
-		//player actions boundaries
+		//actions boundaries
 		{name:"equipStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerEquipCardRequest\s+\(Player(\d),/i, map:["event_id", "player"],
 			action:function(evt)
 			{
