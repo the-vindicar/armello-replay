@@ -285,6 +285,8 @@ function describeEvent(evt)
 describeEvent.eventpairs = {
 	attack : "combatEnd",
 	encounterPeril : "completePeril",
+	equipStarted : "equipEnded",
+	playCardStarted : "playCardEnded",
 };
 
 //================================================================================================

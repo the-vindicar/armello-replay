@@ -282,11 +282,23 @@ html, body {
 }
 
 #turns li.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
-  font:smaller "Armello Icons";
-  content: "# ";
+	font:smaller "Armello Icons";
+	content: "# ";
+}
+
+#turns .event-container.event-equipStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "u ";
+}
+
+#turns .event-container.event-playCardStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "W ";
 }
 
 #turns .event-container {
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
 	padding-left: 5pt;
 }
 
@@ -295,7 +307,13 @@ html, body {
 	border-left: solid 2pt gold;
 }
 
-#turns .event-container .event:first-child, #turns .event-container .event:last-child{
+#turns .event-container .event:first-child {
+	margin-left: -4pt;
+	padding-left: 0;
+	border-left: none;
+}
+
+#turns .event-container.event-attack .event:last-child, #turns .event-container.event-encounterPeril .event:last-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;

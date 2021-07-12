@@ -49,6 +49,7 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		disconnect_cache : undefined,
 		card_on_hero_cache: undefined,
 		card_on_tile_cache: undefined,
+		action_id_by_player_cache: {},
 	},
 	//parser items describe translation of game log lines into event objects
 	[
@@ -366,11 +367,48 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 					return undefined;
 			}
 		},
+		//player actions boundaries
+		{name:"equipStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerEquipCardRequest\s+\(Player(\d),/i, map:["event_id", "player"],
+			action:function(evt)
+			{
+				this.action_id_by_player_cache[evt.event_id] = evt.player;
+				return evt;
+			}
+		},
+		{name:"playCardStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerPlayCardOn(?:Creature|Tile)Request\s+\(Player(\d),/i, map:["event_id", "player"],
+			action:function(evt)
+			{
+				this.action_id_by_player_cache[evt.event_id] = evt.player;
+				return evt;
+			}
+		},
+		{name:"equipEnded", re:/NetworkGame: Player\d+ \[Finish\s*\] \S+#(\d+) PlayerEquipCardRequest/i, map:["event_id"],
+			action:function(evt)
+			{
+				if (evt.event_id in this.action_id_by_player_cache)
+				{
+					evt.player = this.action_id_by_player_cache[evt.event_id];
+					delete this.action_id_by_player_cache[evt.event_id];
+				}
+				return evt;
+			}
+		},
+		{name:"playCardEnded", re:/NetworkGame: Player\d+ \[Finish\s*\] \S+#(\d+) PlayerPlayCardOn(?:Creature|Tile)Request/i, map:["event_id"],
+			action:function(evt)
+			{
+				if (evt.event_id in this.action_id_by_player_cache)
+				{
+					evt.player = this.action_id_by_player_cache[evt.event_id];
+					delete this.action_id_by_player_cache[evt.event_id];
+				}
+				return evt;
+			}
+		},
 		{name:"nextRound", re:/Game: TurnManager\+Message\+PhaseStartForKing: Dispatch\((\w+)\)/i, map:["type"]},
 		{name:"startTurn", re:/Player: Player\+Message\+StartTurn: Dispatch\(\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"startTurn", re:/AI: NPC\+Message\+StartTurn: Dispatch\(\[.+? \((\w+)\):/i, map:["entity"]},
 		{name:"endTurn", re:/Gameplay: Player\+Message\+EndTurn: Dispatch\(\[Player .+? \(Player(\d)\)/i, map:["player"]},
-		{name:"victory", re:/Winner:\s*\[Player .+ \(Player(\d)\):/i, map:["player"]},
+		{name:"victory", re:/^[^a-z]+\s+Winner:\s*\[Player .+ \(Player(\d)\):/i, map:["player"]},
 		{name:"chat", re:/NetworkGame: PlayerChat\+Message\+ChatMessageReceived: Dispatch\(Player(\d), (\w+), (?:Invalid|Player(\d))\)/i, map:["player", "type", "target"], },
 	],
 	//match detector function returns either match description object or undefined.
