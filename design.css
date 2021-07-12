@@ -293,7 +293,7 @@ html, body {
 
 #turns .event-container.event-playCardStarted .event:first-child::before {
 	font:smaller "Armello Icons";
-	content: "G ";
+	content: "/ ";
 }
 
 #turns .event-container {
