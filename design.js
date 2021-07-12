@@ -287,6 +287,7 @@ describeEvent.eventpairs = {
 	encounterPeril : "completePeril",
 	equipStarted : "equipEnded",
 	playCardStarted : "playCardEnded",
+	placePerilStarted : "placePerilEnded",
 };
 
 //================================================================================================

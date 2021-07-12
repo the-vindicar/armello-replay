@@ -375,13 +375,6 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 				return evt;
 			}
 		},
-		{name:"playCardStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerPlayCardOn(?:Creature|Tile)Request\s+\(Player(\d),/i, map:["event_id", "player"],
-			action:function(evt)
-			{
-				this.action_id_by_player_cache[evt.event_id] = evt.player;
-				return evt;
-			}
-		},
 		{name:"equipEnded", re:/NetworkGame: Player\d+ \[Finish\s*\] \S+#(\d+) PlayerEquipCardRequest/i, map:["event_id"],
 			action:function(evt)
 			{
@@ -389,7 +382,32 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 				{
 					evt.player = this.action_id_by_player_cache[evt.event_id];
 					delete this.action_id_by_player_cache[evt.event_id];
+					return evt;
 				}
+			}
+		},
+		{name:"placePerilStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerPlayCardAsPerilRequest\s+\(Player(\d),/i, map:["event_id", "player"],
+			action:function(evt)
+			{
+				this.action_id_by_player_cache[evt.event_id] = evt.player;
+				return evt;
+			}
+		},
+		{name:"placePerilEnded", re:/NetworkGame: Player\d+ \[Finish\s*\] \S+#(\d+) PlayerPlayCardAsPerilRequest/i, map:["event_id"],
+			action:function(evt)
+			{
+				if (evt.event_id in this.action_id_by_player_cache)
+				{
+					evt.player = this.action_id_by_player_cache[evt.event_id];
+					delete this.action_id_by_player_cache[evt.event_id];
+					return evt;
+				}
+			}
+		},
+		{name:"playCardStarted", re:/NetworkGame: Player\d+ \[Process\] \S+#(\d+) PlayerPlayCardOn(?:Creature|Tile)Request\s+\(Player(\d),/i, map:["event_id", "player"],
+			action:function(evt)
+			{
+				this.action_id_by_player_cache[evt.event_id] = evt.player;
 				return evt;
 			}
 		},
@@ -400,8 +418,8 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 				{
 					evt.player = this.action_id_by_player_cache[evt.event_id];
 					delete this.action_id_by_player_cache[evt.event_id];
-				}
 				return evt;
+				}
 			}
 		},
 		{name:"nextRound", re:/Game: TurnManager\+Message\+PhaseStartForKing: Dispatch\((\w+)\)/i, map:["type"]},

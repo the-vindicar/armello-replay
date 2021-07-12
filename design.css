@@ -296,14 +296,24 @@ html, body {
 	content: "/ ";
 }
 
+#turns .event-container.event-placePerilStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "# ";
+}
+
 #turns .event-container {
 	padding-top: 0.25em;
 	padding-bottom: 0.25em;
-	padding-left: 5pt;
+	padding-left: 0.5em;
 }
 
 #turns .event-container .event {
-	padding-left: 4pt;
+	padding-left: 0.5em;
+	border-left: solid 2pt gold;
+}
+
+#turns .event-container .event-container {
+	padding-left: 0.75em;
 	border-left: solid 2pt gold;
 }
 
