@@ -461,21 +461,46 @@ function EventClicked(evt)
 
 function PrevEvent(evt)
 {
+	let matcher = /\bevent-container\b/i;
 	let current = document.querySelector('#turns *[selected]');
-	if (current.previousElementSibling)
-		jumpToEvent(current.previousElementSibling.getAttribute('data-event-index'), true);
+	let prev = current.previousElementSibling;
+	while (!prev && matcher.test(current.parentElement.className))
+	{
+		current = current.parentElement;
+		prev = current.previousElementSibling;
+	}
+	while (prev && matcher.test(prev.className))
+		prev = prev.lastElementChild;
+	while (prev && !prev.hasAttribute('data-event-index'))
+		prev = prev.previousElementSibling;
+	if (prev)
+		jumpToEvent(prev.getAttribute('data-event-index'), true);
 }
 
 function NextEvent()
 {
+	let matcher = /\bevent-container\b/i;
 	let current = document.querySelector('#turns *[selected]');
-	if (current.nextElementSibling)
-		jumpToEvent(current.nextElementSibling.getAttribute('data-event-index'), true);
+	let next = current.nextElementSibling;
+	while (!next && matcher.test(current.parentElement.className))
+	{
+		current = current.parentElement;
+		next = current.nextElementSibling;
+	}
+	while (next && matcher.test(next.className))
+		next = next.firstElementChild;
+	while (next && !next.hasAttribute('data-event-index'))
+		next = next.nextElementSibling;
+	if (next)
+		jumpToEvent(next.getAttribute('data-event-index'), true);
 }
 
 function PrevTurn()
 {
 	let current = document.querySelector('#turns *[selected]');
+	let matcher_container = /\bevent-container\b/i;
+	while (matcher_container.test(current.parentElement.className))
+		current = current.parentElement;
 	let matcher = /\bevent-startTurn\b/i;
 	let target = current.previousElementSibling;
 	while (target && !matcher.test(target.className))
@@ -487,6 +512,9 @@ function PrevTurn()
 function NextTurn()
 {
 	let current = document.querySelector('#turns *[selected]');
+	let matcher_container = /\bevent-container\b/i;
+	while (matcher_container.test(current.parentElement.className))
+		current = current.parentElement;
 	let matcher = /\bevent-startTurn\b/i;
 	let target = current.nextElementSibling;
 	while (target && !matcher.test(target.className))
@@ -620,36 +648,33 @@ function KeyUp(evt)
 		case 'Up':
 		case 'ArrowUp':
 		{
-			evt.preventDefault();
 			PrevEvent();
 		}; break;
 		case 'Down':
 		case 'ArrowDown':
 		{
-			evt.preventDefault();
 			NextEvent();
 		}; break;
 		case 'PageUp':
 		{
-			evt.preventDefault();
 			PrevTurn();
 		}; break;
 		case 'PageDown':
 		{
-			evt.preventDefault();
 			NextTurn();
 		}; break;
 		case 'Home':
 		{
-			evt.preventDefault();
 			FirstEvent();
 		}; break;
 		case 'End':
 		{
-			evt.preventDefault();
 			LastEvent();
 		}; break;
+		default: return;
 	}
+	evt.preventDefault();
+	evt.stopPropagation();
 }
 //================================================================================================
 function deleteIfPresent(selector)
