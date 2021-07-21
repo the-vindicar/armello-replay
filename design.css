@@ -317,23 +317,23 @@ html, body {
 	padding-left: 0.5em;
 }
 
-#turns .event-container .event {
+#turns .event-container>.event {
 	padding-left: 0.5em;
 	border-left: solid 2pt gold;
 }
 
-#turns .event-container .event-container {
+#turns .event-container>.event-container {
 	padding-left: 0.75em;
 	border-left: solid 2pt gold;
 }
 
-#turns .event-container .event:first-child {
+#turns .event-container>.event:first-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;
 }
 
-#turns .event-container.event-attack .event:last-child, #turns .event-container.event-encounterPeril .event:last-child {
+#turns .event-container.event-attack>.event:last-child, #turns .event-container.event-encounterPeril>.event:last-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;
