@@ -92,12 +92,12 @@
 	content: "1 ";
 }
 
-.event-attack::before, li.event-combatEnd::before {
+.event.event-attack::before, .event.event-combatEnd::before {
 	font:smaller "Armello Icons";
 	content: "X ";
 }
 
-.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
+.event.event-putPeril::before, .event.event-encounterPeril::before, .event.event-completePeril::before {
 	font:smaller "Armello Icons";
 	content: "# ";
 }
