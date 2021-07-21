@@ -210,159 +210,159 @@ html, body {
 	cursor: default;
 }
 
-#turns .event, #turns .event-container {
+.event, .event-container {
 	list-style: none;
 	color: gold;
 	border: 1px none black;
 }
 
-#turns li.event[selected] {
+.event[selected] {
 	background-color: darkblue;
 	color: white;
 }
 
-#turns li:hover {
+.event:hover {
 	color: white;
 	cursor: pointer;
 }
 
-#turns li[selected]:hover {
+.event[selected]:hover {
 	cursor: default;
 }
 
-#turns .Wolf { background-color: #3674A3; }
-#turns .Rabbit { background-color: #9F7714; }
-#turns .Bear { background-color: #006006; }
-#turns .Rat { background-color: #9A2D36; }
-#turns .Dragon { background-color: #824098; }
-#turns .Bandit { background-color: #333333; }
-#turns .King { background-color: #4169E1; }
-#turns .Bane { background-color: #622078; }
+.Wolf { background-color: #3674A3; }
+.Rabbit { background-color: #9F7714; }
+.Bear { background-color: #006006; }
+.Rat { background-color: #9A2D36; }
+.Dragon { background-color: #824098; }
+.Bandit { background-color: #333333; }
+.King { background-color: #4169E1; }
+.Bane { background-color: #622078; }
 
-#turns li.event-chat {
+.event-chat {
 	font-style: italic;
 }
 
-#turns li.event-nextRound {
+.event-nextRound {
 	text-align: center;
 	font-weight: bold;
 }
-#turns li.event-nextRound.event-Day::before 
+.event-nextRound.event-Day::before 
 { 
 	font:smaller "Armello Icons";
 	content: "O "; 
 }
-#turns li.event-nextRound.event-Day::after 
+.event-nextRound.event-Day::after 
 { 
 	font:smaller "Armello Icons";
 	content: " O"; 
 }
-#turns li.event-nextRound.event-Night::before 
+.event-nextRound.event-Night::before 
 { 
 	font:smaller "Armello Icons";
 	content: "C "; 
 }
-#turns li.event-nextRound.event-Night::after 
+.event-nextRound.event-Night::after 
 { 
 	font:smaller "Armello Icons";
 	content: " C"; 
 }
 
-#turns li.event-startTurn {
+.event-startTurn {
 	border-top: 2px solid gold;
 	text-align: center;
 }
-#turns li.event-playerQuit {
+.event-playerQuit {
 	color: white;
 	background-color: inherit;
 	text-align: center;
 	font-weight: bold;
 }
-#turns li.event-victory {
+.event-victory {
 	color: white;
 	background-color: #4169E1;
 	text-align: center;
 	font-weight: bold;
 }
 
-#turns li.event-prestigeLeader::before {
+.event-prestigeLeader::before {
 	font:smaller "Armello Icons";
 	content: "P ";
 }
 
-#turns li.event-bountyChanged::before {
+.event-bountyChanged::before {
 	font:smaller "Armello Icons";
 	content: "1 ";
 }
 
-#turns li.event-attack::before, li.event-combatEnd::before {
+.event-attack::before, li.event-combatEnd::before {
 	font:smaller "Armello Icons";
 	content: "X ";
 }
 
-#turns li.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
+.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
 	font:smaller "Armello Icons";
 	content: "# ";
 }
 
-#turns .event-container.event-equipStarted .event:first-child::before {
+.event-container.event-equipStarted .event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "U ";
 }
 
-#turns .event-container.event-playCardStarted .event:first-child::before {
+.event-container.event-playCardStarted .event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "/ ";
 }
 
-#turns .event-container.event-placePerilStarted .event:first-child::before {
+.event-container.event-placePerilStarted .event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "# ";
 }
 
-#turns .event-container.event-spawnBane .event:first-child::before {
+.event-container.event-spawnBane .event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "Q ";
 }
 
-#turns .event-container.event-spawnKingsGuard .event:first-child::before {
+.event-container.event-spawnKingsGuard .event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "F ";
 }
 
-#turns .event-container {
+.event-container {
 	padding-top: 0.25em;
 	padding-bottom: 0.25em;
 	padding-left: 0.5em;
 }
 
-#turns .event-container>.event {
+.event-container>.event {
 	padding-left: 0.5em;
 	border-left: solid 2pt gold;
 }
 
-#turns .event-container>.event-container {
+.event-container>.event-container {
 	padding-left: 0.75em;
 	border-left: solid 2pt gold;
 }
 
-#turns .event-container>.event:first-child {
+.event-container>.event:first-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;
 }
 
-#turns .event-container.event-attack>.event:last-child, #turns .event-container.event-encounterPeril>.event:last-child {
+.event-container.event-attack>.event:last-child, .event-container.event-encounterPeril>.event:last-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;
 }
 
-#turns li.event-combatEnd, #turns li.event-completePeril {
+.event-combatEnd, .event-completePeril {
 	position: relative;
 }
 
-#turns li.event .roll-tooltip {
+.event .roll-tooltip {
 	display: none;
 	background-color: #222222;
 	color: #DDDDDD;
@@ -373,67 +373,67 @@ html, body {
 	cursor: default;
 }
 
-#turns li.event:hover .roll-tooltip { 
+.event:hover .roll-tooltip { 
 	display:table; 
 	position: absolute;
 }
 
-#turns li.event[selected] .roll-tooltip, #turns li.event[selected]:hover .roll-tooltip { 
+.event[selected] .roll-tooltip, .event[selected]:hover .roll-tooltip { 
 	display:table; 
 	position: relative;
 	width:90%;
 }
 
-#turns .roll-tooltip .attacker-name {
+.roll-tooltip .attacker-name {
 	width: 50%;
 	text-align: left;
 	font-weight: bold;
 	padding-right: 4pt;
 }
 
-#turns .roll-tooltip .attacker {
+.roll-tooltip .attacker {
 	width: 50%;
 	text-align: left;
 	border-bottom: 1px solid white;
 	padding-right: 4pt;
 }
 
-#turns .roll-tooltip .defender-name {
+.roll-tooltip .defender-name {
 	width: 50%;
 	text-align: right;
 	font-weight: bold;
 	padding-left: 4pt;
 }
 
-#turns .roll-tooltip .defender {
+.roll-tooltip .defender {
 	width: 50%;
 	text-align: right;
 	border-bottom: 1px solid white;
 	padding-left: 4pt;
 }
 
-#turns .roll-tooltip .attacker-dice {
+.roll-tooltip .attacker-dice {
 	font: smaller "Armello Icons";
 	width: 50%;
 	text-align: right;
 	padding-right: 4pt;
 }
 
-#turns .roll-tooltip .defender-dice {
+.roll-tooltip .defender-dice {
 	font: smaller "Armello Icons";
 	width: 50%;
 	text-align: left;
 	padding-left: 4pt;
 }
 
-#turns .roll-tooltip .roll { padding: 1pt; }
-#turns .roll-tooltip .roll-Locked { color: white; }
-#turns .roll-tooltip .roll-Burned { color: gold; }
-#turns .roll-tooltip .roll-Rolled { color: silver; }
-#turns .roll-tooltip .roll-Match { background-color: blue; }
-#turns .roll-tooltip .roll-Pierce { background-color: blue; }
-#turns .roll-tooltip .roll-Reflect { background-color: blue; }
-#turns .roll-tooltip .roll-Poison { background-color: green; }
+.roll-tooltip .roll { padding: 1pt; }
+.roll-tooltip .roll-Locked { color: white; }
+.roll-tooltip .roll-Burned { color: gold; }
+.roll-tooltip .roll-Rolled { color: silver; }
+.roll-tooltip .roll-Match { background-color: blue; }
+.roll-tooltip .roll-Pierce { background-color: blue; }
+.roll-tooltip .roll-Reflect { background-color: blue; }
+.roll-tooltip .roll-Poison { background-color: green; }
 /*=================================================================================================================*/
 .mapwrapper {
 	background-color: #444444;
