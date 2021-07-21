@@ -271,6 +271,8 @@ function MatchSelected(file, parser, update)
 								while (containers.length > 1)
 									dropContainer();
 							}
+							if (events[i].name === 'nextRound')
+								last_item.setAttribute('class', last_item.className + ' event-' + events[i].type);
 							containers[0].appendChild(last_item);
 						}
 						//if we got a paired event, close the event container

@@ -242,13 +242,32 @@ html, body {
 #turns li.event-chat {
 	font-style: italic;
 }
+
 #turns li.event-nextRound {
 	text-align: center;
 	font-weight: bold;
 }
-#turns li.event-nextRound::before { content: "======= "; }
-#turns li.event-nextRound::after { content: " ======="; }
-	
+#turns li.event-nextRound.event-Day::before 
+{ 
+	font:smaller "Armello Icons";
+	content: "O "; 
+}
+#turns li.event-nextRound.event-Day::after 
+{ 
+	font:smaller "Armello Icons";
+	content: " O"; 
+}
+#turns li.event-nextRound.event-Night::before 
+{ 
+	font:smaller "Armello Icons";
+	content: "C "; 
+}
+#turns li.event-nextRound.event-Night::after 
+{ 
+	font:smaller "Armello Icons";
+	content: " C"; 
+}
+
 #turns li.event-startTurn {
 	border-top: 2px solid gold;
 	text-align: center;
