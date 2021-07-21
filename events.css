@@ -1,0 +1,233 @@
+/*=================================================================================================================*/
+#turns{
+	flex: 0 0 auto;
+	overflow-y: scroll;
+	min-width: 200pt;
+	background-color: #666666;
+	cursor: default;
+}
+
+.event, .event-container {
+	list-style: none;
+	color: gold;
+	border: 1px none black;
+}
+
+.event[selected] {
+	background-color: darkblue;
+	color: white;
+}
+
+.event:hover {
+	color: white;
+	cursor: pointer;
+}
+
+.event[selected]:hover {
+	cursor: default;
+}
+
+.Wolf { background-color: #3674A3; }
+.Rabbit { background-color: #9F7714; }
+.Bear { background-color: #006006; }
+.Rat { background-color: #9A2D36; }
+.Dragon { background-color: #824098; }
+.Bandit { background-color: #333333; }
+.King { background-color: #4169E1; }
+.Bane { background-color: #622078; }
+
+.event-chat {
+	font-style: italic;
+}
+
+.event-nextRound {
+	text-align: center;
+	font-weight: bold;
+}
+.event-nextRound.event-Day::before 
+{ 
+	font:smaller "Armello Icons";
+	content: "O "; 
+}
+.event-nextRound.event-Day::after 
+{ 
+	font:smaller "Armello Icons";
+	content: " O"; 
+}
+.event-nextRound.event-Night::before 
+{ 
+	font:smaller "Armello Icons";
+	content: "C "; 
+}
+.event-nextRound.event-Night::after 
+{ 
+	font:smaller "Armello Icons";
+	content: " C"; 
+}
+
+.event-startTurn {
+	border-top: 2px solid gold;
+	text-align: center;
+}
+.event-playerQuit {
+	color: white;
+	background-color: inherit;
+	text-align: center;
+	font-weight: bold;
+}
+.event-victory {
+	color: white;
+	background-color: #4169E1;
+	text-align: center;
+	font-weight: bold;
+}
+
+.event-prestigeLeader::before {
+	font:smaller "Armello Icons";
+	content: "P ";
+}
+
+.event-bountyChanged::before {
+	font:smaller "Armello Icons";
+	content: "1 ";
+}
+
+.event-attack::before, li.event-combatEnd::before {
+	font:smaller "Armello Icons";
+	content: "X ";
+}
+
+.event-putPeril::before, li.event-encounterPeril::before, li.event-completePeril::before {
+	font:smaller "Armello Icons";
+	content: "# ";
+}
+
+.event-container.event-equipStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "U ";
+}
+
+.event-container.event-playCardStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "/ ";
+}
+
+.event-container.event-placePerilStarted .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "# ";
+}
+
+.event-container.event-spawnBane .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "Q ";
+}
+
+.event-container.event-spawnKingsGuard .event:first-child::before {
+	font:smaller "Armello Icons";
+	content: "F ";
+}
+
+.event-container {
+	padding-top: 0.25em;
+	padding-bottom: 0.25em;
+	padding-left: 0.5em;
+}
+
+.event-container>.event {
+	padding-left: 0.5em;
+	border-left: solid 2pt gold;
+}
+
+.event-container>.event-container {
+	padding-left: 0.75em;
+	border-left: solid 2pt gold;
+}
+
+.event-container>.event:first-child {
+	margin-left: -4pt;
+	padding-left: 0;
+	border-left: none;
+}
+
+.event-container.event-attack>.event:last-child, .event-container.event-encounterPeril>.event:last-child {
+	margin-left: -4pt;
+	padding-left: 0;
+	border-left: none;
+}
+
+.event-combatEnd, .event-completePeril {
+	position: relative;
+}
+
+.event .roll-tooltip {
+	display: none;
+	background-color: #222222;
+	color: #DDDDDD;
+	border: 1px solid white;
+	border-radius: 8pt;
+	margin-left:8pt;
+	padding: 2pt;
+	cursor: default;
+}
+
+.event:hover .roll-tooltip { 
+	display:table; 
+	position: absolute;
+}
+
+.event[selected] .roll-tooltip, .event[selected]:hover .roll-tooltip { 
+	display:table; 
+	position: relative;
+	width:90%;
+}
+
+.roll-tooltip .attacker-name {
+	width: 50%;
+	text-align: left;
+	font-weight: bold;
+	padding-right: 4pt;
+}
+
+.roll-tooltip .attacker {
+	width: 50%;
+	text-align: left;
+	border-bottom: 1px solid white;
+	padding-right: 4pt;
+}
+
+.roll-tooltip .defender-name {
+	width: 50%;
+	text-align: right;
+	font-weight: bold;
+	padding-left: 4pt;
+}
+
+.roll-tooltip .defender {
+	width: 50%;
+	text-align: right;
+	border-bottom: 1px solid white;
+	padding-left: 4pt;
+}
+
+.roll-tooltip .attacker-dice {
+	font: smaller "Armello Icons";
+	width: 50%;
+	text-align: right;
+	padding-right: 4pt;
+}
+
+.roll-tooltip .defender-dice {
+	font: smaller "Armello Icons";
+	width: 50%;
+	text-align: left;
+	padding-left: 4pt;
+}
+
+.roll-tooltip .roll { padding: 1pt; }
+.roll-tooltip .roll-Locked { color: white; }
+.roll-tooltip .roll-Burned { color: gold; }
+.roll-tooltip .roll-Rolled { color: silver; }
+.roll-tooltip .roll-Match { background-color: blue; }
+.roll-tooltip .roll-Pierce { background-color: blue; }
+.roll-tooltip .roll-Reflect { background-color: blue; }
+.roll-tooltip .roll-Poison { background-color: green; }

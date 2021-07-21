@@ -1,0 +1,31 @@
+/*=================================================================================================================*/
+.mapwrapper {
+	background-color: #444444;
+	display: flex;
+	flex: 1 1 auto;	
+}
+
+#maptooltip {
+	visibility: hidden;
+	display: block;
+	position: absolute;
+	z-index: 1;
+	background-color: #222222;
+	color: #DDDDDD;
+	border-radius: 2pt;
+	padding: 2pt;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+#maptooltip .stat { 
+	font: smaller "Armello Icons"; 
+	margin: 0 2pt 0 4pt;
+}
+
+#map {
+	display: block;
+	margin: auto;
+	max-width: 100%;
+	max-height: 100%;
+}

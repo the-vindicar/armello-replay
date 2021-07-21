@@ -1,0 +1,125 @@
+/*=================================================================================================================*/
+#players {
+	flex: 0 1 auto;
+	width: 100%;
+	clear: both;
+	border-collapse: collapse;
+	border: 0px none black;
+	color: gold;
+	border: 2pt solid gold;
+}
+
+#players .info {
+	width: 25%;
+	text-align: center;
+	border-bottom: 2pt solid gold;
+	border: 2pt solid gold;
+}
+
+#players .info * {
+	text-decoration: none;
+	color: white;
+}
+
+#players .info[data-quit] {
+	text-decoration: white line-through;
+}
+
+#players .mark-prestige, #players .mark-rot, #players .mark-stones, #players .mark-bounty1, #players .mark-bounty2, #players .mark-bounty3 {
+	display: none;
+	font: larger "Armello Icons";
+	text-decoration: none;
+	cursor: default;
+}
+
+#players .info[data-prestige-leader] .mark-prestige {
+	display: inline;
+}
+
+#players .info[data-spirit-walker] .mark-stones {
+	display: inline;
+}
+
+#players .info[data-rotten] .mark-rot {
+	display: inline;
+}
+
+#players .info[data-bounty="1"] .mark-bounty1{
+	display: inline;
+}
+
+#players .info[data-bounty="2"] .mark-bounty2{
+	display: inline;
+}
+
+#players .info[data-bounty="3"] .mark-bounty3{
+	display: inline;
+}
+
+#players .player {
+	width: 25%;
+	min-width: 200pt;
+	overflow: hidden;
+	border: 2pt solid gold;
+	vertical-align: top;
+	text-align: center;
+}
+
+#players *[data-clan="Wolf"] { background-color: #3674A3; }
+#players *[data-clan="Rabbit"] { background-color: #9F7714; }
+#players *[data-clan="Bear"] { background-color: #006006; }
+#players *[data-clan="Rat"] { background-color: #9A2D36; }
+#players *[data-clan="Bandit"] { background-color: #333333; }
+#players *[data-clan="Dragon"] { background-color: #824098; }
+
+#players .equipped {
+	width: 100%;
+	min-width: 170pt;
+	border-collapse: collapse;
+	border: 0px none black;
+	margin-top: 4pt;
+	color: gold;
+}
+#players .equipped td { padding: 2pt 4pt; }
+#players .equipped td.followers { border-left: 1px solid gold; }
+
+#players .stats { 
+	width: 100%;
+	min-width: 170pt;
+	border-collapse: collapse;	
+	color: gold;
+}
+
+#players .stats td { 
+	text-align: left; 
+	padding: 3pt 3pt 3pt 6pt;
+}
+#players .stats td::before { font: larger "Armello Icons"; }
+
+#players .stats .Fight::before {content: "F";}
+#players .stats .Body::before {content: "B ";}
+#players .stats .Wits::before {content: "W";}
+#players .stats .Spirit::before {content: "S";}
+#players .stats .SpiritStones::before {content: "T";}
+#players .stats .Prestige::before {content: "P ";}
+#players .stats .Health::before {content: "H ";}
+#players .stats .Gold::before {content: "G ";}
+#players .stats .Magic::before {content: "M ";}
+#players .stats .Rot::before {content: "R ";}
+
+#players .items,#players .followers {
+	min-width: 64pt;
+	text-align: center;
+}
+
+#players .hand {
+	border-top: 1px solid gold;
+	margin: 0 4pt 0 4pt;
+	max-width: 270pt;
+}
+
+#players .effects {
+	font-style: italic;
+	margin: 4pt;
+	max-width: 270pt;
+}
