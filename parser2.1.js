@@ -326,13 +326,12 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 		},
 		{name:"settlementFortified", re:/Gameplay: Tile\+Message\+SettlementFortified: Dispatch\(\[Tile: Pos=\((-?\d+,-?\d+)\), Type=Settlement\], \[Hero \w+ \((\d+)\):/i, map:["coords", "entity"], action:function(evt)
 			{
-				if (!this.card_on_tile_cache || (this.card_on_tile_cache.coords != evt.coords))
-					return evt;
-				else
-				{
+				if (this.card_on_tile_cache && (this.card_on_tile_cache.coords == evt.coords) && (this.card_on_tile_cache.card == 'TRK46'))
+				{	// we ignore fortified message from Palisade Walls, because they aren't permanent (unlike Elyssia's walls).
 					this.card_on_tile_cache = undefined;
 					return undefined;
 				}
+				return evt;
 			}
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
