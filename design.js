@@ -237,6 +237,17 @@ function describeEvent(evt)
 				return describeTile(tile)+' has been fortified.';
 		}; break;
 		// Other
+		case 'startQuest': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is questing...'; break;
+		case 'resolveQuest': 
+		{
+			switch (evt.outcome)
+			{
+				case "Success": return describeEntity(context.context.active)+' has succeeded in their quest.'; break;
+				case "Failure": return describeEntity(context.context.active)+' has failed in their quest.'; break;
+				case "None": return describeEntity(context.context.active)+' has chosen a cautious approach.'; break;
+				default: return undefined; break;
+			}
+		}; break;
 		case 'completeQuest': return describeEntity(context.context.active)+' has completed a quest.'; break;
 		case 'prestigeLeader': return describeEntity(context.players.getItemById('id', evt.player).hero)+' is now prestige leader!'; break;
 		case 'declaration': return 'Declaration "'+PDecl(evt.type)+'" is now in effect!'; break;
@@ -289,6 +300,7 @@ describeEvent.eventpairs = {
 	playCardStarted : "playCardEnded",
 	placePerilStarted : "placePerilEnded",
 	spawnNPC : "spawnNPCComplete",
+	startQuest: "completeQuest",
 };
 
 //================================================================================================

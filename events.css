@@ -102,27 +102,32 @@
 	content: "# ";
 }
 
-.event-container.event-equipStarted .event:first-child::before {
+.event.event-startQuest::before, .event.event-completeQuest::before {
+	font:smaller "Armello Icons";
+	content: "P ";
+}
+
+.event-container.event-equipStarted>.event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "U ";
 }
 
-.event-container.event-playCardStarted .event:first-child::before {
+.event-container.event-playCardStarted>.event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "/ ";
 }
 
-.event-container.event-placePerilStarted .event:first-child::before {
+.event-container.event-placePerilStarted>.event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "# ";
 }
 
-.event-container.event-spawnBane .event:first-child::before {
+.event-container.event-spawnBane>.event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "Q ";
 }
 
-.event-container.event-spawnKingsGuard .event:first-child::before {
+.event-container.event-spawnKingsGuard>.event:first-child::before {
 	font:smaller "Armello Icons";
 	content: "F ";
 }
@@ -149,7 +154,7 @@
 	border-left: none;
 }
 
-.event-container.event-attack>.event:last-child, .event-container.event-encounterPeril>.event:last-child {
+.event-container.event-attack>.event:last-child, .event-container.event-encounterPeril>.event:last-child, .event-container.event-startQuest>.event:last-child {
 	margin-left: -4pt;
 	padding-left: 0;
 	border-left: none;

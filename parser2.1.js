@@ -335,6 +335,8 @@ Parser.Parsers['2.1.0.0'] = new Parser(
 			}
 		},
 		{name:"setQuest", re:/Quest: OnSpawnQuestComplete - player: Player(\d), quest: \w+, questTilePos: \((-?\d+,-?\d+)\), success: True/i, map:["player", "coords"]},
+		{name:"startQuest", re:/NetworkGame: Player\d \[Process\] \S+ EncounterQuest  \(Player(\d), /i, map:["player"]},
+		{name:"resolveQuest", re:/Gameplay: \[Creature=\[Hero \w+ \((\d+)\)[^\]]+\]\]\.ResolveQuestOutcome for quest (\w+) - selected Outcome (Success|Failure|None)/i, map:["entity", "quest", "outcome"]},
 		{name:"completeQuest", re:/Gameplay: QuestManager\+Message\+CompleteQuest/i, map:[]},
 		{name:"prestigeLeader", re:/NetworkGame: Player\d \[Process\] \S+ ConfirmPlayerPrestigePosition\s+\(Player(\d), 0\)/i, map:["player"],
 			action:function(evt)
