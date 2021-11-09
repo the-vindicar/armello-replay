@@ -193,16 +193,17 @@ Parser.provideParserForFile = function (file)
 		reader.onloadend = function (event) //once data is accessible
 		{ 
 			//the only version line that seems to be present for all versions of the game
-			var re = /Build\s*ID:[^0-9]+((?:\d+\.)+\d+)-/ig;
+			var re = /Build\s*ID:\s*(?:release-((?:\d+\.)+\d+)-|(gitlab-\d+))/ig;
 			var version;
 			//trying to find a match
 			var match = re.exec(event.target.result);
 			if (match) //found version info
 			{
+				let version = match[1] ? match[1] : "9.9.9.9";
 				// tring to find a matching Parser
-				var v = Parser._findClosest(match[1]);
+				var v = Parser._findClosest(version);
 				if (typeof v === 'undefined') // failed to find Parser
-					reject("No matching parser found for version "+match[1]+"!");
+					reject("No matching parser found for version "+version+"!");
 				else // found one!
 					resolve(Parser.Parsers[v]);
 			}
